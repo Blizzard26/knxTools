@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<jaxb:bindings
+	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:annox="http://annox.dev.java.net"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd"
+	xmlns:basic="http://jaxb2-commons.dev.java.net/basic"
+	xmlns:equals="http://jaxb2-commons.dev.java.net/basic/equals"
+	xmlns:hashCode="http://jaxb2-commons.dev.java.net/basic/hashCode"
+	xmlns:toString="http://jaxb2-commons.dev.java.net/basic/toString"
+	jaxb:extensionBindingPrefixes="basic equals hashCode toString"
+	version="2.1">
+
+
+	<jaxb:bindings schemaLocation="knx.xsd"
+		node="/xsd:schema">
+
+		<jaxb:schemaBindings>
+			<jaxb:nameXmlTransform>
+				<jaxb:typeName prefix="Knx" />
+				<jaxb:anonymousTypeName prefix="Knx" />
+			</jaxb:nameXmlTransform>
+		</jaxb:schemaBindings>
+
+
+		<jaxb:bindings
+			node="//xs:complexType[@name='DeviceInstance_t']/xs:sequence/xs:element[@name='BinaryData']/xs:complexType/xs:sequence/xs:element[@name='BinaryData']/xs:complexType">
+			<jaxb:class name="BinaryData" />
+		</jaxb:bindings>
+
+	</jaxb:bindings>
+
+</jaxb:bindings>

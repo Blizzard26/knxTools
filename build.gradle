@@ -1,0 +1,56 @@
+buildscript {
+
+    repositories {
+        jcenter()
+        maven {
+          url "https://plugins.gradle.org/m2/"
+        }
+    }
+    
+    dependencies {
+      classpath group: 'com.intershop.gradle.jaxb', name: 'jaxb-gradle-plugin', version: '3.+'
+    }
+}
+
+
+plugins {
+    // Apply the java-library plugin to add support for Java Library
+    id 'java-library'
+}
+
+
+apply plugin: "com.intershop.gradle.jaxb"
+
+repositories {
+    // Use jcenter for resolving dependencies.
+    // You can declare any Maven/Ivy/file repository here.
+    jcenter()
+}
+
+dependencies {
+    // This dependency is exported to consumers, that is to say found on their compile classpath.
+    implementation 'org.apache.commons:commons-csv:1.7'
+    
+    // https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j
+    compile group: 'net.lingala.zip4j', name: 'zip4j', version: '2.+'
+    
+    
+    // Use JUnit test framework
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
+    
+        testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.+'
+    testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.+'
+    
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.+'
+}
+
+jaxb {
+    javaGen {
+        knxConfig {
+            packageName = 'org.knx'
+            schemas = fileTree(dir: 'src/main/resources', include: 'knx.xsd')
+            binding = file('src/main/resources/knx.xjb')
+            extension = true
+        }
+    }
+}
