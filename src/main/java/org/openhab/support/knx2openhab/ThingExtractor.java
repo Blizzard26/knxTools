@@ -36,64 +36,94 @@ public class ThingExtractor {
 
 	static {
 		Set<ThingDescriptor> thingTypes = new HashSet<>();
-		thingTypes.add(new ThingDescriptor("L", new String[] { "FT-1" }, "Lampe", new ItemDescriptor("Schalten"),
-				new ItemDescriptor("Status"), new ItemDescriptor("Sperren"), new ItemDescriptor("Bewegung"),
-				new ItemDescriptor("Zwangsführung"), new ItemDescriptor("Automatikbetrieb"),
-				new ItemDescriptor("Präsenz")));
+		thingTypes.add(new ThingDescriptor("L", new String[] { "FT-1" }, "Lampe",
+				new ItemDescriptor("switch", "Schalten"), 
+				new ItemDescriptor("status", "Status"),
+				new ItemDescriptor("lock", "Sperren"), 
+				new ItemDescriptor("move", "Bewegung"),
+				new ItemDescriptor("forced", "Zwangsführung"),
+				new ItemDescriptor("automatic", "Automatikbetrieb"),
+				new ItemDescriptor("presence", "Präsenz")));
 
 		thingTypes.add(new ThingDescriptor("LD", new String[] { "FT-6" }, "Lampe Dimmbar",
-				new ItemDescriptor("Schalten"), new ItemDescriptor("Status"), new ItemDescriptor("Dimmen"),
-				new ItemDescriptor("Dimmwert"), new ItemDescriptor("Wert")));
+				new ItemDescriptor("switch", "Schalten"), 
+				new ItemDescriptor("status", "Status"),
+				new ItemDescriptor("dimming", "Dimmen"), 
+				new ItemDescriptor("dimmingValue", "Dimmwert"),
+				new ItemDescriptor("value", "Wert")));
 
 		thingTypes.add(new ThingDescriptor("H", new String[] { "FT-8", "FT-9" }, "Heizung",
-				new ItemDescriptor("Isttemperatur"), new ItemDescriptor("Solltemperatur"),
-				new ItemDescriptor("Betriebsart"), new ItemDescriptor("schaltende Stellgröße"),
-				new ItemDescriptor("stetige Stellgröße"), new ItemDescriptor("Frostalarm", "Frostschutz"),
-				new ItemDescriptor("Hitzealarm", "Hitzeschutz"), new ItemDescriptor("Sollwertverschiebung"),
-				new ItemDescriptor("Isttemperatur Boden"), new ItemDescriptor("Diagnose"),
-				new ItemDescriptor("Betriebsartvorwahl"), new ItemDescriptor("Betriebsart Komfort"),
-				new ItemDescriptor("Betriebsart Nacht"), new ItemDescriptor("Betriebsart Frost/Hitzeschutz"),
-				new ItemDescriptor("Heizen / Kühlen (Heizen=1/Kühlen=0)"),
-				new ItemDescriptor("Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)"),
-				new ItemDescriptor("Türkontakt")));
+				new ItemDescriptor("actualTemperature", "Isttemperatur"),
+				new ItemDescriptor("targetTemperature", "Solltemperatur"),
+				new ItemDescriptor("operatingMode", "Betriebsart"),
+				new ItemDescriptor("switchingRegulating", "schaltende Stellgröße"),
+				new ItemDescriptor("continuousRegulating", "stetige Stellgröße"),
+				new ItemDescriptor("frostAlarm", "Frostalarm", "Frostschutz"),
+				new ItemDescriptor("heatAlarm", "Hitzealarm", "Hitzeschutz"),
+				new ItemDescriptor("setpointAdjustment", "Sollwertverschiebung"),
+				new ItemDescriptor("actualTemperatureFloor", "Isttemperatur Boden"), 
+				new ItemDescriptor("diagnosis", "Diagnose"),
+				new ItemDescriptor("operatingModeSelection", "Betriebsartvorwahl"), 
+				new ItemDescriptor("modeComfort", "Betriebsart Komfort"),
+				new ItemDescriptor("modeNight", "Betriebsart Nacht"), 
+				new ItemDescriptor("modeProtection", "Betriebsart Frost/Hitzeschutz"),
+				new ItemDescriptor("switchHeatingCooling", "Heizen / Kühlen (Heizen=1/Kühlen=0)"),
+				new ItemDescriptor("windowContact", "Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)"),
+				new ItemDescriptor("doorContact", "Türkontakt")));
 
-		thingTypes.add(new ThingDescriptor("R", new String[] { "FT-7" }, "Rollladen", new ItemDescriptor("Bewegen"),
-				new ItemDescriptor("Schritt/Stop"), new ItemDescriptor("Aktuelle Position"),
-				new ItemDescriptor("Position setzen"), new ItemDescriptor("Sperren", "Sperren (gesperrt=1)"),
-				new ItemDescriptor("Geschlossen", "Geschlossen (unten=1)"),
-				new ItemDescriptor("Tag / Nacht (Tag=1/Nacht=0)"),
-				new ItemDescriptor("Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)")));
+		thingTypes.add(new ThingDescriptor("R", new String[] { "FT-7" }, "Rollladen",
+				new ItemDescriptor("move", "Bewegen"), 
+				new ItemDescriptor("step", "Schritt/Stop"),
+				new ItemDescriptor("currentPosition", "Aktuelle Position"),
+				new ItemDescriptor("setPosition", "Position setzen"),
+				new ItemDescriptor("lock", "Sperren", "Sperren (gesperrt=1)"),
+				new ItemDescriptor("closed", "Geschlossen", "Geschlossen (unten=1)"),
+				new ItemDescriptor("dayNight", "Tag / Nacht (Tag=1/Nacht=0)"),
+				new ItemDescriptor("windowContact", "Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)")));
 
-		thingTypes.add(new ThingDescriptor("J", new String[] { "FT-7" }, "Jalousie", new ItemDescriptor("Bewegen"),
-				new ItemDescriptor("Schritt/Stop"), new ItemDescriptor("Aktuelle Position"),
-				new ItemDescriptor("Position setzen"), new ItemDescriptor("Lamellenstellung setzen"),
-				new ItemDescriptor("Sperren", "Sperren (gesperrt=1)"),
-				new ItemDescriptor("Geschlossen", "Geschlossen (unten=1)"),
-				new ItemDescriptor("Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)")));
-
-		thingTypes.add(new ThingDescriptor("S", new String[] { "FT-0" }, "Schalten", new ItemDescriptor("Schalten"),
-				new ItemDescriptor("Status"), new ItemDescriptor("Betrieb")));
-
-		thingTypes.add(new ThingDescriptor("FK", new String[] { "FT-0" }, "Fensterkontakt",
-				new ItemDescriptor("Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)")));
+		thingTypes.add(new ThingDescriptor("J", new String[] { "FT-7" }, "Jalousie",
+				new ItemDescriptor("move", "Bewegen"), 
+				new ItemDescriptor("step", "Schritt/Stop"),
+				new ItemDescriptor("currentPosition", "Aktuelle Position"),
+				new ItemDescriptor("setPosition", "Position setzen"),
+				new ItemDescriptor("setBladePosition", "Lamellenstellung setzen"),
+				new ItemDescriptor("lock", "Sperren", "Sperren (gesperrt=1)"),
+				new ItemDescriptor("closed", "Geschlossen", "Geschlossen (unten=1)"),
+				new ItemDescriptor("windowContact", "Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)")));
 
 		thingTypes.add(
-				new ThingDescriptor("TK", new String[] { "FT-0" }, "Türkontakt", new ItemDescriptor("Türkontakt")));
+				new ThingDescriptor("S", new String[] { "FT-0" }, "Schalten", 
+						new ItemDescriptor("switch", "Schalten"),
+						new ItemDescriptor("status", "Status"), 
+						new ItemDescriptor("inOperation", "Betrieb")));
+
+		thingTypes.add(new ThingDescriptor("FK", new String[] { "FT-0" }, "Fensterkontakt",
+				new ItemDescriptor("windowContact", "Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)")));
+
+		thingTypes.add(new ThingDescriptor("TK", new String[] { "FT-0" }, "Türkontakt",
+				new ItemDescriptor("doorContact", "Türkontakt")));
 
 		thingTypes.add(new ThingDescriptor("A", new String[] { "FT-0" }, "Alarm",
-				new ItemDescriptor("Alarm", "Status", "Störung")));
+				new ItemDescriptor("alarm", "Alarm", "Status", "Störung")));
 
 		thingTypes.add(new ThingDescriptor("W", new String[] { "FT-0" }, "Wetter",
-				new ItemDescriptor("Maximaler Helligkeitswert"), new ItemDescriptor("Helligkeitswert Ost"),
-				new ItemDescriptor("Helligkeitswert Süd"), new ItemDescriptor("Helligkeitswert West"),
-				new ItemDescriptor("Temperatur Außen", "Außen Temperatur"),
-				new ItemDescriptor("Windgeschwindigkeit (m/s)"), new ItemDescriptor("Elevation"),
-				new ItemDescriptor("Azimut"), new ItemDescriptor("Regenalarm"),
-				new ItemDescriptor("Windalarm Jalousie", "Jalousie Windalarm")));
+				new ItemDescriptor("maximumBrightness", "Maximaler Helligkeitswert"), 
+				new ItemDescriptor("brightnessEast", "Helligkeitswert Ost"),
+				new ItemDescriptor("brightnessSouth", "Helligkeitswert Süd"), 
+				new ItemDescriptor("brightnessWest", "Helligkeitswert West"),
+				new ItemDescriptor("temperatureOutside", "Temperatur Außen", "Außen Temperatur"),
+				new ItemDescriptor("windspeed", "Windgeschwindigkeit (m/s)"), 
+				new ItemDescriptor("elevation", "Elevation"),
+				new ItemDescriptor("azimut", "Azimut"), 
+				new ItemDescriptor("rainAlarm", "Regenalarm"),
+				new ItemDescriptor("windAlarmShutter", "Windalarm Jalousie", "Jalousie Windalarm")));
 
-		thingTypes.add(new ThingDescriptor("M", new String[] { "FT-7" }, "Markise", new ItemDescriptor("Bewegen"),
-				new ItemDescriptor("Schritt/Stop"), new ItemDescriptor("Position"), new ItemDescriptor("Windalarm"),
-				new ItemDescriptor("Regenalarm")));
+		thingTypes.add(new ThingDescriptor("M", new String[] { "FT-7" }, "Markise",
+				new ItemDescriptor("move", "Bewegen"), 
+				new ItemDescriptor("step", "Schritt/Stop"),
+				new ItemDescriptor("currentPosition", "Position"), 
+				new ItemDescriptor("windAlarm", "Windalarm"), 
+				new ItemDescriptor("rainAlarm", "Regenalarm")));
 
 		thingDescriptors = new HashMap<>();
 		thingTypes.forEach(t -> Arrays.stream(t.getFunctionTypes())
@@ -181,7 +211,7 @@ public class ThingExtractor {
 		}
 
 		for (ItemDescriptor itemDescriptor : thingDescriptor.getItems()) {
-			for (String actionKey : itemDescriptor.getActions()) {
+			for (String actionKey : itemDescriptor.getKeywords()) {
 				if (key.toLowerCase().endsWith(" " + actionKey.toLowerCase())) {
 
 					Item action = new Item(itemDescriptor, groupAddress);

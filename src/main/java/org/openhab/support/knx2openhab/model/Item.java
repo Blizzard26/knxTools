@@ -14,10 +14,9 @@ public class Item {
 		this.groupAddress = groupAddress;
 	}
 
-	@Deprecated
 	public String getKey()
 	{
-		return itemDescriptor.getPrimaryAction();
+		return itemDescriptor.getKey();
 	}
 
 	public ItemDescriptor getItemDescriptor() {
@@ -34,7 +33,7 @@ public class Item {
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
-		builder.append(getItemDescriptor().getPrimaryAction()).append(" => ").append(getAddress());
+		builder.append(getItemDescriptor().getKey()).append(" => ").append(getAddress());
 		if (getDescription() != null)
 			builder.append(" (").append(getDescription()).append(")");
 		return builder.toString();

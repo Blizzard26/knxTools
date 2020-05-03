@@ -79,6 +79,10 @@ public class Main {
 			thingWriter.write(things, writer);
 		}
 		
+		System.out.println("===================");
+		System.out.println("Writing items");
+		System.out.println("===================");
+		
 		ItemsWriter itemsWriter = new ItemsWriter(knx, knxInstallation);
 		try (Writer writer = new FileWriter(ITEMS_FILE)) {
 			itemsWriter.write(things, writer);

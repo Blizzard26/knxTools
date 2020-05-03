@@ -26,121 +26,121 @@ public class ThingWriter {
 	static
 	{
 		thingPatterns = new HashMap<>();
-		thingPatterns.put("L", "Thing device $key \"$description\" @ \"$location\" []\r\n" + "{\r\n"
-				+ "    Type switch        : switch        \"Schalten\"       [ ga=\"$items[Schalten].address\" ]\r\n"
+		thingPatterns.put("L", "Thing device $thing.key \"$thing.description\" @ \"$thing.location\" []\r\n" + "{\r\n"
+				+ "    Type switch        : switch        \"Schalten\"       [ ga=\"$thing.items[switch].address\" ]\r\n"
 				+ "}");
 
-		thingPatterns.put("LD", "Thing device $key \"$description\" @ \"$location\" []\r\n" + "{\r\n"
-				+ "    Type dimmer        : dimmer        \"Dimmer\"      [ switch=\"$items[Schalten].address\", position=\"$items[Dimmwert].address\", increaseDecrease=\"$items[Dimmen].address\" ]\r\n"
+		thingPatterns.put("LD", "Thing device $thing.key \"$thing.description\" @ \"$thing.location\" []\r\n" + "{\r\n"
+				+ "    Type dimmer        : dimmer        \"Dimmer\"      [ switch=\"$thing.items[switch].address\", position=\"$thing.items[dimmingValue].address\", increaseDecrease=\"$thing.items[dimming].address\" ]\r\n"
 				+ "}");
 
-		thingPatterns.put("H", "Thing device #escape($key) \"$description\" @ \"$location\" []\r\n" + "{\r\n"
-				+ "#if ( $items[Isttemperatur] )\r\n"
-				+ "    Type number        : actualTemperature   \"Isttemperatur\"       [ ga=\"$items[Isttemperatur].type:<$items[Isttemperatur].address\" ]\r\n"
+		thingPatterns.put("H", "Thing device #escape($thing.key) \"$thing.description\" @ \"$thing.location\" []\r\n" + "{\r\n"
+				+ "#if ( $thing.items[actualTemperature] )\r\n"
+				+ "    Type number        : actualTemperature   \"Isttemperatur\"       [ ga=\"$thing.items[actualTemperature].type:<$thing.items[actualTemperature].address\" ]\r\n"
 				+ "#end\r\n"
-				+ "#if ( $items[Solltemperatur] )\r\n"
-				+ "    Type number        : targetTemperature   \"Solltemperatur\"      [ ga=\"$items[Solltemperatur].type:<$items[Solltemperatur].address\" ]\r\n"
+				+ "#if ( $thing.items[targetTemperature] )\r\n"
+				+ "    Type number        : targetTemperature   \"Solltemperatur\"      [ ga=\"$thing.items[targetTemperature].type:<$thing.items[targetTemperature].address\" ]\r\n"
 				+ "#end\r\n"
-				+ "#if ( $items[Isttemperatur Boden] )\r\n"
-				+ "    Type number        : floorTemperature    \"Isttemperatur Boden\" [ ga=\"$items[Isttemperatur Boden].type:<$items[Isttemperatur Boden].address\" ]\r\n"
+				+ "#if ( $thing.items[actualTemperatureFloor] )\r\n"
+				+ "    Type number        : floorTemperature    \"Isttemperatur Boden\" [ ga=\"$thing.items[actualTemperatureFloor].type:<$thing.items[actualTemperatureFloor].address\" ]\r\n"
 				+ "#end\r\n"
-				+ "#if ( $items[Betriebsart] )\r\n"
-				+ "    Type string        : operatingMode       \"Betriebsart\"         [ ga=\"$items[Betriebsart].type:<$items[Betriebsart].address\" ]\r\n"
+				+ "#if ( $thing.items[operatingMode] )\r\n"
+				+ "    Type string        : operatingMode       \"Betriebsart\"         [ ga=\"$thing.items[operatingMode].type:<$thing.items[operatingMode].address\" ]\r\n"
 				+ "#end\r\n"
 				+ "}");
 
-		thingPatterns.put("R", "Thing device $key \"$description\" @ \"$location\" []\r\n" + "{\r\n"
-				+ "    Type rollershutter : shutter    \"Rollladen\"         [ upDown=\"$items[Bewegen].address\", stopMove=\"$items[Schritt/Stop].address\""
-				+ " #if ( $items[Position setzen] )\r\n"
-				+ ", position=\"$items[Position setzen].address\" "
+		thingPatterns.put("R", "Thing device $thing.key \"$thing.description\" @ \"$thing.location\" []\r\n" + "{\r\n"
+				+ "    Type rollershutter : shutter    \"Rollladen\"         [ upDown=\"$thing.items[move].address\", stopMove=\"$thing.items[step].address\""
+				+ " #if ( $thing.items[setPosition] )\r\n"
+				+ ", position=\"$thing.items[setPosition].address\" "
 				+ " #end\r\n"
 				+ "]\r\n"
-				+ "#if ( $items[Aktuelle Position] )\r\n"
-				+ "    Type number        : position   \"Aktuelle Position\" [ ga=\"$items[Aktuelle Position].type:<$items[Aktuelle Position].address\" ]\r\n"
+				+ "#if ( $thing.items[currentPosition] )\r\n"
+				+ "    Type number        : position   \"Aktuelle Position\" [ ga=\"$thing.items[currentPosition].type:<$thing.items[currentPosition].address\" ]\r\n"
 				+ "#end\r\n"
-				+ "#if ( $items[Sperren] )\r\n"
-				+ "    Type switch        : lock        \"Sperren\"          [ ga=\"$items[Sperren].address\" ]\r\n"
-				+ "#end\r\n"
-				+ "}");
-
-		thingPatterns.put("J", "Thing device $key \"$description\" @ \"$location\" []\r\n" + "{\r\n"
-				+ "    Type rollershutter : shutter    \"Jalousie\"          [ upDown=\"$items[Bewegen].address\", stopMove=\"$items[Schritt/Stop].address\", position=\"$items[Position setzen].address\" ]\r\n"
-				+ "#if ( $items[Aktuelle Position] )\r\n"
-				+ "    Type number        : position   \"Aktuelle Position\" [ ga=\"$items[Aktuelle Position].type:<$items[Aktuelle Position].address\" ]\r\n"
-				+ "#end\r\n"
-				+ "#if ( $items[Sperren] )\r\n"
-				+ "    Type switch        : lock        \"Sperren\"          [ ga=\"$items[Sperren].address\" ]\r\n"
+				+ "#if ( $thing.items[lock] )\r\n"
+				+ "    Type switch        : lock        \"Sperren\"          [ ga=\"$thing.items[lock].address\" ]\r\n"
 				+ "#end\r\n"
 				+ "}");
 
-		thingPatterns.put("S", "Thing device $key \"$description\" @ \"$location\" []\r\n" + "{\r\n"
-				+ "    Type switch        : switch              \"Schalten\"       [ ga=\"$items[Schalten].address\" ]\r\n"
-				+ "#if ( $items[Betrieb] )\r\n"
-				+ "    Type contact       : operating           \"In Betrieb\"     [ ga=\"$items[Betrieb].address\" ]\r\n"
+		thingPatterns.put("J", "Thing device $thing.key \"$thing.description\" @ \"$thing.location\" []\r\n" + "{\r\n"
+				+ "    Type rollershutter : shutter    \"Jalousie\"          [ upDown=\"$thing.items[move].address\", stopMove=\"$thing.items[step].address\", position=\"$thing.items[setPosition].address\" ]\r\n"
+				+ "#if ( $thing.items[currentPosition] )\r\n"
+				+ "    Type number        : position   \"Aktuelle Position\" [ ga=\"$thing.items[currentPosition].type:<$thing.items[currentPosition].address\" ]\r\n"
+				+ "#end\r\n"
+				+ "#if ( $thing.items[lock] )\r\n"
+				+ "    Type switch        : lock        \"Sperren\"          [ ga=\"$thing.items[lock].address\" ]\r\n"
 				+ "#end\r\n"
 				+ "}");
 
-		thingPatterns.put("FK", "Thing device $key \"$description\" @ \"$location\" []\r\n" + "{\r\n"
-				+ "    Type contact       : contact       \"Fensterkontakt\"        [ ga=\"1.019:<$items[Fensterkontakt].address\" ]\r\n"
+		thingPatterns.put("S", "Thing device $thing.key \"$thing.description\" @ \"$thing.location\" []\r\n" + "{\r\n"
+				+ "    Type switch        : switch              \"Schalten\"       [ ga=\"$thing.items[switch].address\" ]\r\n"
+				+ "#if ( $thing.items[Betrieb] )\r\n"
+				+ "    Type contact       : operating           \"In Betrieb\"     [ ga=\"$thing.items[inOperation].address\" ]\r\n"
+				+ "#end\r\n"
 				+ "}");
 
-		thingPatterns.put("TK", "Thing device $key \"$description\" @ \"$location\" []\r\n" + "{\r\n"
-				+ "    Type contact       : contact       \"Türkontakt\"        [ ga=\"1.019:<$items[Türkontakt].address\" ]\r\n"
+		thingPatterns.put("FK", "Thing device $thing.key \"$thing.description\" @ \"$thing.location\" []\r\n" + "{\r\n"
+				+ "    Type contact       : contact       \"Fensterkontakt\"        [ ga=\"1.019:<$thing.items[windowContact].address\" ]\r\n"
 				+ "}");
 
-		thingPatterns.put("M", "Thing device $key \"$description\" @ \"$location\" []\r\n" + "{\r\n"
-				+ "    Type rollershutter : shutter    \"Markise\"           [ upDown=\"$items[Bewegen].address\", stopMove=\"$items[Schritt/Stop].address\""
-				+ " #if ( $items[Position setzen] )\r\n"
-				+ ", position=\"$items[Position setzen].address\" "
+		thingPatterns.put("TK", "Thing device $thing.key \"$thing.description\" @ \"$thing.location\" []\r\n" + "{\r\n"
+				+ "    Type contact       : contact       \"Türkontakt\"        [ ga=\"1.019:<$thing.items[doorContact].address\" ]\r\n"
+				+ "}");
+
+		thingPatterns.put("M", "Thing device $thing.key \"$thing.description\" @ \"$thing.location\" []\r\n" + "{\r\n"
+				+ "    Type rollershutter : shutter    \"Markise\"           [ upDown=\"$thing.items[move].address\", stopMove=\"$thing.items[step].address\""
+				+ " #if ( $thing.items[setPosition] )\r\n"
+				+ ", position=\"$thing.items[setPosition].address\" "
 				+ " #end\r\n"
 				+ "]\r\n"
-				+ " #if ( $items[Aktuelle Position] )\r\n"
-				+ "    Type number        : position   \"Aktuelle Position\" [ ga=\"$items[Aktuelle Position].type:<$items[Aktuelle Position].address\" ]\r\n"
-				+ " #end"
-				+ " #if ( $items[Sperren] )\r\n"
-				+ "    Type switch        : lock       \"Sperren\"           [ ga=\"$items[Sperren].address\" ]\r\n"
+				+ " #if ( $thing.items[currentPosition] )\r\n"
+				+ "    Type number        : position   \"Aktuelle Position\" [ ga=\"$thing.items[currentPosition].type:<$thing.items[currentPosition].address\" ]\r\n"
+				+ " #end\r\n"
+				+ " #if ( $thing.items[lock] )\r\n"
+				+ "    Type switch        : lock       \"Sperren\"           [ ga=\"$thing.items[lock].address\" ]\r\n"
 				+ " #end\r\n"
 				+ "}");
 		
-		thingPatterns.put("A", "Thing device #escape($key) \"$description\" @ \"$location\" []\r\n" + "{\r\n"
-				+ "    Type string        : alarm       \"$description\"         [ ga=\"$items[Alarm].type:<$items[Alarm].address\" ]\r\n"
+		thingPatterns.put("A", "Thing device #escape($thing.key) \"$thing.description\" @ \"$thing.location\" []\r\n" + "{\r\n"
+				+ "    Type string        : alarm       \"$thing.description\"         [ ga=\"$thing.items[alarm].type:<$thing.items[alarm].address\" ]\r\n"
 				+ "}");
 		
-		thingPatterns.put("W", "Thing device #escape($key) \"$description\" @ \"$location\" []\r\n" + "{\r\n"
-				+ "#if ( $items[Maximaler Helligkeitswert] )\r\n"
-				+ "    Type string        : maxBrightness       \"Maximaler Helligkeitswert\"         [ ga=\"$items[Maximaler Helligkeitswert].type:<$items[Maximaler Helligkeitswert].address\" ]\r\n"
+		thingPatterns.put("W", "Thing device #escape($thing.key) \"$thing.description\" @ \"$thing.location\" []\r\n" + "{\r\n"
+				+ "#if ( $thing.items[maximumBrightness] )\r\n"
+				+ "    Type string        : maxBrightness       \"Maximaler Helligkeitswert\"         [ ga=\"$thing.items[maximumBrightness].type:<$thing.items[maximumBrightness].address\" ]\r\n"
 				+ "#end\r\n"
 				
-				+ "#if ( $items[Helligkeitswert Ost] )\r\n"
-				+ "    Type string        : brightnessEast      \"Helligkeitswert Ost\"               [ ga=\"$items[Helligkeitswert Ost].type:<$items[Helligkeitswert Ost].address\" ]\r\n"
+				+ "#if ( $thing.items[brightnessEast] )\r\n"
+				+ "    Type string        : brightnessEast      \"Helligkeitswert Ost\"               [ ga=\"$thing.items[brightnessEast].type:<$thing.items[brightnessEast].address\" ]\r\n"
 				+ "#end\r\n"
 				
-				+ "#if ( $items[Helligkeitswert Süd] )\r\n"
-				+ "    Type string        : brightnessSouth     \"Helligkeitswert Süd\"               [ ga=\"$items[Helligkeitswert Süd].type:<$items[Helligkeitswert Süd].address\" ]\r\n"
+				+ "#if ( $thing.items[brightnessSouth] )\r\n"
+				+ "    Type string        : brightnessSouth     \"Helligkeitswert Süd\"               [ ga=\"$thing.items[brightnessSouth].type:<$thing.items[brightnessSouth].address\" ]\r\n"
 				+ "#end\r\n"
 				
-				+ "#if ( $items[Helligkeitswert West] )\r\n"
-				+ "    Type string        : brightnessWest      \"Helligkeitswert West\"              [ ga=\"$items[Helligkeitswert West].type:<$items[Helligkeitswert West].address\" ]\r\n"
+				+ "#if ( $thing.items[brightnessWest] )\r\n"
+				+ "    Type string        : brightnessWest      \"Helligkeitswert West\"              [ ga=\"$thing.items[brightnessWest].type:<$thing.items[brightnessWest].address\" ]\r\n"
 				+ "#end\r\n"
 				
-				+ "#if ( $items[Außen Temperatur] )\r\n"
-				+ "    Type string        : temperature         \"Außen Temperatur\"                  [ ga=\"$items[Außen Temperatur].type:<$items[Außen Temperatur].address\" ]\r\n"
+				+ "#if ( $thing.items[temperatureOutside] )\r\n"
+				+ "    Type string        : temperature         \"Außen Temperatur\"                  [ ga=\"$thing.items[temperatureOutside].type:<$thing.items[temperatureOutside].address\" ]\r\n"
 				+ "#end\r\n"
 				
-				+ "#if ( $items[Windgeschwindigkeit (m/s)] )\r\n"
-				+ "    Type string        : windSpeed           \"Windgeschwindigkeit (m/s)\"         [ ga=\"$items[Windgeschwindigkeit (m/s)].type:<$items[Windgeschwindigkeit (m/s)].address\" ]\r\n"
+				+ "#if ( $thing.items[windspeed] )\r\n"
+				+ "    Type string        : windSpeed           \"Windgeschwindigkeit (m/s)\"         [ ga=\"$thing.items[windspeed].type:<$thing.items[windspeed].address\" ]\r\n"
 				+ "#end\r\n"
 				
-				+ "#if ( $items[Elevation] )\r\n"
-				+ "    Type string        : elevation           \"Elevation\"                         [ ga=\"$items[Elevation].type:<$items[Elevation].address\" ]\r\n"
+				+ "#if ( $thing.items[elevation] )\r\n"
+				+ "    Type string        : elevation           \"Elevation\"                         [ ga=\"$thing.items[elevation].type:<$thing.items[elevation].address\" ]\r\n"
 				+ "#end\r\n"
 				
-				+ "#if ( $items[Azimut] )\r\n"
-				+ "    Type string        : azimut              \"Azimut\"                            [ ga=\"$items[Azimut].type:<$items[Azimut].address\" ]\r\n"
+				+ "#if ( $thing.items[azimut] )\r\n"
+				+ "    Type string        : azimut              \"Azimut\"                            [ ga=\"$thing.items[azimut].type:<$thing.items[azimut].address\" ]\r\n"
 				+ "#end\r\n"
 				
-				+ "#if ( $items[Regenalarm] )\r\n"
-				+ "    Type string        : rain                \"Regen\"                             [ ga=\"$items[Regenalarm].type:<$items[Regenalarm].address\" ]\r\n"
+				+ "#if ( $thing.items[rainAlarm] )\r\n"
+				+ "    Type string        : rain                \"Regen\"                             [ ga=\"$thing.items[rainAlarm].type:<$thing.items[rainAlarm].address\" ]\r\n"
 				+ "#end\r\n"
 				+ "}");
 	}
@@ -164,7 +164,7 @@ public class ThingWriter {
 			String pattern = getPatternForDescriptor(thing.getDescriptor(), thingPatterns);
 			if (pattern != null) {
 				try {
-					writer.write(PatternFormatter.format(pattern, Collections.singletonMap("thing", thing), thing));
+					writer.write(PatternFormatter.format(pattern, Collections.singletonMap("thing", thing)));
 					writer.write("\r\n\r\n");
 				} catch (IOException e) {
 					throw new RuntimeException(e);

@@ -5,28 +5,31 @@ import java.util.Objects;
 
 public class ItemDescriptor {
 
-	private String[] action;
+	private String[] keyWords;
+	private String key;
 
-	public ItemDescriptor(String... actions) {
-		this.action = Objects.requireNonNull(actions, "actions");
+	public ItemDescriptor(String key, String... keyWords) {
+		this.key = Objects.requireNonNull(key);
 		
-		if (actions.length == 0)
+		this.keyWords = Objects.requireNonNull(keyWords, "keyWords");
+		
+		if (keyWords.length == 0)
 			throw new IllegalArgumentException();
 	}
 
-	public String[] getActions() {
-		return action;
+	public String[] getKeywords() {
+		return keyWords;
 	}
 
-	public String getPrimaryAction() {
-		return action[0];
+	public String getKey() {
+		return key;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Arrays.hashCode(action);
+		result = prime * result + Arrays.hashCode(keyWords);
 		return result;
 	}
 
@@ -39,7 +42,7 @@ public class ItemDescriptor {
 			return false;
 		}
 		ItemDescriptor other = (ItemDescriptor) obj;
-		return Arrays.equals(action, other.action);
+		return Arrays.equals(keyWords, other.keyWords);
 	}
 	
 	

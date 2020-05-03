@@ -24,75 +24,112 @@ public class ItemsWriter {
 	{
 		itemPatterns = new HashMap<>();
 		itemPatterns.put("L",
-				"Switch          $key\\_switch        \"Licht [%s]\"               <light>          { channel=\"knx:device:bridge:$key:switch\" }");
+				"Switch          $thing.key\\_switch        \"Licht [%s]\"               <light>          { channel=\"knx:device:bridge:$thing.key:switch\" }");
 
 		itemPatterns.put("LD",
-				"Dimmer          $key\\_dimmer        \"Dimmer [%d %%]\"           <light>          { channel=\"knx:device:bridge:$key:dimmer\" }");
+				"Dimmer          $thing.key\\_dimmer        \"Dimmer [%d %%]\"           <light>          { channel=\"knx:device:bridge:$thing.key:dimmer\" }");
 
 		itemPatterns.put("S",
-				"Switch          $key\\_switch        \"Schalten [%s]\"            <light>          { channel=\"knx:device:bridge:$key:switch\" }");
+				"Switch          $thing.key\\_switch        \"Schalten [%s]\"            <light>          { channel=\"knx:device:bridge:$thing.key:switch\" }");
 
 		itemPatterns.put("R",
-				 "Rollershutter   $key\\_shutter       \"Rollladen [%d %%]\"        <rollershutter>  { channel=\"knx:device:bridge:$key:shutter\" }\r\n"
+				 "Rollershutter   $thing.key\\_shutter       \"Rollladen [%d %%]\"        <rollershutter>  { channel=\"knx:device:bridge:$thing.key:shutter\" }\r\n"
 				
-				+ "#if ( $items[Aktuelle Position] )\r\n"
-				+ "Number          $key\\_position      \"Position [%d %%]\"         <rollershutter>  { channel=\"knx:device:bridge:$key:position\" }\r\n"
+				+ "#if ( $thing.items[currentPosition] )\r\n"
+				+ "Number          $thing.key\\_position      \"Position [%d %%]\"         <rollershutter>  { channel=\"knx:device:bridge:$thing.key:position\" }\r\n"
 				+ "#end\r\n"
 				
-				+ "#if ( $items[Sperren] )\r\n"
-				+ "Switch          $key\\_lock          \"Gesperrt [%s]\"            <rollershutter>  { channel=\"knx:device:bridge:$key:lock\" }\r\n"
+				+ "#if ( $thing.items[lock] )\r\n"
+				+ "Switch          $thing.key\\_lock          \"Gesperrt [%s]\"            <rollershutter>  { channel=\"knx:device:bridge:$thing.key:lock\" }\r\n"
 				+ "#end\r\n");
 		
 		
 		itemPatterns.put("J",
-				 "Rollershutter   $key\\_shutter       \"Rollladen [%d %%]\"         <rollershutter>  { channel=\"knx:device:bridge:$key:shutter\" }\r\n"
+				 "Rollershutter   $thing.key\\_shutter       \"Rollladen [%d %%]\"         <rollershutter>  { channel=\"knx:device:bridge:$thing.key:shutter\" }\r\n"
 						
-				+ "#if ( $items[Aktuelle Position] )\r\n"
-				+ "Number          $key\\_position      \"Position [%d %%]\"         <rollershutter>  { channel=\"knx:device:bridge:$key:position\" }\r\n"
+				+ "#if ( $thing.items[currentPosition] )\r\n"
+				+ "Number          $thing.key\\_position      \"Position [%d %%]\"         <rollershutter>  { channel=\"knx:device:bridge:$thing.key:position\" }\r\n"
 				+ "#end\r\n"
 				
-				+ "#if ( $items[Sperren] )\r\n"
-				+ "Switch          $key\\_lock          \"Gesperrt [%s]\"            <rollershutter>  { channel=\"knx:device:bridge:$key:lock\" }\r\n"
+				+ "#if ( $thing.items[lock] )\r\n"
+				+ "Switch          $thing.key\\_lock          \"Gesperrt [%s]\"            <rollershutter>  { channel=\"knx:device:bridge:$thing.key:lock\" }\r\n"
 				+ "#end\r\n");
 
 		itemPatterns.put("M",
-				"Rollershutter   $key\\_shutter       \"Rollladen [%d %%]\"         <rollershutter>  { channel=\"knx:device:bridge:$key:shutter\" }\r\n"
+				"Rollershutter   $thing.key\\_shutter       \"Rollladen [%d %%]\"         <rollershutter>  { channel=\"knx:device:bridge:$thing.key:shutter\" }\r\n"
 						
-				+ "#if ( $items[Aktuelle Position] )\r\n"
-				+ "Number          $key\\_position      \"Position [%d %%]\"          <rollershutter>  { channel=\"knx:device:bridge:$key:position\" }\r\n"
+				+ "#if ( $thing.items[currentPosition] )\r\n"
+				+ "Number          $thing.key\\_position      \"Position [%d %%]\"          <rollershutter>  { channel=\"knx:device:bridge:$thing.key:position\" }\r\n"
 				+ "#end\r\n"
 				
-				+ "#if ( $items[Sperren] )\r\n"
-				+ "Switch          $key\\_lock          \"Gesperrt [%s]\"             <rollershutter>  { channel=\"knx:device:bridge:$key:lock\" }\r\n"
+				+ "#if ( $thing.items[lock] )\r\n"
+				+ "Switch          $thing.key\\_lock          \"Gesperrt [%s]\"             <rollershutter>  { channel=\"knx:device:bridge:$thing.key:lock\" }\r\n"
 				+ "#end\r\n");
 
 		itemPatterns.put("H",
-				  "#if ( $items[Isttemperatur] )\r\n"
-				+ "Number          #escape($key\\_actual)       \"Isttemperatur [%d °C]\"                       { channel=\"knx:device:bridge:#escape($key):actualTemperature\" }\r\n"
+				  "#if ( $thing.items[actualTemperature] )\r\n"
+				+ "Number          #escape($thing.key\\_actual)       \"Isttemperatur [%d °C]\"                       { channel=\"knx:device:bridge:#escape($thing.key):actualTemperature\" }\r\n"
 				+ "#end\r\n"
 				
-				+ "#if ( $items[Solltemperatur] )\r\n"
-				+ "Number          #escape($key\\_target)       \"Solltemperatur [%d °C]\"                      { channel=\"knx:device:bridge:$key:targetTemperature\" }\r\n"
+				+ "#if ( $thing.items[targetTemperature] )\r\n"
+				+ "Number          #escape($thing.key\\_target)       \"Solltemperatur [%d °C]\"                      { channel=\"knx:device:bridge:$thing.key:targetTemperature\" }\r\n"
 				+ "#end\r\n"
 				
-				+ "#if ( $items[Isttemperatur Boden] )\r\n"
-				+ "Number          #escape($key\\_floor)        \"Isttemperatur Boden [%d °C]\"                 { channel=\"knx:device:bridge:$key:floorTemperature\" }\r\n"
+				+ "#if ( $thing.items[actualTemperatureFloor] )\r\n"
+				+ "Number          #escape($thing.key\\_floor)        \"Isttemperatur Boden [%d °C]\"                 { channel=\"knx:device:bridge:$thing.key:floorTemperature\" }\r\n"
 				+ "#end\r\n"
 				
-				+ "#if ( $items[Betriebsart] )\r\n"
-				+ "String          #escape($key\\_mode)         \"Betriebsart [%s]\"                              { channel=\"knx:device:bridge:$key:operatingMode\" }\r\n"
+				+ "#if ( $thing.items[operatingMode] )\r\n"
+				+ "String          #escape($thing.key\\_mode)         \"Betriebsart [%s]\"                              { channel=\"knx:device:bridge:$thing.key:operatingMode\" }\r\n"
 		        + "#end\r\n");
 		
 		
 
 		itemPatterns.put("FK",
-				"Contact         $key\\_contact      \"Fenster [%s]\"             <window>         { channel=\"knx:device:bridge:$key:contact\"}");
+				"Contact         $thing.key\\_contact      \"Fenster [%s]\"             <window>         { channel=\"knx:device:bridge:$thing.key:contact\"}");
 
 		itemPatterns.put("TK",
-				"Contact         $key\\_contact      \"Tür [%s]\"                 <window>         { channel=\"knx:device:bridge:$key:contact\"}");
+				"Contact         $thing.key\\_contact      \"Tür [%s]\"                 <window>         { channel=\"knx:device:bridge:$thing.key:contact\"}");
 
 		itemPatterns.put("A",
-				  "String          #escape($key\\_alarm)         \"$description [%s]\"                              { channel=\"knx:device:bridge:$key:alarm\" }");
+				  "String          #escape($thing.key\\_alarm)         \"$thing.description [%s]\"                              { channel=\"knx:device:bridge:$thing.key:alarm\" }");
+		
+		itemPatterns.put("W", 
+				"#if ( $thing.items[maximumBrightness] )\r\n"
+				+ "Number          #escape($thing.key\\_maxBrightness)       \"Maximaler Helligkeitswert [%d]\"         { channel=\"knx:device:bridge:$thing.key:maxBrightness\" }\r\n"
+				+ "#end\r\n"
+				
+				+ "#if ( $thing.items[brightnessEast] )\r\n"
+				+ "Number          #escape($thing.key\\_brightnessEast)      \"Helligkeitswert Ost [%d]\"               { channel=\"knx:device:bridge:$thing.key:brightnessEast\" }\r\n"
+				+ "#end\r\n"
+				
+				+ "#if ( $thing.items[brightnessSouth] )\r\n"
+				+ "Number          #escape($thing.key\\_brightnessSouth)     \"Helligkeitswert Süd [%d]\"               { channel=\"knx:device:bridge:$thing.key:brightnessSouth\" }\r\n"
+				+ "#end\r\n"
+				
+				+ "#if ( $thing.items[brightnessWest] )\r\n"
+				+ "Number          #escape($thing.key\\_brightnessWest)      \"Helligkeitswert West [%d]\"              { channel=\"knx:device:bridge:$thing.key:brightnessWest\" }\r\n"
+				+ "#end\r\n"
+				
+				+ "#if ( $thing.items[temperatureOutside] )\r\n"
+				+ "Number          #escape($thing.key\\_temperature)         \"Außen Temperatur [%d]\"                  { channel=\"knx:device:bridge:$thing.key:temperature\" }\r\n"
+				+ "#end\r\n"
+				
+				+ "#if ( $thing.items[windspeed] )\r\n"
+				+ "Number          #escape($thing.key\\_windSpeed)           \"Windgeschwindigkeit  [%d] (m/s)\"         { channel=\"knx:device:bridge:$thing.key:windSpeed\" }\r\n"
+				+ "#end\r\n"
+				
+				+ "#if ( $thing.items[elevation] )\r\n"
+				+ "Number          #escape($thing.key\\_elevation)           \"Elevation [%d]\"                         { channel=\"knx:device:bridge:$thing.key:elevation\" }\r\n"
+				+ "#end\r\n"
+				
+				+ "#if ( $thing.items[azimut] )\r\n"
+				+ "Number          #escape($thing.key\\_azimut)              \"Azimut [%d]\"                            { channel=\"knx:device:bridge:$thing.key:azimut\" }\r\n"
+				+ "#end\r\n"
+				
+				+ "#if ( $thing.items[rainAlarm] )\r\n"
+				+ "Contact          #escape($thing.key\\_rain)               \"Regen [%s]\"                             { channel=\"knx:device:bridge:$thing.key:rain\" }\r\n"
+				+ "#end\r\n");
 	}
 	
 	private KNX knx;
@@ -117,7 +154,7 @@ public class ItemsWriter {
 			String pattern = getPatternForDescriptor(thing.getDescriptor(), itemPatterns);
 			if (pattern != null) {
 				try {
-					writer.write(PatternFormatter.format(pattern, Collections.singletonMap("thing", thing), thing));
+					writer.write(PatternFormatter.format(pattern, Collections.singletonMap("thing", thing)));
 					writer.write("\r\n\r\n");
 				} catch (IOException e) {
 					throw new RuntimeException(e);

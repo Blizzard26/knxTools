@@ -10,12 +10,13 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.openhab.support.knx2openhab.model.Thing;
-
 public class PatternFormatter {
 
 	private static final Pattern VARIABLE_PATTERN = Pattern
-			.compile("\\$(\\w+)(\\[([^\\]\\\\]+)\\])?(\\.(\\w+)(\\[(\\w+)\\])?)*");
+			.compile("\\$(\\w+)(\\[(\\w+)\\])?(\\.\\w+(\\[(\\w+)\\])?)*");
+	
+	private static final Pattern PROPERTY_PATTERN = Pattern
+			.compile("(\\w+)(\\[(\\w+)\\])?((\\.\\w+(\\[(\\w+)\\])?)*)");
 
 	private static final Pattern IF_PATTERN = Pattern.compile("#if \\( (.+?) \\)\r\n((.+?))#end\r\n",
 			Pattern.MULTILINE | Pattern.DOTALL);
@@ -27,11 +28,11 @@ public class PatternFormatter {
 
 	private static Map<Class<?>, Map<String, Method>> clazzMethods = new HashMap<>();
 
-	public static String format(String pattern, Map<String, Object> context, Thing knxActionGroup) {
+	public static String format(String pattern, Map<String, Object> context) {
 
 		String result = pattern;
-		result = processIfStatements(result, knxActionGroup);
-		result = replaceVariables(result, knxActionGroup);
+		result = processIfStatements(result, context);
+		result = replaceVariables(result, context);
 		result = processLookupAndReplace(result, context);
 		result = processEscape(result);
 		return result.replace("\\_", "_");
@@ -61,14 +62,14 @@ public class PatternFormatter {
 		return result;
 	}
 
-	private static String processIfStatements(String pattern, Thing thing) {
+	private static String processIfStatements(String pattern, Map<String, Object> context) {
 
 		Matcher matcher = IF_PATTERN.matcher(pattern);
 		StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
 			String variable = matcher.group(1);
 			String body = matcher.group(2);
-			Object property = getProperty(thing, variable);
+			Object property = getProperty(context, variable.substring(1));
 
 			if (property != null) {
 				matcher.appendReplacement(sb, Matcher.quoteReplacement(body));
@@ -86,34 +87,48 @@ public class PatternFormatter {
 
 	}
 
-	private static String replaceVariables(String pattern, Thing thing) {
+	protected static String replaceVariables(String pattern, Map<String, Object> context) {
 		Matcher matcher = VARIABLE_PATTERN.matcher(pattern);
 		StringBuffer sb = new StringBuffer();
 		while (matcher.find()) {
-			Object property = getProperty(thing, matcher.group());
+			Object property = getProperty(context, matcher.group().substring(1));
 
 			if (property == null) {
-				LOG.severe("Unkown variable " + matcher.group() + " for thing " + thing.getKey());
+				LOG.severe("Unkown variable " + matcher.group());
 			}
 
-			matcher.appendReplacement(sb, property != null ? property.toString() : "");
+			matcher.appendReplacement(sb, property != null ? property.toString() : "UKNOWN");
 		}
 		matcher.appendTail(sb);
 		String result = sb.toString();
 		return result;
 	}
 
-	private static Object getProperty(Thing thing, String variable) {
-
-		Matcher matcher = VARIABLE_PATTERN.matcher(variable);
+	private static Object getProperty(Object context, String propertyName) {
+		Matcher matcher = PROPERTY_PATTERN.matcher(propertyName);
 
 		if (!matcher.find())
 			return null;
 
 		Object property = null;
+		
+//		System.out.println(matcher.group());
+//		
+//		StringBuilder builder = new StringBuilder();
+//		String sep = "{";
+//		for (int i = 0; i < matcher.groupCount(); i++)
+//		{
+//			builder.append(sep);
+//			builder.append(matcher.group(i));
+//			sep = "; ";
+//		}
+//		builder.append("}");
+//		System.out.println(builder);
+		
+		
 
 		String group = matcher.group(1);
-		property = getProperty(group, thing);
+		property = resolveProperty(group, context);
 
 		if (property == null) {
 			return null;
@@ -128,9 +143,14 @@ public class PatternFormatter {
 			return null;
 		}
 
-		String subElement = matcher.group(5);
-		if (subElement != null) {
-			property = getProperty(subElement, property);
+		String subElement = matcher.group(4);
+		if (subElement != null && subElement.length() > 0) {
+			if (!subElement.startsWith("."))
+				throw new IllegalStateException();
+			
+			subElement = subElement.substring(1);
+			
+			property = getProperty(property, subElement);
 		}
 
 		return property;
@@ -163,8 +183,13 @@ public class PatternFormatter {
 		return null;
 	}
 
-	private static <R, T> R getProperty(String propertyName, T object) {
+	private static <R, T> R resolveProperty(String propertyName, T object) {
 		Objects.requireNonNull(object);
+		
+		if (object instanceof Map<?, ?>)
+		{
+			return (R) ((Map<String, ?>) object).get(propertyName);
+		}
 
 		try {
 			Map<String, Method> methods = getMethods(object.getClass());
