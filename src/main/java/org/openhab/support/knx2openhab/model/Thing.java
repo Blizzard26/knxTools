@@ -1,8 +1,9 @@
 package org.openhab.support.knx2openhab.model;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -12,7 +13,7 @@ public class Thing {
 
 	private final ThingDescriptor descriptor;
 
-	private final List<Item> items = new ArrayList<>();
+	private final Map<String, Item> items = new HashMap<>();
 	private KnxFunctionExt function;
 
 	public Thing(ThingDescriptor thingDescriptor, KnxFunctionExt function) {
@@ -32,36 +33,36 @@ public class Thing {
 
 	public String getDescription() {
 		return function.getName();
-//		List<String> list = items.stream().map(Item::getDescription).distinct().filter(Objects::nonNull)
-//				.collect(Collectors.toList());
-//
-//		if (list.size() == 1)
-//			return list.get(0);
-//		return getKey();
 	}
 	
 	public String getLocation() {
-		return function.getSpace().getName();
+		String name = function.getSpace().getName();
+		return name != null ? name : "";
 	}
 
-	public List<Item> getItems() {
-		return Collections.unmodifiableList(items);
+	public Map<String, Item> getItems() {
+		return Collections.unmodifiableMap(items);
+	}
+	
+	public Map<String, Object> getContext()
+	{
+		return ModelUtil.getContextFromComment(function.getComment());
 	}
 
-	public Thing addItem(Item action) {
-		this.items.add(action);
+	public Thing addItem(Item item) {
+		this.items.put(item.getKey(), item);
 		return this;
 	}
 
-	public void setItems(List<Item> items) {
+	public void setItems(Collection<Item> items) {
 		this.items.clear();
-		this.items.addAll(items);
+		this.items.putAll(items.stream().collect(Collectors.toMap(i -> i.getKey(), i -> i)));
 	}
 
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(getDescriptor().getName()).append(": ").append(getKey()).append(" {");
-		builder.append(getItems().stream().map(Object::toString).collect(Collectors.joining("; ")));
+		builder.append(getItems().values().stream().map(Object::toString).collect(Collectors.joining("; ")));
 		builder.append("}");
 		return builder.toString();
 	}

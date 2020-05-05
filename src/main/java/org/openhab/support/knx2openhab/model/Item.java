@@ -1,5 +1,6 @@
 package org.openhab.support.knx2openhab.model;
 
+import java.util.Map;
 import java.util.Objects;
 
 import org.knx.KnxGroupAddressExt;
@@ -29,6 +30,11 @@ public class Item {
 
 	public String getDescription() {
 		return groupAddress.getDescription();
+	}
+	
+	public Map<String, Object> getContext()
+	{
+		return ModelUtil.getContextFromComment(groupAddress.getComment());
 	}
 
 	public String toString() {

@@ -1,0 +1,164 @@
+#*
+===========================
+Macro's for different things
+===========================
+*#
+
+#macro ( escape $param )$param#end
+
+##
+## 
+#macro ( L $thing )
+Switch          ${thing.key}_switch        "Licht [%s]"               <light>          { channel="knx:device:bridge:$thing.key:switch" }
+#end
+##
+## 
+#macro ( LD $thing )
+Dimmer          ${thing.key}_dimmer        "Dimmer [%d %%]"           <light>          { channel="knx:device:bridge:$thing.key:dimmer" }
+#end
+##
+## 
+#macro ( S $thing )
+Switch          ${thing.key}_switch        "Schalten [%s]"            <light>          { channel="knx:device:bridge:$thing.key:switch" }
+#end
+##
+## 
+#macro ( R $thing )
+Rollershutter   ${thing.key}_shutter       "Rollladen [%d %%]"        <rollershutter>  { channel="knx:device:bridge:$thing.key:shutter" }
+#if ( $thing.items['currentPosition'] )
+Number          ${thing.key}_position      "Position [%d %%]"         <rollershutter>  { channel="knx:device:bridge:$thing.key:position" }
+#end
+#if ( $thing.items['lock'] )
+Switch          ${thing.key}_lock          "Gesperrt [%s]"            <rollershutter>  { channel="knx:device:bridge:$thing.key:lock" }
+#end
+#end
+##
+## 
+#macro ( J $thing )
+Rollershutter   ${thing.key}_shutter       "Rollladen [%d %%]"         <rollershutter>  { channel="knx:device:bridge:$thing.key:shutter" }
+#if ( $thing.items['currentPosition'] )
+Number          ${thing.key}_position      "Position [%d %%]"         <rollershutter>  { channel="knx:device:bridge:$thing.key:position" }
+#end
+#if ( $thing.items['lock'] )
+Switch          ${thing.key}_lock          "Gesperrt [%s]"            <rollershutter>  { channel="knx:device:bridge:$thing.key:lock" }
+#end
+#end
+##
+## 
+#macro ( M $thing )
+Rollershutter   ${thing.key}_shutter       "Rollladen [%d %%]"         <rollershutter>  { channel="knx:device:bridge:$thing.key:shutter" }
+#if ( $thing.items['currentPosition'] )
+Number          ${thing.key}_position      "Position [%d %%]"          <rollershutter>  { channel="knx:device:bridge:$thing.key:position" }
+#end
+#if ( $thing.items['lock'] )
+Switch          ${thing.key}_lock          "Gesperrt [%s]"             <rollershutter>  { channel="knx:device:bridge:$thing.key:lock" }
+#end
+#end
+##
+## 
+#macro ( H $thing )
+#if ( $thing.items['actualTemperature'] )
+Number          #escape("${thing.key}")_actual       "Isttemperatur [%.1f °C]"                       { channel="knx:device:bridge:#escape($thing.key):actualTemperature" }
+#end
+#if ( $thing.items['targetTemperature'] )
+Number          #escape(${thing.key})_target       "Solltemperatur [%.1f °C]"                      { channel="knx:device:bridge:$thing.key:targetTemperature" }
+#end
+#if ( $thing.items['actualTemperatureFloor'] )
+Number          #escape(${thing.key})_floor        "Isttemperatur Boden [%.1f °C]"                 { channel="knx:device:bridge:$thing.key:floorTemperature" }
+#end
+#if ( $thing.items['operatingMode'] )
+String          #escape(${thing.key})_mode         "Betriebsart [%s]"                              { channel="knx:device:bridge:$thing.key:operatingMode" }
+#end
+#end
+##
+## 
+#macro ( FK $thing )
+Contact         ${thing.key}_contact      "Fenster [%s]"             <window>         { channel="knx:device:bridge:$thing.key:contact"}
+#end
+##
+## 
+#macro ( TK $thing )
+Contact         ${thing.key}_contact      "Tür [%s]"                 <window>         { channel="knx:device:bridge:$thing.key:contact"}
+#end
+##
+## 
+#macro ( A $thing )
+String          #escape(${thing.key}_alarm)         "$thing.description [%s]"                              { channel="knx:device:bridge:$thing.key:alarm" }
+#end
+##      
+## 
+#macro ( W $thing ) 
+#if ( $thing.items['maximumBrightness'] )
+Number          #escape(${thing.key})_maxBrightness       "Maximaler Helligkeitswert [%d]"    #if ( $thing.items['maximumBrightness'].context['tags'] ) ( $thing.items['maximumBrightness'].context['tags'] ) #end     { channel="knx:device:bridge:$thing.key:maxBrightness" }
+#end
+#if ( $thing.items['brightnessEast'] )
+Number          #escape(${thing.key})_brightnessEast      "Helligkeitswert Ost [%d]"               { channel="knx:device:bridge:$thing.key:brightnessEast" }
+#end
+#if ( $thing.items['brightnessSouth'] )
+Number          #escape(${thing.key})_brightnessSouth     "Helligkeitswert Süd [%d]"               { channel="knx:device:bridge:$thing.key:brightnessSouth" }
+#end
+#if ( $thing.items['brightnessWest'] )
+Number          #escape(${thing.key})_brightnessWest      "Helligkeitswert West [%d]"              { channel="knx:device:bridge:$thing.key:brightnessWest" }
+#end
+#if ( $thing.items['temperatureOutside'] )
+Number          #escape(${thing.key})_temperature         "Außen Temperatur [%.1f °C]"                  { channel="knx:device:bridge:$thing.key:temperature" }
+#end
+#if ( $thing.items['windspeed'] )
+Number          #escape(${thing.key})_windSpeed           "Windgeschwindigkeit  [%d] (m/s)"         { channel="knx:device:bridge:$thing.key:windSpeed" }
+#end
+#if ( $thing.items['elevation'] )
+Number          #escape(${thing.key})_elevation           "Elevation [%d]"                         { channel="knx:device:bridge:$thing.key:elevation" }
+#end
+#if ( $thing.items['azimut'] )
+Number          #escape(${thing.key})_azimut              "Azimut [%d]"                            { channel="knx:device:bridge:$thing.key:azimut" }
+#end
+#if ( $thing.items['rainAlarm'] )
+Contact          #escape(${thing.key})_rain               "Regen [%s]"                             { channel="knx:device:bridge:$thing.key:rain" }
+#end
+#end
+##            
+#* 
+===========================
+Main Loop
+===========================
+*#
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Automatically created things. Do not change anything below this line as it will be overriden
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+
+#set ($lastLocation = '')
+##
+#foreach ($thing in $collection.sort($things, ["location", "key"]))
+#if ( $lastLocation != $thing.location )
+// $thing.location
+#set ($lastLocation = "$thing.location")
+#end
+##
+#if ( $thing.descriptor.key == 'L' )
+#L ( $thing )
+#elseif ( $thing.descriptor.key == 'LD' )
+#LD ( $thing )
+#elseif ( $thing.descriptor.key == 'H' )
+#H ( $thing )
+#elseif ( $thing.descriptor.key == 'R' )
+#R ( $thing )
+#elseif ( $thing.descriptor.key == 'J' )
+#J ( $thing )
+#elseif ( $thing.descriptor.key == 'S' )
+#S ( $thing )
+#elseif ( $thing.descriptor.key == 'FK' )
+#FK ( $thing )
+#elseif ( $thing.descriptor.key == 'TK' )
+#FK ( $thing )
+#elseif ( $thing.descriptor.key == 'M' )
+#M ( $thing )
+#elseif ( $thing.descriptor.key == 'A' )
+#A ( $thing )
+#elseif ( $thing.descriptor.key == 'W' )
+#W ( $thing )
+#else
+    $log.warning("Unknown Thing type: $thing.descriptor.key")
+#end
+
+#end
+##

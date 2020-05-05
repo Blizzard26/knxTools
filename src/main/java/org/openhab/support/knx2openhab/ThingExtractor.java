@@ -103,8 +103,8 @@ public class ThingExtractor {
 		thingTypes.add(new ThingDescriptor("TK", new String[] { "FT-0" }, "Türkontakt",
 				new ItemDescriptor("doorContact", "Türkontakt")));
 
-		thingTypes.add(new ThingDescriptor("A", new String[] { "FT-0" }, "Alarm",
-				new ItemDescriptor("alarm", "Alarm", "Status", "Störung")));
+//		thingTypes.add(new ThingDescriptor("A", new String[] { "FT-0" }, "Alarm",
+//				new ItemDescriptor("alarm", "Alarm", "Status", "Störung")));
 
 		thingTypes.add(new ThingDescriptor("W", new String[] { "FT-0" }, "Wetter",
 				new ItemDescriptor("maximumBrightness", "Maximaler Helligkeitswert"), 

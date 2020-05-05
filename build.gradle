@@ -2,6 +2,7 @@ buildscript {
 
     repositories {
         jcenter()
+        mavenCentral()
         maven {
           url "https://plugins.gradle.org/m2/"
         }
@@ -14,17 +15,21 @@ buildscript {
 
 
 plugins {
-    // Apply the java-library plugin to add support for Java Library
-    id 'java-library'
+    id 'java'
+    id 'eclipse'
 }
 
 
 apply plugin: "com.intershop.gradle.jaxb"
 
+eclipse {
+    classpath {
+        downloadSources = true
+    }
+}
 repositories {
-    // Use jcenter for resolving dependencies.
-    // You can declare any Maven/Ivy/file repository here.
     jcenter()
+    mavenCentral()
 }
 
 dependencies {
@@ -32,13 +37,19 @@ dependencies {
     implementation 'org.apache.commons:commons-csv:1.7'
     
     // https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j
-    compile group: 'net.lingala.zip4j', name: 'zip4j', version: '2.+'
+    implementation 'net.lingala.zip4j:zip4j:2.+'
     
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.+'
+    
+    implementation 'org.apache.velocity:velocity-engine-core:2.+'
+    implementation 'org.apache.velocity.tools:velocity-tools-generic:3.+'
+    
+    implementation 'org.slf4j:slf4j-jdk14:1.+'
     
     // Use JUnit test framework
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
     
-        testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.+'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.+'
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.+'
     
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.+'
