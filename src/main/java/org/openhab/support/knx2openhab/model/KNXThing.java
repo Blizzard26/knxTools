@@ -9,21 +9,22 @@ import java.util.stream.Collectors;
 
 import org.knx.KnxFunctionExt;
 
-public class Thing {
+public class KNXThing {
 
-	private final ThingDescriptor descriptor;
+	private final KNXThingDescriptor descriptor;
 
-	private final Map<String, Item> items = new HashMap<>();
+	private final Map<String, KNXItem> items = new HashMap<>();
 	private KnxFunctionExt function;
 
-	public Thing(ThingDescriptor thingDescriptor, KnxFunctionExt function) {
-		
+	private KNXLocation location;
+
+	public KNXThing(KNXThingDescriptor thingDescriptor, KnxFunctionExt function, KNXLocation location) {
 		this.descriptor = Objects.requireNonNull(thingDescriptor, "descriptor");
 		this.function = Objects.requireNonNull(function);
-		
+		this.location = Objects.requireNonNull(location);		
 	}
 
-	public ThingDescriptor getDescriptor() {
+	public KNXThingDescriptor getDescriptor() {
 		return descriptor;
 	}
 
@@ -36,25 +37,25 @@ public class Thing {
 	}
 	
 	public String getLocation() {
-		String name = function.getSpace().getName();
+		String name = location.getName();
 		return name != null ? name : "";
 	}
 
-	public Map<String, Item> getItems() {
+	public Map<String, KNXItem> getItems() {
 		return Collections.unmodifiableMap(items);
 	}
 	
-	public Map<String, Object> getContext()
+	public Map<String, String> getContext()
 	{
 		return ModelUtil.getContextFromComment(function.getComment());
 	}
 
-	public Thing addItem(Item item) {
+	public KNXThing addItem(KNXItem item) {
 		this.items.put(item.getKey(), item);
 		return this;
 	}
 
-	public void setItems(Collection<Item> items) {
+	public void setItems(Collection<KNXItem> items) {
 		this.items.clear();
 		this.items.putAll(items.stream().collect(Collectors.toMap(i -> i.getKey(), i -> i)));
 	}
@@ -77,10 +78,10 @@ public class Thing {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof Thing)) {
+		if (!(obj instanceof KNXThing)) {
 			return false;
 		}
-		Thing other = (Thing) obj;
+		KNXThing other = (KNXThing) obj;
 		return Objects.equals(items, other.items) && Objects.equals(descriptor, other.descriptor)
 				&& Objects.equals(function.getNumber(), other.function.getNumber());
 	}

@@ -1,5 +1,10 @@
 package org.openhab.support.knx2openhab.etsLoader;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -21,6 +26,9 @@ import org.knx.KnxProjectT.KnxInstallations.KnxInstallation;
 import org.knx.KnxSpaceT;
 import org.openhab.support.knx2openhab.Tupel;
 
+import com.rtfparserkit.converter.text.StreamTextConverter;
+import com.rtfparserkit.parser.RtfStreamSource;
+
 public class ETSUtils {
 	public static String resolveFunctionType(KnxMasterDataT masterData, String type) {
 		Optional<KnxFunctionTypeT> functionType = masterData.getFunctionTypes().getFunctionType().stream()
@@ -31,7 +39,7 @@ public class ETSUtils {
 	public static String resolveDatapointType(KnxMasterDataT masterData, String dataPointType) {
 		if (dataPointType == null)
 			return null;
-		
+
 		Optional<KnxDatapointTypeT> dtp = masterData.getDatapointTypes().getDatapointType().stream()
 				.filter(dt -> dataPointType.equals(dt.getId())).findAny();
 		if (dtp.isPresent()) {
@@ -48,7 +56,7 @@ public class ETSUtils {
 			return String.format("%1$d.%2$03d", dataPointSubType.get().getFirst().getNumber(),
 					dataPointSubType.get().getSecond().getNumber());
 		}
-		
+
 		return null;
 	}
 
@@ -83,15 +91,21 @@ public class ETSUtils {
 		return new KnxGroupAddressExt(g, resolveDatapointType(masterData, g.getDatapointType()));
 	}
 
-	public static List<KnxFunctionExt> getFunctions(KnxInstallation knxInstallation) {
-		KnxLocationsT locations = knxInstallation.getLocations();
-		return locations.getSpace().stream().flatMap(s -> getFunctions(s).stream()).collect(Collectors.toList());
-	}
 
-	private static List<KnxFunctionExt> getFunctions(KnxSpaceT space) {
-		List<KnxFunctionExt> functions = space.getFunction().stream().map(f -> new KnxFunctionExt(space, f))
-				.collect(Collectors.toList());
-		functions.addAll(space.getSpace().stream().flatMap(s -> getFunctions(s).stream()).collect(Collectors.toList()));
-		return functions;
+	public static String getCommentAsPlainText(String comment) {
+		if (comment != null && comment.length() > 0) {
+			try (InputStream stream = new ByteArrayInputStream(comment.getBytes())) {
+				try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+					StreamTextConverter textConverter = new StreamTextConverter();
+					RtfStreamSource source = new RtfStreamSource(stream);
+					textConverter.convert(source, outputStream, "UTF-8");
+
+					return outputStream.toString("UTF-8");
+				}
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		return null;
 	}
 }

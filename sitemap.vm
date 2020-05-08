@@ -28,51 +28,59 @@ Macro's for different things
 ##
 ## 
 #macro ( R $thing )
-        Switch item=${thing.key}_shutter             
-#if ( $thing.items['currentPosition'] )
-        Text item=${thing.key}_position
+        Frame label="${thing.description}" icon="blinds" {
+            Switch item=${thing.key}_shutter             
+#if ( $thing.items.currentPosition )
+            Text item=${thing.key}_position
 #end
-#if ( $thing.items['lock'] )
-        Switch item=${thing.key}_lock
+#if ( $thing.items.lock )
+            Switch item=${thing.key}_lock
 #end
+        }
 #end
 ##
 ## 
 #macro ( J $thing )
-        Switch item=${thing.key}_shutter
-#if ( $thing.items['currentPosition'] )
-        Text item=${thing.key}_position
+        Frame label="${thing.description}" icon="blinds"  {
+            Switch item=${thing.key}_shutter
+#if ( $thing.items.currentPosition )
+            Text item=${thing.key}_position
 #end
-#if ( $thing.items['lock'] )
-        Switch item=${thing.key}_lock
+#if ( $thing.items.lock )
+            Switch item=${thing.key}_lock
 #end
+        }
 #end
 ##
 ## 
 #macro ( M $thing )
-        Switch item=${thing.key}_shutter
-#if ( $thing.items['currentPosition'] )
-        Text item=${thing.key}_position
+        Frame label="${thing.description}" {
+            Switch item=${thing.key}_shutter
+#if ( $thing.items.currentPosition )
+            Text item=${thing.key}_position
 #end
-#if ( $thing.items['lock'] )
-        Switch item=${thing.key}_lock
+#if ( $thing.items.lock )
+            Switch item=${thing.key}_lock
 #end
+        }
 #end
 ##
 ## 
 #macro ( H $thing )
-#if ( $thing.items['actualTemperature'] )
-        Text item=#escape("${thing.key}")_actual
+        Frame label="${thing.description}" {
+#if ( $thing.items.actualTemperature )
+            Text item=#escape("${thing.key}")_actual
 #end
-#if ( $thing.items['targetTemperature'] )
-        Text item=#escape(${thing.key})_target
+#if ( $thing.items.targetTemperature )
+            Setpoint item=#escape(${thing.key})_target minValue=18 maxValue=30 step=0.5
 #end
-#if ( $thing.items['actualTemperatureFloor'] )
-        Text item=#escape(${thing.key})_floor
+#if ( $thing.items.actualTemperatureFloor )
+            Text item=#escape(${thing.key})_floor
 #end
-#if ( $thing.items['operatingMode'] )
-        Text item=#escape(${thing.key})_mode
+#if ( $thing.items.operatingModeSelection )
+            Text item=#escape(${thing.key})_mode
 #end
+        }
 #end
 ##
 ## 
@@ -92,33 +100,35 @@ Macro's for different things
 ##      
 ## 
 #macro ( W $thing ) 
-#if ( $thing.items['maximumBrightness'] )
-        Text item=#escape(${thing.key})_maxBrightness
+        Frame label="${thing.description}" {
+#if ( $thing.items.maximumBrightness )
+            Text item=#escape(${thing.key})_maxBrightness
 #end
-#if ( $thing.items['brightnessEast'] )
-        Text item=#escape(${thing.key})_brightnessEast
+#if ( $thing.items.brightnessEast )
+            Text item=#escape(${thing.key})_brightnessEast
 #end
-#if ( $thing.items['brightnessSouth'] )
-        Text item=#escape(${thing.key})_brightnessSouth
+#if ( $thing.items.brightnessSouth )
+            Text item=#escape(${thing.key})_brightnessSouth
 #end
-#if ( $thing.items['brightnessWest'] )
-        Text item=#escape(${thing.key})_brightnessWest
+#if ( $thing.items.brightnessWest )
+            Text item=#escape(${thing.key})_brightnessWest
 #end
-#if ( $thing.items['temperatureOutside'] )
-        Text item=#escape(${thing.key})_temperature
+#if ( $thing.items.temperatureOutside )
+            Text item=#escape(${thing.key})_temperature
 #end
-#if ( $thing.items['windspeed'] )
-        Text item=#escape(${thing.key})_windSpeed
+#if ( $thing.items.windspeed )
+            Text item=#escape(${thing.key})_windSpeed
 #end
-#if ( $thing.items['elevation'] )
-        Text item=#escape(${thing.key})_elevation
+#if ( $thing.items.elevation )
+            Text item=#escape(${thing.key})_elevation
 #end
-#if ( $thing.items['azimut'] )
-        Text item=#escape(${thing.key})_azimut
+#if ( $thing.items.azimut )
+            Text item=#escape(${thing.key})_azimut
 #end
-#if ( $thing.items['rainAlarm'] )
-        Text item=#escape(${thing.key})_rain
+#if ( $thing.items.rainAlarm )
+            Text item=#escape(${thing.key})_rain
 #end
+        }
 #end
 ##    
 ##
@@ -134,45 +144,22 @@ Main Loop
 #set ($lastLocation = '')
 #set ($frameEnd = '')
 ##
+Frame {
 #foreach ($thing in $collection.sort($things, ["location", "key"]))
 #if ( $lastLocation != $thing.location )
     $frameEnd
-
+    
     // $thing.location
-    Frame label="$thing.location" {
+    Text label="$thing.location" {
 #set ($lastLocation = "$thing.location")
 #set ($frameEnd = '}')
 #end
 ##
-#if ( $thing.descriptor.key == 'L' )
-#L ( $thing )
-#elseif ( $thing.descriptor.key == 'LD' )
-#LD ( $thing )
-#elseif ( $thing.descriptor.key == 'H' )
-#H ( $thing )
-#elseif ( $thing.descriptor.key == 'R' )
-#R ( $thing )
-#elseif ( $thing.descriptor.key == 'J' )
-#J ( $thing )
-#elseif ( $thing.descriptor.key == 'S' )
-#S ( $thing )
-#elseif ( $thing.descriptor.key == 'FK' )
-#FK ( $thing )
-#elseif ( $thing.descriptor.key == 'TK' )
-#FK ( $thing )
-#elseif ( $thing.descriptor.key == 'M' )
-#M ( $thing )
-#elseif ( $thing.descriptor.key == 'A' )
-#A ( $thing )
-#elseif ( $thing.descriptor.key == 'W' )
-#W ( $thing )
-#else
-    $log.warning("Unknown Thing type: $thing.descriptor.key")
-#end
+#evaluate( "#$thing.descriptor.key ( \$thing )" )
 
 #end
 ##
     $frameEnd	
-
+}
 }
 

@@ -5,12 +5,12 @@ import java.util.Objects;
 
 import org.knx.KnxGroupAddressExt;
 
-public class Item {
+public class KNXItem {
 
-	private ItemDescriptor itemDescriptor;
+	private KNXItemDescriptor itemDescriptor;
 	private KnxGroupAddressExt groupAddress;
 	
-	public Item(ItemDescriptor itemDescriptor, KnxGroupAddressExt groupAddress) {
+	public KNXItem(KNXItemDescriptor itemDescriptor, KnxGroupAddressExt groupAddress) {
 		this.itemDescriptor = itemDescriptor;
 		this.groupAddress = groupAddress;
 	}
@@ -20,7 +20,7 @@ public class Item {
 		return itemDescriptor.getKey();
 	}
 
-	public ItemDescriptor getItemDescriptor() {
+	public KNXItemDescriptor getItemDescriptor() {
 		return itemDescriptor;
 	}
 
@@ -32,7 +32,7 @@ public class Item {
 		return groupAddress.getDescription();
 	}
 	
-	public Map<String, Object> getContext()
+	public Map<String, String> getContext()
 	{
 		return ModelUtil.getContextFromComment(groupAddress.getComment());
 	}
@@ -55,10 +55,10 @@ public class Item {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof Item)) {
+		if (!(obj instanceof KNXItem)) {
 			return false;
 		}
-		Item other = (Item) obj;
+		KNXItem other = (KNXItem) obj;
 		return Objects.equals(getAddress(), other.getAddress());
 	}
 

@@ -8,7 +8,7 @@ import org.apache.velocity.Template;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.context.Context;
 import org.apache.velocity.tools.ToolManager;
-import org.openhab.support.knx2openhab.model.Thing;
+import org.openhab.support.knx2openhab.model.KNXThing;
 
 public class VelocityProcessor {
 
@@ -19,7 +19,7 @@ public class VelocityProcessor {
 		this.template = template;
 	}
 	
-	public void process(Collection<Thing> things, Writer writer)
+	public void process(Collection<KNXThing> things, Writer writer)
 	{
 		VelocityEngine velocityEngine = new VelocityEngine();
 		velocityEngine.init();

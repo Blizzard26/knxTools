@@ -1,4 +1,6 @@
-//TUNNEL
+////////////////////////////////////////////////////////////////////////////////////////////////
+// Automatically created things. Do not change this file as it will be overriden
+////////////////////////////////////////////////////////////////////////////////////////////////
 Bridge knx:ip:bridge [  
     type="TUNNEL", 
     ipAddress="knx-gateway.fritz.box", 
@@ -23,7 +25,7 @@ Macro's for different things
 #macro ( L $thing )
     Thing device $thing.key "$thing.description" @ "$thing.location" []
     {
-        Type switch        : switch        "Schalten"       [ ga="$thing.items['switch'].address" ]
+        Type switch        : switch        "Schalten"       [ ga="$thing.items.switch.address" ]
     }
 #end
 ##
@@ -31,7 +33,7 @@ Macro's for different things
 #macro ( LD $thing )
     Thing device $thing.key "$thing.description" @ "$thing.location" []
     {
-        Type dimmer        : dimmer        "Dimmer"      [ switch="$thing.items['switch'].address", position="$thing.items['dimmingValue'].address", increaseDecrease="$thing.items['dimming'].address" ]
+        Type dimmer        : dimmer        "Dimmer"      [ switch="$thing.items.switch.address", position="$thing.items.dimmingValue.address", increaseDecrease="$thing.items.dimming.address" ]
     }
 #end
 ##
@@ -39,17 +41,17 @@ Macro's for different things
 #macro ( H $thing )
     Thing device $thing.key "$thing.description" @ "$thing.location" []
     {
-#if ( $thing.items['actualTemperature'] )
-        Type number        : actualTemperature   "Isttemperatur"       [ ga="$thing.items['actualTemperature'].type:<$thing.items['actualTemperature'].address" ]
+#if ( $thing.items.actualTemperature )
+        Type number        : actualTemperature   "Isttemperatur"       [ ga="$thing.items.actualTemperature.type:<$thing.items.actualTemperature.address" ]
 #end
-#if ( $thing.items['targetTemperature'] )
-        Type number        : targetTemperature   "Solltemperatur"      [ ga="$thing.items['targetTemperature'].type:<$thing.items['targetTemperature'].address" ]
+#if ( $thing.items.targetTemperature )
+        Type number        : targetTemperature   "Solltemperatur"      [ ga="$thing.items.targetTemperature.type:<$thing.items.targetTemperature.address" ]
 #end
-#if ( $thing.items['actualTemperatureFloor'] )
-        Type number        : floorTemperature    "Isttemperatur Boden" [ ga="$thing.items['actualTemperatureFloor'].type:<$thing.items['actualTemperatureFloor'].address" ]
+#if ( $thing.items.actualTemperatureFloor )
+        Type number        : floorTemperature    "Isttemperatur Boden" [ ga="$thing.items.actualTemperatureFloor.type:<$thing.items.actualTemperatureFloor.address" ]
 #end
-#if ( $thing.items['operatingMode'] )
-        Type string        : operatingMode       "Betriebsart"         [ ga="$thing.items['operatingMode'].type:<$thing.items['operatingMode'].address" ]
+#if ( $thing.items.operatingMode )
+        Type string        : operatingModeSelection  "Betriebsart"         [ ga="$thing.items.operatingMode.type:<$thing.items.operatingMode.address" ]
 #end
     }
 #end
@@ -58,12 +60,12 @@ Macro's for different things
 #macro ( R $thing )
     Thing device $thing.key "$thing.description" @ "$thing.location" []
     {
-        Type rollershutter : shutter    "Rollladen"         [ upDown="$thing.items['move'].address", stopMove="$thing.items['step'].address" #if($thing.items['setPosition']), position="$thing.items['setPosition'].address" #{end} ]
-#if ( $thing.items['currentPosition'] )
-        Type number        : position   "Aktuelle Position" [ ga="$thing.items['currentPosition'].type:<$thing.items['currentPosition'].address" ]
+        Type rollershutter : shutter    "Rollladen"         [ upDown="$thing.items.move.address", stopMove="$thing.items.step.address" #if($thing.items.setPosition), position="$thing.items.setPosition.address" #{end} ]
+#if ( $thing.items.currentPosition )
+        Type number        : position   "Aktuelle Position" [ ga="$thing.items.currentPosition.type:<$thing.items.currentPosition.address" ]
 #end
-#if ( $thing.items['lock'] )
-        Type switch        : lock        "Sperren"          [ ga="$thing.items['lock'].address" ]
+#if ( $thing.items.lock )
+        Type switch        : lock        "Sperren"          [ ga="$thing.items.lock.address" ]
 #end
     }
 #end
@@ -72,12 +74,12 @@ Macro's for different things
 #macro ( J $thing )
     Thing device $thing.key "$thing.description" @ "$thing.location" []
     {
-        Type rollershutter : shutter    "Jalousie"          [ upDown="$thing.items['move'].address", stopMove="$thing.items['step'].address", position="$thing.items['setPosition'].address" ]
-#if ( $thing.items['currentPosition'] )
-        Type number        : position   "Aktuelle Position" [ ga="$thing.items['currentPosition'].type:<$thing.items['currentPosition'].address" ]
+        Type rollershutter : shutter    "Jalousie"          [ upDown="$thing.items.move.address", stopMove="$thing.items.step.address", position="$thing.items.setPosition.address" ]
+#if ( $thing.items.currentPosition )
+        Type number        : position   "Aktuelle Position" [ ga="$thing.items.currentPosition.type:<$thing.items.currentPosition.address" ]
 #end
-#if ( $thing.items['lock'] )
-        Type switch        : lock        "Sperren"          [ ga="$thing.items['lock'].address" ]
+#if ( $thing.items.lock )
+        Type switch        : lock        "Sperren"          [ ga="$thing.items.lock.address" ]
 #end
     }
 #end
@@ -86,9 +88,9 @@ Macro's for different things
 #macro ( S $thing )
     Thing device $thing.key "$thing.description" @ "$thing.location" []
     {
-        Type switch        : switch              "Schalten"       [ ga="$thing.items['switch'].address" ]
-#if ( $thing.items['inOperation'] )
-        Type contact       : operating           "In Betrieb"     [ ga="$thing.items['inOperation'].address" ]
+        Type switch        : switch              "Schalten"       [ ga="$thing.items.switch.address" ]
+#if ( $thing.items.inOperation )
+        Type contact       : operating           "In Betrieb"     [ ga="$thing.items.inOperation.address" ]
 #end
     }
 #end
@@ -97,7 +99,7 @@ Macro's for different things
 #macro ( FK $thing )
     Thing device $thing.key "$thing.description" @ "$thing.location" []
     {
-        Type contact       : contact       "Fensterkontakt"        [ ga="1.019:<$thing.items['windowContact'].address" ]
+        Type contact       : contact       "Fensterkontakt"        [ ga="1.019:<$thing.items.windowContact.address" ]
     }
 #end
 ##
@@ -105,7 +107,7 @@ Macro's for different things
 #macro ( TK $thing )
     Thing device $thing.key "$thing.description" @ "$thing.location" []
     {
-        Type contact       : contact       "Türkontakt"        [ ga="1.019:<$thing.items['doorContact'].address" ]
+        Type contact       : contact       "Türkontakt"        [ ga="1.019:<$thing.items.doorContact.address" ]
     }
 #end
 ##
@@ -113,12 +115,12 @@ Macro's for different things
 #macro ( M $thing )
     Thing device $thing.key "$thing.description" @ "$thing.location" []
     {
-        Type rollershutter : shutter    "Markise"           [ upDown="$thing.items['move'].address", stopMove="$thing.items['step'].address" #if($thing.items['setPosition'] ), position="$thing.items['setPosition'].address" #{end} ]
-#if ( $thing.items['currentPosition'] )
-        Type number        : position   "Aktuelle Position" [ ga="$thing.items['currentPosition'].type:<$thing.items['currentPosition'].address" ]
+        Type rollershutter : shutter    "Markise"           [ upDown="$thing.items.move.address", stopMove="$thing.items.step.address" #if($thing.items.setPosition ), position="$thing.items.setPosition.address" #{end} ]
+#if ( $thing.items.currentPosition )
+        Type number        : position   "Aktuelle Position" [ ga="$thing.items.currentPosition.type:<$thing.items.currentPosition.address" ]
 #end
-#if ( $thing.items['lock'] )
-        Type switch        : lock       "Sperren"           [ ga="$thing.items['lock'].address" ]
+#if ( $thing.items.lock )
+        Type switch        : lock       "Sperren"           [ ga="$thing.items.lock.address" ]
 #end
     }
 #end
@@ -127,7 +129,7 @@ Macro's for different things
 #macro ( A $thing )
     Thing device $thing.key "$thing.description" @ "$thing.location" []
     {
-        Type string        : alarm       "$thing.description"         [ ga="$thing.items['alarm'].type:<$thing.items['alarm'].address" ]
+        Type string        : alarm       "$thing.description"         [ ga="$thing.items.alarm.type:<$thing.items.alarm.address" ]
     }
 #end
 ##
@@ -135,32 +137,32 @@ Macro's for different things
 #macro ( W $thing )
     Thing device $thing.key "$thing.description" @ "$thing.location" []
     {
-#if ( $thing.items['maximumBrightness'] )
-        Type string        : maxBrightness       "Maximaler Helligkeitswert"         [ ga="$thing.items['maximumBrightness'].type:<$thing.items['maximumBrightness'].address" ]
+#if ( $thing.items.maximumBrightness )
+        Type string        : maxBrightness       "Maximaler Helligkeitswert"         [ ga="$thing.items.maximumBrightness.type:<$thing.items.maximumBrightness.address" ]
 #end
-#if ( $thing.items['brightnessEast'] )
-        Type string        : brightnessEast      "Helligkeitswert Ost"               [ ga="$thing.items['brightnessEast'].type:<$thing.items['brightnessEast'].address" ]
+#if ( $thing.items.brightnessEast )
+        Type string        : brightnessEast      "Helligkeitswert Ost"               [ ga="$thing.items.brightnessEast.type:<$thing.items.brightnessEast.address" ]
 #end
-#if ( $thing.items['brightnessSouth'] )
-        Type string        : brightnessSouth     "Helligkeitswert Süd"               [ ga="$thing.items['brightnessSouth'].type:<$thing.items['brightnessSouth'].address" ]
+#if ( $thing.items.brightnessSouth )
+        Type string        : brightnessSouth     "Helligkeitswert Süd"               [ ga="$thing.items.brightnessSouth.type:<$thing.items.brightnessSouth.address" ]
 #end
-#if ( $thing.items['brightnessWest'] )
-        Type string        : brightnessWest      "Helligkeitswert West"              [ ga="$thing.items['brightnessWest'].type:<$thing.items['brightnessWest'].address" ]
+#if ( $thing.items.brightnessWest )
+        Type string        : brightnessWest      "Helligkeitswert West"              [ ga="$thing.items.brightnessWest.type:<$thing.items.brightnessWest.address" ]
 #end
-#if ( $thing.items['temperatureOutside'] )
-        Type string        : temperature         "Außen Temperatur"                  [ ga="$thing.items['temperatureOutside'].type:<$thing.items['temperatureOutside'].address" ]
+#if ( $thing.items.temperatureOutside )
+        Type string        : temperature         "Außen Temperatur"                  [ ga="$thing.items.temperatureOutside.type:<$thing.items.temperatureOutside.address" ]
 #end
-#if ( $thing.items['windspeed'] )
-        Type string        : windSpeed           "Windgeschwindigkeit (m/s)"         [ ga="$thing.items['windspeed'].type:<$thing.items['windspeed'].address" ]
+#if ( $thing.items.windspeed )
+        Type string        : windSpeed           "Windgeschwindigkeit (m/s)"         [ ga="$thing.items.windspeed.type:<$thing.items.windspeed.address" ]
 #end
-#if ( $thing.items['elevation'] )
-        Type string        : elevation           "Elevation"                         [ ga="$thing.items['elevation'].type:<$thing.items['elevation'].address" ]
+#if ( $thing.items.elevation )
+        Type string        : elevation           "Elevation"                         [ ga="$thing.items.elevation.type:<$thing.items.elevation.address" ]
 #end
-#if ( $thing.items['azimut'] )
-        Type string        : azimut              "Azimut"                            [ ga="$thing.items['azimut'].type:<$thing.items['azimut'].address" ]
+#if ( $thing.items.azimut )
+        Type string        : azimut              "Azimut"                            [ ga="$thing.items.azimut.type:<$thing.items.azimut.address" ]
 #end
-#if ( $thing.items['rainAlarm'] )
-        Type string        : rain                "Regen"                             [ ga="$thing.items['rainAlarm'].type:<$thing.items['rainAlarm'].address" ]
+#if ( $thing.items.rainAlarm )
+        Type string        : rain                "Regen"                             [ ga="$thing.items.rainAlarm.type:<$thing.items.rainAlarm.address" ]
 #end
     }
 #end
@@ -170,9 +172,6 @@ Macro's for different things
 Main Loop
 ===========================
 *#
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // Automatically created things. Do not change anything below this line as it will be overriden
-    ////////////////////////////////////////////////////////////////////////////////////////////////
 
 #set ($lastLocation = '')
 ##
@@ -182,31 +181,7 @@ Main Loop
 #set ($lastLocation = "$thing.location")
 #end
 ##
-#if ( $thing.descriptor.key == 'L' )
-#L ( $thing )
-#elseif ( $thing.descriptor.key == 'LD' )
-#LD ( $thing )
-#elseif ( $thing.descriptor.key == 'H' )
-#H ( $thing )
-#elseif ( $thing.descriptor.key == 'R' )
-#R ( $thing )
-#elseif ( $thing.descriptor.key == 'J' )
-#J ( $thing )
-#elseif ( $thing.descriptor.key == 'S' )
-#S ( $thing )
-#elseif ( $thing.descriptor.key == 'FK' )
-#FK ( $thing )
-#elseif ( $thing.descriptor.key == 'TK' )
-#TK ( $thing )
-#elseif ( $thing.descriptor.key == 'M' )
-#M ( $thing )
-#elseif ( $thing.descriptor.key == 'A' )
-#A ( $thing )
-#elseif ( $thing.descriptor.key == 'W' )
-#W ( $thing )
-#else
-    $log.warning("Unknown Thing type: $thing.descriptor.key")
-#end
+#evaluate( "#$thing.descriptor.key ( \$thing )" )
 
 #end
 ##

@@ -14,7 +14,7 @@ import javax.xml.bind.JAXBException;
 import org.knx.KNX;
 import org.knx.KnxProjectT.KnxInstallations.KnxInstallation;
 import org.openhab.support.knx2openhab.etsLoader.ETSLoader;
-import org.openhab.support.knx2openhab.model.Thing;
+import org.openhab.support.knx2openhab.model.KNXThing;
 import org.openhab.support.knx2openhab.velocity.VelocityProcessor;
 
 public class Main {
@@ -54,7 +54,7 @@ public class Main {
 		System.out.println("Extracting things");
 		System.out.println("===================");
 		ThingExtractor thingExtractor = new ThingExtractor(knx, knxInstallation);
-		List<Thing> things = thingExtractor.getThings();
+		List<KNXThing> things = thingExtractor.getThings();
 
 		
 		System.out.println("===================");

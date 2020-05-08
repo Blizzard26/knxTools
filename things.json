@@ -1,0 +1,246 @@
+[ {
+  "key" : "R",
+  "functionTypes" : [ "FT-7" ],
+  "name" : "Rollladen",
+  "items" : [ {
+    "key" : "move",
+    "keywords" : [ "Bewegen" ]
+  }, {
+    "key" : "step",
+    "keywords" : [ "Schritt/Stop" ]
+  }, {
+    "key" : "currentPosition",
+    "keywords" : [ "Aktuelle Position" ]
+  }, {
+    "key" : "setPosition",
+    "keywords" : [ "Position setzen" ]
+  }, {
+    "key" : "lock",
+    "keywords" : [ "Sperren", "Sperren (gesperrt=1)" ]
+  }, {
+    "key" : "closed",
+    "keywords" : [ "Geschlossen", "Geschlossen (unten=1)" ]
+  }, {
+    "key" : "dayNight",
+    "keywords" : [ "Tag / Nacht (Tag=1/Nacht=0)" ]
+  }, {
+    "key" : "windowContact",
+    "keywords" : [ "Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)" ]
+  } ]
+}, {
+  "key" : "S",
+  "functionTypes" : [ "FT-0" ],
+  "name" : "Schalten",
+  "items" : [ {
+    "key" : "switch",
+    "keywords" : [ "Schalten" ]
+  }, {
+    "key" : "status",
+    "keywords" : [ "Status" ]
+  }, {
+    "key" : "inOperation",
+    "keywords" : [ "Betrieb" ]
+  } ]
+}, {
+  "key" : "FK",
+  "functionTypes" : [ "FT-0" ],
+  "name" : "Fensterkontakt",
+  "items" : [ {
+    "key" : "windowContact",
+    "keywords" : [ "Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)" ]
+  } ]
+}, {
+  "key" : "TK",
+  "functionTypes" : [ "FT-0" ],
+  "name" : "Türkontakt",
+  "items" : [ {
+    "key" : "doorContact",
+    "keywords" : [ "Türkontakt" ]
+  } ]
+}, {
+  "key" : "W",
+  "functionTypes" : [ "FT-0" ],
+  "name" : "Wetter",
+  "items" : [ {
+    "key" : "maximumBrightness",
+    "keywords" : [ "Maximaler Helligkeitswert" ]
+  }, {
+    "key" : "brightnessEast",
+    "keywords" : [ "Helligkeitswert Ost" ]
+  }, {
+    "key" : "brightnessSouth",
+    "keywords" : [ "Helligkeitswert Süd" ]
+  }, {
+    "key" : "brightnessWest",
+    "keywords" : [ "Helligkeitswert West" ]
+  }, {
+    "key" : "temperatureOutside",
+    "keywords" : [ "Temperatur Außen", "Au�en Temperatur" ]
+  }, {
+    "key" : "windspeed",
+    "keywords" : [ "Windgeschwindigkeit (m/s)" ]
+  }, {
+    "key" : "elevation",
+    "keywords" : [ "Elevation" ]
+  }, {
+    "key" : "azimut",
+    "keywords" : [ "Azimut" ]
+  }, {
+    "key" : "rainAlarm",
+    "keywords" : [ "Regenalarm" ]
+  }, {
+    "key" : "windAlarmShutter",
+    "keywords" : [ "Windalarm Jalousie", "Jalousie Windalarm" ]
+  } ]
+}, {
+  "key" : "LD",
+  "functionTypes" : [ "FT-6" ],
+  "name" : "Lampe Dimmbar",
+  "items" : [ {
+    "key" : "switch",
+    "keywords" : [ "Schalten" ]
+  }, {
+    "key" : "status",
+    "keywords" : [ "Status" ]
+  }, {
+    "key" : "dimming",
+    "keywords" : [ "Dimmen" ]
+  }, {
+    "key" : "dimmingValue",
+    "keywords" : [ "Dimmwert" ]
+  }, {
+    "key" : "value",
+    "keywords" : [ "Wert" ]
+  } ]
+}, {
+  "key" : "H",
+  "functionTypes" : [ "FT-8", "FT-9" ],
+  "name" : "Heizung",
+  "items" : [ {
+    "key" : "actualTemperature",
+    "keywords" : [ "Isttemperatur" ]
+  }, {
+    "key" : "targetTemperature",
+    "keywords" : [ "Solltemperatur" ]
+  }, {
+    "key" : "operatingMode",
+    "keywords" : [ "Betriebsart" ]
+  }, {
+    "key" : "switchingRegulating",
+    "keywords" : [ "schaltende Stellgröße" ]
+  }, {
+    "key" : "continuousRegulating",
+    "keywords" : [ "stetige Stellgröße" ]
+  }, {
+    "key" : "frostAlarm",
+    "keywords" : [ "Frostalarm", "Frostschutz" ]
+  }, {
+    "key" : "heatAlarm",
+    "keywords" : [ "Hitzealarm", "Hitzeschutz" ]
+  }, {
+    "key" : "setpointAdjustment",
+    "keywords" : [ "Sollwertverschiebung" ]
+  }, {
+    "key" : "actualTemperatureFloor",
+    "keywords" : [ "Isttemperatur Boden" ]
+  }, {
+    "key" : "diagnosis",
+    "keywords" : [ "Diagnose" ]
+  }, {
+    "key" : "operatingModeSelection",
+    "keywords" : [ "Betriebsartvorwahl" ]
+  }, {
+    "key" : "modeComfort",
+    "keywords" : [ "Betriebsart Komfort" ]
+  }, {
+    "key" : "modeNight",
+    "keywords" : [ "Betriebsart Nacht" ]
+  }, {
+    "key" : "modeProtection",
+    "keywords" : [ "Betriebsart Frost/Hitzeschutz" ]
+  }, {
+    "key" : "switchHeatingCooling",
+    "keywords" : [ "Heizen / Kühlen (Heizen=1/Kühlen=0)" ]
+  }, {
+    "key" : "windowContact",
+    "keywords" : [ "Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)" ]
+  }, {
+    "key" : "doorContact",
+    "keywords" : [ "Türkontakt" ]
+  } ]
+}, {
+  "key" : "J",
+  "functionTypes" : [ "FT-7" ],
+  "name" : "Jalousie",
+  "items" : [ {
+    "key" : "move",
+    "keywords" : [ "Bewegen" ]
+  }, {
+    "key" : "step",
+    "keywords" : [ "Schritt/Stop" ]
+  }, {
+    "key" : "currentPosition",
+    "keywords" : [ "Aktuelle Position" ]
+  }, {
+    "key" : "setPosition",
+    "keywords" : [ "Position setzen" ]
+  }, {
+    "key" : "setBladePosition",
+    "keywords" : [ "Lamellenstellung setzen" ]
+  }, {
+    "key" : "lock",
+    "keywords" : [ "Sperren", "Sperren (gesperrt=1)" ]
+  }, {
+    "key" : "closed",
+    "keywords" : [ "Geschlossen", "Geschlossen (unten=1)" ]
+  }, {
+    "key" : "windowContact",
+    "keywords" : [ "Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)" ]
+  } ]
+}, {
+  "key" : "L",
+  "functionTypes" : [ "FT-1" ],
+  "name" : "Lampe",
+  "items" : [ {
+    "key" : "switch",
+    "keywords" : [ "Schalten" ]
+  }, {
+    "key" : "status",
+    "keywords" : [ "Status" ]
+  }, {
+    "key" : "lock",
+    "keywords" : [ "Sperren" ]
+  }, {
+    "key" : "move",
+    "keywords" : [ "Bewegung" ]
+  }, {
+    "key" : "forced",
+    "keywords" : [ "Zwangsführung" ]
+  }, {
+    "key" : "automatic",
+    "keywords" : [ "Automatikbetrieb" ]
+  }, {
+    "key" : "presence",
+    "keywords" : [ "Präsenz" ]
+  } ]
+}, {
+  "key" : "M",
+  "functionTypes" : [ "FT-7" ],
+  "name" : "Markise",
+  "items" : [ {
+    "key" : "move",
+    "keywords" : [ "Bewegen" ]
+  }, {
+    "key" : "step",
+    "keywords" : [ "Schritt/Stop" ]
+  }, {
+    "key" : "currentPosition",
+    "keywords" : [ "Position" ]
+  }, {
+    "key" : "windAlarm",
+    "keywords" : [ "Windalarm" ]
+  }, {
+    "key" : "rainAlarm",
+    "keywords" : [ "Regenalarm" ]
+  } ]
+} ]
