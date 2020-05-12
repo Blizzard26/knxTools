@@ -11,3 +11,7 @@ bin/
 
 .classpath
 .project
+
+# Ignore output directories
+out/
+

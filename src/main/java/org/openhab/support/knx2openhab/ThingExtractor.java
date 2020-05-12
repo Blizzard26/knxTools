@@ -46,13 +46,11 @@ public class ThingExtractor {
 
 	private Map<String, KNXLocation> locations;
 
-	public ThingExtractor(KNX knx, KnxInstallation knxInstallation) {
+	public ThingExtractor(KNX knx, KnxInstallation knxInstallation, File thingsConfigFile) {
 		this.knx = knx;
 		this.knxInstallation = knxInstallation;
 
-		File thingsConfig = new File("things.json");
-
-		thingDescriptors = loadThingsConfig(thingsConfig);
+		thingDescriptors = loadThingsConfig(thingsConfigFile);
 	}
 
 	private Map<String, Map<String, KNXThingDescriptor>> loadThingsConfig(File thingsConfig) {

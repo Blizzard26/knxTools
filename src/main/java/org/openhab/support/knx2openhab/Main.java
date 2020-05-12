@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,22 +55,22 @@ public class Main {
 		System.out.println("===================");
 		System.out.println("Extracting things");
 		System.out.println("===================");
-		ThingExtractor thingExtractor = new ThingExtractor(knx, knxInstallation);
+		ThingExtractor thingExtractor = new ThingExtractor(knx, knxInstallation, new File("conf/things.json"));
 		List<KNXThing> things = thingExtractor.getThings();
 
-		Map<File, File> pairs = new HashMap<>();
-		pairs.put(new File("things.vm"), THINGS_FILE);
-		pairs.put(new File("items.vm"), ITEMS_FILE);
-		pairs.put(new File("sitemap.vm"), SITEMAP_FILE);
+		Map<String, File> pairs = new HashMap<>();
+		pairs.put("things.vm", THINGS_FILE);
+		pairs.put("items.vm", ITEMS_FILE);
+		pairs.put("sitemap.vm", SITEMAP_FILE);
 
-		for (Entry<File, File> e : pairs.entrySet()) {
+		for (Entry<String, File> e : pairs.entrySet()) {
 			processTemplate(things, e.getKey(), e.getValue());
 		}
 	}
 
-	private void processTemplate(List<KNXThing> things, File templateFile, File outputFile) throws IOException {
+	private void processTemplate(List<KNXThing> things, String templateFile, File outputFile) throws IOException {
 		System.out.println("===================");
-		System.out.println("Processing " + templateFile.getName() + " to " + outputFile.getName());
+		System.out.println("Processing " + templateFile + " to " + outputFile.getName());
 		System.out.println("===================");
 		
 		File parentFile = outputFile.getParentFile();
@@ -80,7 +79,7 @@ public class Main {
 			parentFile.mkdirs();
 		}
 		
-		VelocityProcessor processor = new VelocityProcessor(templateFile);
+		VelocityProcessor processor = new VelocityProcessor(new File("templates"), templateFile);
 		try (Writer writer = Files.newBufferedWriter(outputFile.toPath(), StandardCharsets.UTF_8)) {
 			processor.process(things, writer);
 		}
