@@ -39,6 +39,9 @@ Macro's for different things
 #if ( $thing.items.lock )
             Switch item=${thing.key}_lock
 #end
+#if ( $thing.items.shading )
+            Switch item=${thing.key}_shading
+#end
         }
 #end
 ##
@@ -54,6 +57,9 @@ Macro's for different things
 #end
 #if ( $thing.items.lock )
             Switch item=${thing.key}_lock
+#end
+#if ( $thing.items.shading )
+            Switch item=${thing.key}_shading
 #end
         }
 #end
