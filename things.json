@@ -18,6 +18,9 @@
     "key" : "lock",
     "keywords" : [ "Sperren", "Sperren (gesperrt=1)" ]
   }, {
+    "key" : "shading",
+    "keywords" : [ "Beschattung", "Beschattung (gesperrt=1)" ]
+  }, {
     "key" : "closed",
     "keywords" : [ "Geschlossen", "Geschlossen (unten=1)" ]
   }, {
@@ -75,7 +78,7 @@
     "keywords" : [ "Helligkeitswert West" ]
   }, {
     "key" : "temperatureOutside",
-    "keywords" : [ "Temperatur Außen", "Au�en Temperatur" ]
+    "keywords" : [ "Temperatur Außen", "Außen Temperatur" ]
   }, {
     "key" : "windspeed",
     "keywords" : [ "Windgeschwindigkeit (m/s)" ]
@@ -169,7 +172,7 @@
     "keywords" : [ "Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)" ]
   }, {
     "key" : "doorContact",
-    "keywords" : [ "Türkontakt" ]
+    "keywords" : [ "Türkontakt", "Türkontakt (geschlossen=0/offen=1)" ]
   } ]
 }, {
   "key" : "J",
@@ -199,6 +202,9 @@
   }, {
     "key" : "windowContact",
     "keywords" : [ "Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)" ]
+  }, {
+    "key" : "doorContact",
+    "keywords" : [ "Türkontakt", "Türkontakt (geschlossen=0/offen=1)" ]
   } ]
 }, {
   "key" : "L",
@@ -212,7 +218,7 @@
     "keywords" : [ "Status" ]
   }, {
     "key" : "lock",
-    "keywords" : [ "Sperren" ]
+    "keywords" : [ "Sperren", "Sperren (gesperrt=1)" ]
   }, {
     "key" : "movement",
     "keywords" : [ "Bewegung" ]
