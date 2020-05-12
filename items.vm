@@ -1,123 +1,118 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////
-// Automatically created items. Any changes will be overriden
+// This items-File has been automatically created. Any changes might be overridden
 ////////////////////////////////////////////////////////////////////////////////////////////////
 #*
 ===========================
-Macro's for different things
+General Macros
 ===========================
 *#
-#macro ( escape $param )$param#end
-#macro ( padRight $text )$display.printf("%-25s", $text)#end
-
+#macro ( escape $text )$text#end
+#macro ( padRight $text $length )$display.printf("%-${length}s", $text)#end
+#macro ( groups $item )#if ( $item.context.groups )( $item.context.groups )#end#end
+#macro ( item $thing $knxItem $key $type $text $icon)
+#if ( $thing.items[$knxItem] )
+#padRight("$type", "15") #padRight("#escape(${thing.key})_$key", "30") #padRight("""$text""", "40") #padRight("#if ($icon) <$icon> #end", "17") #padRight("#groups($thing.items[$knxItem])", 50) { channel="knx:device:bridge:#escape(${thing.key}):$key" }
+#end 
+#end
 ##
+#*
+===========================
+Macros for different items
+===========================
+*#
 ## 
 #macro ( L $thing )
-Switch          #padRight("${thing.key}_switch") "Licht [%s]"               <light>          { channel="knx:device:bridge:$thing.key:switch" }
+// $thing.description
+#item ($thing, "switch", "switch", "Switch", "Licht [%s]", "light")
+#item ($thing, "forced", "forced", "Switch", "Zwangsführung [%s]", "light")
+#item ($thing, "movement", "movement", "Contact", "Bewegung [%s]", "motion")
 #end
 ##
 ## 
 #macro ( LD $thing )
-Dimmer          #padRight("${thing.key}_dimmer") "Dimmer [%d %%]"           <light>          { channel="knx:device:bridge:$thing.key:dimmer" }
+// $thing.description
+#item ($thing, "dimming", "dimmer", "Dimmer", "Dimmer [%d %%]", "light")
+#item ($thing, "switch", "switch", "Switch", "Licht [%s]", "light")
 #end
 ##
 ## 
 #macro ( S $thing )
-Switch          #padRight("${thing.key}_switch") "${thing.description} [%s]"            <light>          { channel="knx:device:bridge:$thing.key:switch" }
+// $thing.description
+#item ($thing, "switch", "switch", "Switch", "${thing.description} [%s]", "poweroutlet")
+#item ($thing, "inOperation", "inOperation", "Contact", "${thing.description} In Betrieb [%s]", "poweroutlet")
 #end
 ##
 ## 
 #macro ( R $thing )
-Rollershutter   #padRight("${thing.key}_shutter") "Rollladen [%d %%]"        <rollershutter>  { channel="knx:device:bridge:$thing.key:shutter" }
-#if ( $thing.items.currentPosition )
-Number          #padRight("${thing.key}_position") "Position [%d %%]"         <rollershutter>  { channel="knx:device:bridge:$thing.key:position" }
-#end
-#if ( $thing.items.lock )
-Switch          #padRight("${thing.key}_lock") "Gesperrt [%s]"            <rollershutter>  { channel="knx:device:bridge:$thing.key:lock" }
-#end
+// $thing.description
+#item ($thing, "move", "shutter", "Rollershutter", "Rollladen [%d %%]", "rollershutter")
+#item ($thing, "currentPosition", "position", "Number", "Position [%d %%]", "rollershutter")
+#item ($thing, "lock", "lock", "Switch", "Gesperrt [%s]", "rollershutter")
+#item ($thing, "closed", "closed", "Contact", "Geschlossen [%s]", "rollershutter")
 #end
 ##
 ## 
 #macro ( J $thing )
-Rollershutter   #padRight("${thing.key}_shutter") "Rollladen [%d %%]"         <rollershutter>  { channel="knx:device:bridge:$thing.key:shutter" }
-#if ( $thing.items.currentPosition )
-Number          #padRight("${thing.key}_position") "Position [%d %%]"         <rollershutter>  { channel="knx:device:bridge:$thing.key:position" }
-#end
-#if ( $thing.items.lock )
-Switch          #padRight("${thing.key}_lock") "Gesperrt [%s]"            <rollershutter>  { channel="knx:device:bridge:$thing.key:lock" }
-#end
+// $thing.description
+#item ($thing, "move", "shutter", "Rollershutter", "Rollladen [%d %%]", "rollershutter")
+#item ($thing, "setBladePosition", "setBladePosition", "Number", "Lamellenstellung [%d %%]", "rollershutter")
+#item ($thing, "currentPosition", "position", "Number", "Position [%d %%]", "rollershutter")
+#item ($thing, "lock", "lock", "Switch", "Gesperrt [%s]", "rollershutter")
+#item ($thing, "closed", "closed", "Contact", "Geschlossen [%s]", "rollershutter")
 #end
 ##
 ## 
 #macro ( M $thing )
-Rollershutter   #padRight("${thing.key}_shutter") "Rollladen [%d %%]"         <rollershutter>  { channel="knx:device:bridge:$thing.key:shutter" }
-#if ( $thing.items.currentPosition )
-Number          #padRight("${thing.key}_position") "Position [%d %%]"          <rollershutter>  { channel="knx:device:bridge:$thing.key:position" }
-#end
-#if ( $thing.items.lock )
-Switch          #padRight("${thing.key}_lock") "Gesperrt [%s]"             <rollershutter>  { channel="knx:device:bridge:$thing.key:lock" }
-#end
+// $thing.description
+#item ($thing, "move", "shutter", "Rollershutter", "Rollladen [%d %%]", "rollershutter")
+#item ($thing, "currentPosition", "position", "Number", "Position [%d %%]", "rollershutter")
+#item ($thing, "lock", "lock", "Switch", "Gesperrt [%s]", "rollershutter")
+#item ($thing, "windAlarm", "windAlarm", "Contact", "Windalarm [%s]", "rollershutter")
+#item ($thing, "rainAlarm", "rainAlarm", "Contact", "Regenalarm [%s]", "rollershutter")
 #end
 ##
 ## 
 #macro ( H $thing )
-#if ( $thing.items.actualTemperature )
-Number          #padRight("${thing.key}_actual") "Isttemperatur [%.1f °C]"                       { channel="knx:device:bridge:$thing.key:actualTemperature" }
-#end
-#if ( $thing.items.targetTemperature )
-Number          #padRight("${thing.key}_target") "Solltemperatur [%.1f °C]"                      { channel="knx:device:bridge:$thing.key:targetTemperature" }
-#end
-#if ( $thing.items.actualTemperatureFloor )
-Number          #padRight("${thing.key}_floor") "Isttemperatur Boden [%.1f °C]"                 { channel="knx:device:bridge:$thing.key:floorTemperature" }
-#end
-#if ( $thing.items.operatingModeSelection )
-String          #padRight("${thing.key}_mode") "Betriebsart [%s]"                              { channel="knx:device:bridge:$thing.key:operatingMode" }
-#end
+// $thing.description
+#item ($thing, "actualTemperature", "actualTemperature", "Number", "Isttemperatur [%.1f °C]", "temperature")
+#item ($thing, "targetTemperature", "targetTemperature", "Number", "Solltemperatur [%.1f °C]", "temperature")
+#item ($thing, "actualTemperatureFloor", "actualTemperatureFloor", "Number", "Isttemperatur Boden [%.1f °C]", "temperature")
+#item ($thing, "operatingModeSelection", "operatingModeSelection", "String", "Betriebsart [%s]", "heating")
+#item ($thing, "switchHeatingCooling", "switchHeatingCooling", "Switch", "Heizen/Kühlen [%s]", "heating")
+#item ($thing, "controlValue", "controlValue", "Number", "Stellwert [%d %%]", "heating")
 #end
 ##
 ## 
 #macro ( FK $thing )
-Contact         #padRight("${thing.key}_contact") "Fenster [%s]"             <window>         { channel="knx:device:bridge:$thing.key:contact"}
+// $thing.description
+#item ($thing, "windowContact", "contact", "Contact", "Fenster [%s]", "window")
 #end
 ##
 ## 
 #macro ( TK $thing )
-Contact         #padRight("${thing.key}_contact") "Tür [%s]"                 <window>         { channel="knx:device:bridge:$thing.key:contact"}
+// $thing.description
+#item ($thing, "doorContact", "contact", "Contact", "Tür [%s]", "frontdoor")
 #end
 ##
 ## 
 #macro ( A $thing )
-String          #padRight("${thing.key}_alarm") "$thing.description [%s]"                              { channel="knx:device:bridge:$thing.key:alarm" }
+// $thing.description
+#item ($thing, "alarm", "alarm", "Contact", "$thing.description [%s]", "siren")
 #end
 ##      
 ## 
 #macro ( W $thing ) 
-#if ( $thing.items.maximumBrightness )
-Number          #padRight("${thing.key}_maxBrightness") "Maximaler Helligkeitswert [%d]"    #if ( $thing.items.maximumBrightness.context.groups ) ( $thing.items.maximumBrightness.context.groups ) #end     { channel="knx:device:bridge:$thing.key:maxBrightness" }
-#end
-#if ( $thing.items.brightnessEast )
-Number          #padRight("${thing.key}_brightnessEast") "Helligkeitswert Ost [%d]"          #if ( $thing.items.brightnessEast.context.groups ) ( $thing.items.brightnessEast.context.groups ) #end     { channel="knx:device:bridge:$thing.key:brightnessEast" }
-#end
-#if ( $thing.items.brightnessSouth )
-Number          #padRight("${thing.key}_brightnessSouth") "Helligkeitswert Süd [%d]"          #if ( $thing.items.brightnessSouth.context.groups ) ( $thing.items.brightnessSouth.context.groups ) #end     { channel="knx:device:bridge:$thing.key:brightnessSouth" }
-#end
-#if ( $thing.items.brightnessWest )
-Number          #padRight("${thing.key}_brightnessWest") "Helligkeitswert West [%d]"         #if ( $thing.items.brightnessWest.context.groups ) ( $thing.items.brightnessWest.context.groups ) #end     { channel="knx:device:bridge:$thing.key:brightnessWest" }
-#end
-#if ( $thing.items.temperatureOutside )
-Number          #padRight("${thing.key}_temperature") "Außen Temperatur [%.1f °C]"        #if ( $thing.items.temperatureOutside.context.groups ) ( $thing.items.temperatureOutside.context.groups ) #end           { channel="knx:device:bridge:$thing.key:temperature" }
-#end
-#if ( $thing.items.windspeed )
-Number          #padRight("${thing.key}_windSpeed") "Windgeschwindigkeit  [%d] (m/s)"   #if ( $thing.items.windspeed.context.groups ) ( $thing.items.windspeed.context.groups ) #end       { channel="knx:device:bridge:$thing.key:windSpeed" }
-#end
-#if ( $thing.items.elevation )
-Number          #padRight("${thing.key}_elevation") "Elevation [%d]"                         { channel="knx:device:bridge:$thing.key:elevation" }
-#end
-#if ( $thing.items.azimut )
-Number          #padRight("${thing.key}_azimut") "Azimut [%d]"                            { channel="knx:device:bridge:$thing.key:azimut" }
-#end
-#if ( $thing.items.rainAlarm )
-Contact         #padRight("${thing.key}_rain") "Regen [%s]"                             { channel="knx:device:bridge:$thing.key:rain" }
-#end
+// $thing.description
+#item ($thing, "maximumBrightness", "maximumBrightness", "Number", "Maximaler Helligkeitswert [%d]", "sun")
+#item ($thing, "brightnessEast", "brightnessEast", "Number", "Helligkeitswert Ost [%d]", "sun")
+#item ($thing, "brightnessSouth", "brightnessSouth", "Number", "Helligkeitswert Süd [%d]", "sun")
+#item ($thing, "brightnessWest", "brightnessWest", "Number", "Helligkeitswert West [%d]", "sun")
+#item ($thing, "temperatureOutside", "temperature", "Number", "Außen Temperatur [%.1f °C]", "temperature")
+#item ($thing, "windspeed", "windspeed", "Number", "Windgeschwindigkeit  [%.1f] (m/s)", "wind")
+#item ($thing, "elevation", "elevation", "Number", "Elevation  [%d]", "")
+#item ($thing, "azimut", "azimut", "Number", "Azimut  [%d]", "")
+#item ($thing, "rainAlarm", "rainAlarm", "Contact", "Regen  [%s]", "water")
+#item ($thing, "windAlarmShutter", "windAlarmShutter", "Contact", "Windalarm  [%s]", "wind")
 #end
 ##            
 #* 

@@ -40,96 +40,11 @@ public class ThingExtractor {
 	private KnxInstallation knxInstallation;
 	private Map<String, KnxGroupAddressExt> groupAddresses;
 
-	private boolean logUnusedGroupAddresses = false;
+	private boolean logUnusedGroupAddresses = true;
 
 	private boolean logInvalidFunctions = false;
 
 	private Map<String, KNXLocation> locations;
-
-//	static {
-//		Set<KNXThingDescriptor> thingTypes = new HashSet<>();
-//		thingTypes.add(new KNXThingDescriptor("L", new String[] { "FT-1" }, "Lampe",
-//				new KNXItemDescriptor("switch", "Schalten"), new KNXItemDescriptor("status", "Status"),
-//				new KNXItemDescriptor("lock", "Sperren"), new KNXItemDescriptor("move", "Bewegung"),
-//				new KNXItemDescriptor("forced", "Zwangsführung"),
-//				new KNXItemDescriptor("automatic", "Automatikbetrieb"), new KNXItemDescriptor("presence", "Präsenz")));
-//
-//		thingTypes.add(new KNXThingDescriptor("LD", new String[] { "FT-6" }, "Lampe Dimmbar",
-//				new KNXItemDescriptor("switch", "Schalten"), new KNXItemDescriptor("status", "Status"),
-//				new KNXItemDescriptor("dimming", "Dimmen"), new KNXItemDescriptor("dimmingValue", "Dimmwert"),
-//				new KNXItemDescriptor("value", "Wert")));
-//
-//		thingTypes.add(new KNXThingDescriptor("H", new String[] { "FT-8", "FT-9" }, "Heizung",
-//				new KNXItemDescriptor("actualTemperature", "Isttemperatur"),
-//				new KNXItemDescriptor("targetTemperature", "Solltemperatur"),
-//				new KNXItemDescriptor("operatingMode", "Betriebsart"),
-//				new KNXItemDescriptor("switchingRegulating", "schaltende Stellgröße"),
-//				new KNXItemDescriptor("continuousRegulating", "stetige Stellgröße"),
-//				new KNXItemDescriptor("frostAlarm", "Frostalarm", "Frostschutz"),
-//				new KNXItemDescriptor("heatAlarm", "Hitzealarm", "Hitzeschutz"),
-//				new KNXItemDescriptor("setpointAdjustment", "Sollwertverschiebung"),
-//				new KNXItemDescriptor("actualTemperatureFloor", "Isttemperatur Boden"),
-//				new KNXItemDescriptor("diagnosis", "Diagnose"),
-//				new KNXItemDescriptor("operatingModeSelection", "Betriebsartvorwahl"),
-//				new KNXItemDescriptor("modeComfort", "Betriebsart Komfort"),
-//				new KNXItemDescriptor("modeNight", "Betriebsart Nacht"),
-//				new KNXItemDescriptor("modeProtection", "Betriebsart Frost/Hitzeschutz"),
-//				new KNXItemDescriptor("switchHeatingCooling", "Heizen / Kühlen (Heizen=1/Kühlen=0)"),
-//				new KNXItemDescriptor("windowContact", "Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)"),
-//				new KNXItemDescriptor("doorContact", "Türkontakt")));
-//
-//		thingTypes.add(new KNXThingDescriptor("R", new String[] { "FT-7" }, "Rollladen",
-//				new KNXItemDescriptor("move", "Bewegen"), new KNXItemDescriptor("step", "Schritt/Stop"),
-//				new KNXItemDescriptor("currentPosition", "Aktuelle Position"),
-//				new KNXItemDescriptor("setPosition", "Position setzen"),
-//				new KNXItemDescriptor("lock", "Sperren", "Sperren (gesperrt=1)"),
-//				new KNXItemDescriptor("closed", "Geschlossen", "Geschlossen (unten=1)"),
-//				new KNXItemDescriptor("dayNight", "Tag / Nacht (Tag=1/Nacht=0)"),
-//				new KNXItemDescriptor("windowContact", "Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)")));
-//
-//		thingTypes.add(new KNXThingDescriptor("J", new String[] { "FT-7" }, "Jalousie",
-//				new KNXItemDescriptor("move", "Bewegen"), new KNXItemDescriptor("step", "Schritt/Stop"),
-//				new KNXItemDescriptor("currentPosition", "Aktuelle Position"),
-//				new KNXItemDescriptor("setPosition", "Position setzen"),
-//				new KNXItemDescriptor("setBladePosition", "Lamellenstellung setzen"),
-//				new KNXItemDescriptor("lock", "Sperren", "Sperren (gesperrt=1)"),
-//				new KNXItemDescriptor("closed", "Geschlossen", "Geschlossen (unten=1)"),
-//				new KNXItemDescriptor("windowContact", "Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)")));
-//
-//		thingTypes.add(new KNXThingDescriptor("S", new String[] { "FT-0" }, "Schalten",
-//				new KNXItemDescriptor("switch", "Schalten"), new KNXItemDescriptor("status", "Status"),
-//				new KNXItemDescriptor("inOperation", "Betrieb")));
-//
-//		thingTypes.add(new KNXThingDescriptor("FK", new String[] { "FT-0" }, "Fensterkontakt",
-//				new KNXItemDescriptor("windowContact", "Fensterkontakt", "Fensterkontakt (geschlossen=0/offen=1)")));
-//
-//		thingTypes.add(new KNXThingDescriptor("TK", new String[] { "FT-0" }, "Türkontakt",
-//				new KNXItemDescriptor("doorContact", "Türkontakt")));
-//
-////		thingTypes.add(new ThingDescriptor("A", new String[] { "FT-0" }, "Alarm",
-////				new ItemDescriptor("alarm", "Alarm", "Status", "Störung")));
-//
-//		thingTypes.add(new KNXThingDescriptor("W", new String[] { "FT-0" }, "Wetter",
-//				new KNXItemDescriptor("maximumBrightness", "Maximaler Helligkeitswert"),
-//				new KNXItemDescriptor("brightnessEast", "Helligkeitswert Ost"),
-//				new KNXItemDescriptor("brightnessSouth", "Helligkeitswert Süd"),
-//				new KNXItemDescriptor("brightnessWest", "Helligkeitswert West"),
-//				new KNXItemDescriptor("temperatureOutside", "Temperatur Außen", "Au�en Temperatur"),
-//				new KNXItemDescriptor("windspeed", "Windgeschwindigkeit (m/s)"),
-//				new KNXItemDescriptor("elevation", "Elevation"), new KNXItemDescriptor("azimut", "Azimut"),
-//				new KNXItemDescriptor("rainAlarm", "Regenalarm"),
-//				new KNXItemDescriptor("windAlarmShutter", "Windalarm Jalousie", "Jalousie Windalarm")));
-//
-//		thingTypes.add(new KNXThingDescriptor("M", new String[] { "FT-7" }, "Markise",
-//				new KNXItemDescriptor("move", "Bewegen"), new KNXItemDescriptor("step", "Schritt/Stop"),
-//				new KNXItemDescriptor("currentPosition", "Position"), new KNXItemDescriptor("windAlarm", "Windalarm"),
-//				new KNXItemDescriptor("rainAlarm", "Regenalarm")));
-//
-//		thingDescriptors = new HashMap<>();
-//		thingTypes.forEach(t -> Arrays.stream(t.getFunctionTypes())
-//				.forEach(f -> thingDescriptors.computeIfAbsent(f, s -> new HashMap<>()).put(t.getKey(), t)));
-//
-//	}
 
 	public ThingExtractor(KNX knx, KnxInstallation knxInstallation) {
 		this.knx = knx;

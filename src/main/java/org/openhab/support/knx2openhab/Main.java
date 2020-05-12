@@ -5,7 +5,11 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -19,12 +23,11 @@ import org.openhab.support.knx2openhab.velocity.VelocityProcessor;
 
 public class Main {
 
-
 	protected Logger LOG = Logger.getLogger(this.getClass().getName());
 
-	private static final File THINGS_FILE = new File("knx.things");
-	private static final File ITEMS_FILE = new File("knx.items");
-	private static final File SITEMAP_FILE = new File("knx.sitemap");
+	private static final File THINGS_FILE = new File("out/knx.things");
+	private static final File ITEMS_FILE = new File("out/knx.items");
+	private static final File SITEMAP_FILE = new File("out/knx.sitemap");
 
 	public static void main(String[] args) throws IOException, JAXBException {
 		File file = new File("Angerweg12.knxproj");
@@ -56,34 +59,31 @@ public class Main {
 		ThingExtractor thingExtractor = new ThingExtractor(knx, knxInstallation);
 		List<KNXThing> things = thingExtractor.getThings();
 
-		
-		System.out.println("===================");
-		System.out.println("Writing things");
-		System.out.println("===================");
-		VelocityProcessor processor = new VelocityProcessor(new File("things.vm"));
-		try (Writer writer = Files.newBufferedWriter(THINGS_FILE.toPath(), StandardCharsets.UTF_8)) {
-			processor.process(things, writer);
-		}
-		
-		System.out.println("===================");
-		System.out.println("Writing items");
-		System.out.println("===================");
-		
-		processor = new VelocityProcessor(new File("items.vm"));
-		try (Writer writer = Files.newBufferedWriter(ITEMS_FILE.toPath(), StandardCharsets.UTF_8)) {
-			processor.process(things, writer);
-		}
-		
-		System.out.println("===================");
-		System.out.println("Writing sitemap");
-		System.out.println("===================");
-		
-		
-		processor = new VelocityProcessor(new File("sitemap.vm"));
-		try (Writer writer = Files.newBufferedWriter(SITEMAP_FILE.toPath(), StandardCharsets.UTF_8)) {
-			processor.process(things, writer);
-		}
+		Map<File, File> pairs = new HashMap<>();
+		pairs.put(new File("things.vm"), THINGS_FILE);
+		pairs.put(new File("items.vm"), ITEMS_FILE);
+		pairs.put(new File("sitemap.vm"), SITEMAP_FILE);
 
+		for (Entry<File, File> e : pairs.entrySet()) {
+			processTemplate(things, e.getKey(), e.getValue());
+		}
+	}
+
+	private void processTemplate(List<KNXThing> things, File templateFile, File outputFile) throws IOException {
+		System.out.println("===================");
+		System.out.println("Processing " + templateFile.getName() + " to " + outputFile.getName());
+		System.out.println("===================");
+		
+		File parentFile = outputFile.getParentFile();
+		if (parentFile != null && !parentFile.exists())
+		{
+			parentFile.mkdirs();
+		}
+		
+		VelocityProcessor processor = new VelocityProcessor(templateFile);
+		try (Writer writer = Files.newBufferedWriter(outputFile.toPath(), StandardCharsets.UTF_8)) {
+			processor.process(things, writer);
+		}
 	}
 
 }

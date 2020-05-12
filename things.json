@@ -55,7 +55,7 @@
   "name" : "Türkontakt",
   "items" : [ {
     "key" : "doorContact",
-    "keywords" : [ "Türkontakt" ]
+    "keywords" : [ "Türkontakt", "Türkontakt (geschlossen=0/offen=1)" ]
   } ]
 }, {
   "key" : "W",
@@ -141,6 +141,9 @@
     "key" : "setpointAdjustment",
     "keywords" : [ "Sollwertverschiebung" ]
   }, {
+    "key" : "controlValue",
+    "keywords" : [ "Stellwert" ]
+  }, {
     "key" : "actualTemperatureFloor",
     "keywords" : [ "Isttemperatur Boden" ]
   }, {
@@ -211,7 +214,7 @@
     "key" : "lock",
     "keywords" : [ "Sperren" ]
   }, {
-    "key" : "move",
+    "key" : "movement",
     "keywords" : [ "Bewegung" ]
   }, {
     "key" : "forced",

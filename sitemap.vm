@@ -1,3 +1,6 @@
+////////////////////////////////////////////////////////////////////////////////////////////////
+// This sitemap has been automatically created. Any changes might be overridden
+////////////////////////////////////////////////////////////////////////////////////////////////
 sitemap knx label="KNX"
 {
 ##
@@ -13,17 +16,17 @@ Macro's for different things
 ##
 ## 
 #macro ( L $thing )
-        Switch item=${thing.key}_switch
+        Switch item=${thing.key}_switch icon="light"
 #end
 ##
 ## 
 #macro ( LD $thing )
-        Slider item=${thing.key}_dimmer
+        Slider item=${thing.key}_dimmer icon="light"
 #end
 ##
 ## 
 #macro ( S $thing )
-        Switch item=${thing.key}_switch
+        Switch item=${thing.key}_switch icon="poweroutlet"
 #end
 ##
 ## 
@@ -43,6 +46,9 @@ Macro's for different things
 #macro ( J $thing )
         Frame label="${thing.description}" icon="blinds"  {
             Switch item=${thing.key}_shutter
+#if ( $thing.items.setBladePosition )
+            Text item=${thing.key}_setBladePosition
+#end
 #if ( $thing.items.currentPosition )
             Text item=${thing.key}_position
 #end
@@ -54,7 +60,7 @@ Macro's for different things
 ##
 ## 
 #macro ( M $thing )
-        Frame label="${thing.description}" {
+        Frame label="${thing.description}" icon="terrace" {
             Switch item=${thing.key}_shutter
 #if ( $thing.items.currentPosition )
             Text item=${thing.key}_position
@@ -67,42 +73,48 @@ Macro's for different things
 ##
 ## 
 #macro ( H $thing )
-        Frame label="${thing.description}" {
+        Frame label="${thing.description}" icon="heating" {
 #if ( $thing.items.actualTemperature )
-            Text item=#escape("${thing.key}")_actual
+            Text item=#escape("${thing.key}")_actualTemperature
 #end
 #if ( $thing.items.targetTemperature )
-            Setpoint item=#escape(${thing.key})_target minValue=18 maxValue=30 step=0.5
+            Setpoint item=#escape(${thing.key})_targetTemperature minValue=18 maxValue=30 step=0.5
 #end
 #if ( $thing.items.actualTemperatureFloor )
-            Text item=#escape(${thing.key})_floor
+            Text item=#escape(${thing.key})_actualTemperatureFloor 
 #end
 #if ( $thing.items.operatingModeSelection )
-            Text item=#escape(${thing.key})_mode
+            Text item=#escape(${thing.key})_operatingModeSelection
+#end
+#if ( $thing.items.switchHeatingCooling )
+            Switch item=#escape(${thing.key})_switchHeatingCooling
+#end
+#if ( $thing.items.controlValue )
+            Text item=#escape(${thing.key})_controlValue
 #end
         }
 #end
 ##
 ## 
 #macro ( FK $thing )
-        Text item=${thing.key}_contact
+        Text item=${thing.key}_contact icon="window"
 #end
 ##
 ## 
 #macro ( TK $thing )
-        Text item=${thing.key}_contact
+        Text item=${thing.key}_contact icon="frontdoor"
 #end
 ##
 ## 
 #macro ( A $thing )
-        Text item=#escape(${thing.key}_alarm)
+        Text item=#escape(${thing.key}_alarm) icon="siren"
 #end
 ##      
 ## 
 #macro ( W $thing ) 
-        Frame label="${thing.description}" {
+        Frame label="${thing.description}" icon="sun_clouds" {
 #if ( $thing.items.maximumBrightness )
-            Text item=#escape(${thing.key})_maxBrightness
+            Text item=#escape(${thing.key})_maximumBrightness
 #end
 #if ( $thing.items.brightnessEast )
             Text item=#escape(${thing.key})_brightnessEast
@@ -126,7 +138,7 @@ Macro's for different things
             Text item=#escape(${thing.key})_azimut
 #end
 #if ( $thing.items.rainAlarm )
-            Text item=#escape(${thing.key})_rain
+            Text item=#escape(${thing.key})_rainAlarm
 #end
         }
 #end
@@ -137,9 +149,6 @@ Macro's for different things
 Main Loop
 ===========================
 *#
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    // Automatically created frames. Do not change anything below this line as it will be overriden
-    ////////////////////////////////////////////////////////////////////////////////////////////////
 ##
 #set ($lastLocation = '')
 #set ($frameEnd = '')
@@ -150,9 +159,11 @@ Frame {
     $frameEnd
     
     // $thing.location
-    Text label="$thing.location" {
+    Text label="$thing.location" icon="group" {
+      Frame {
 #set ($lastLocation = "$thing.location")
-#set ($frameEnd = '}')
+#set ($frameEnd = '  }
+    }')
 #end
 ##
 #evaluate( "#$thing.descriptor.key ( \$thing )" )
