@@ -89,7 +89,7 @@ Macro's for different things
 #macro ( R $thing )
     Thing device $thing.key "$thing.description" @ "$thing.location" []
     {
-        Type rollershutter : shutter                  "Rollladen"                        [ upDown="$thing.items.move.address", stopMove="$thing.items.step.address" #if($thing.items.setPosition), position="$thing.items.setPosition.address" #{end} ]
+        Type rollershutter : shutter                  "Rollladen"                        [ upDown="$thing.items.move.address", stopMove="$thing.items.step.address", position="$thing.items.setPosition.address#{if} ( $thing.items.currentPosition )+<$thing.items.currentPosition.address#{end}" ]
 #if ( $thing.items.currentPosition )
         Type number        : position                 "Aktuelle Position"                [ ga="$thing.items.currentPosition.type:<$thing.items.currentPosition.address" ]
 #end
@@ -112,7 +112,7 @@ Macro's for different things
 #macro ( J $thing )
     Thing device $thing.key "$thing.description" @ "$thing.location" []
     {
-        Type rollershutter : shutter                  "Jalousie"                         [ upDown="$thing.items.move.address", stopMove="$thing.items.step.address", position="$thing.items.setPosition.address" ]
+        Type rollershutter : shutter                  "Jalousie"                         [ upDown="$thing.items.move.address", stopMove="$thing.items.step.address", position="$thing.items.setPosition.address#{if} ( $thing.items.currentPosition )+<$thing.items.currentPosition.address#{end}" ]
 #if ( $thing.items.setBladePosition )
         Type number        : setBladePosition         "Lamellenstellung"                 [ ga="$thing.items.setBladePosition.type:<$thing.items.setBladePosition.address" ]
 #end
