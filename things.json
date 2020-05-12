@@ -196,7 +196,10 @@
   }, {
     "key" : "lock",
     "keywords" : [ "Sperren", "Sperren (gesperrt=1)" ]
-  }, {
+  } {
+    "key" : "shading",
+    "keywords" : [ "Beschattung", "Beschattung (gesperrt=1)" ]
+  },, {
     "key" : "closed",
     "keywords" : [ "Geschlossen", "Geschlossen (unten=1)" ]
   }, {
