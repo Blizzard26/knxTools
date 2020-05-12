@@ -46,8 +46,9 @@ Macros for different items
 #macro ( R $thing )
 // $thing.description
 #item ($thing, "move", "shutter", "Rollershutter", "Rollladen [%d %%]", "rollershutter")
-#item ($thing, "currentPosition", "position", "Number", "Position [%d %%]", "rollershutter")
+#item ($thing, "currentPosition", "position", "Dimmer", "Position [%d %%]", "rollershutter")
 #item ($thing, "lock", "lock", "Switch", "Gesperrt [%s]", "rollershutter")
+#item ($thing, "shading", "shading", "Switch", "Beschattung [MAP(ACTIVE_LOCKED_de.map):%s]", "rollershutter")
 #item ($thing, "closed", "closed", "Contact", "Geschlossen [%s]", "rollershutter")
 #end
 ##
@@ -56,8 +57,9 @@ Macros for different items
 // $thing.description
 #item ($thing, "move", "shutter", "Rollershutter", "Rollladen [%d %%]", "rollershutter")
 #item ($thing, "setBladePosition", "setBladePosition", "Number", "Lamellenstellung [%d %%]", "rollershutter")
-#item ($thing, "currentPosition", "position", "Number", "Position [%d %%]", "rollershutter")
+#item ($thing, "currentPosition", "position", "Dimmer", "Position [%d %%]", "rollershutter")
 #item ($thing, "lock", "lock", "Switch", "Gesperrt [%s]", "rollershutter")
+#item ($thing, "shading", "shading", "Switch", "Beschattung [MAP(ACTIVE_LOCKED_de.map):%s]", "rollershutter")
 #item ($thing, "closed", "closed", "Contact", "Geschlossen [%s]", "rollershutter")
 #end
 ##
@@ -103,14 +105,14 @@ Macros for different items
 ## 
 #macro ( W $thing ) 
 // $thing.description
-#item ($thing, "maximumBrightness", "maximumBrightness", "Number", "Maximaler Helligkeitswert [%d]", "sun")
-#item ($thing, "brightnessEast", "brightnessEast", "Number", "Helligkeitswert Ost [%d]", "sun")
-#item ($thing, "brightnessSouth", "brightnessSouth", "Number", "Helligkeitswert Süd [%d]", "sun")
-#item ($thing, "brightnessWest", "brightnessWest", "Number", "Helligkeitswert West [%d]", "sun")
+#item ($thing, "maximumBrightness", "maximumBrightness", "Number", "Maximaler Helligkeitswert [%d lux]", "sun")
+#item ($thing, "brightnessEast", "brightnessEast", "Number", "Helligkeitswert Ost [%d lux]", "sun")
+#item ($thing, "brightnessSouth", "brightnessSouth", "Number", "Helligkeitswert Süd [%d lux]", "sun")
+#item ($thing, "brightnessWest", "brightnessWest", "Number", "Helligkeitswert West [%d lux]", "sun")
 #item ($thing, "temperatureOutside", "temperature", "Number", "Außen Temperatur [%.1f °C]", "temperature")
-#item ($thing, "windspeed", "windspeed", "Number", "Windgeschwindigkeit  [%.1f] (m/s)", "wind")
-#item ($thing, "elevation", "elevation", "Number", "Elevation  [%d]", "")
-#item ($thing, "azimut", "azimut", "Number", "Azimut  [%d]", "")
+#item ($thing, "windspeed", "windspeed", "Number", "Windgeschwindigkeit  [%.1f m/s]", "wind")
+#item ($thing, "elevation", "elevation", "Number", "Elevation  [%d °]", "")
+#item ($thing, "azimut", "azimut", "Number", "Azimut  [%d °]", "")
 #item ($thing, "rainAlarm", "rainAlarm", "Contact", "Regen  [%s]", "water")
 #item ($thing, "windAlarmShutter", "windAlarmShutter", "Contact", "Windalarm  [%s]", "wind")
 #end
