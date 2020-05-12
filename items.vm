@@ -23,7 +23,7 @@ Macros for different items
 ## 
 #macro ( L $thing )
 // $thing.description
-#item ($thing, "switch", "switch", "Switch", "Licht [%s]", "light")
+#item ($thing, "switch", "switch", "Switch", "${thing.description} @ ${thing.location} [%s]", "light")
 #item ($thing, "forced", "forced", "Switch", "Zwangsführung [%s]", "light")
 #item ($thing, "movement", "movement", "Contact", "Bewegung [%s]", "motion")
 #end
@@ -31,8 +31,8 @@ Macros for different items
 ## 
 #macro ( LD $thing )
 // $thing.description
-#item ($thing, "dimming", "dimmer", "Dimmer", "Dimmer [%d %%]", "light")
-#item ($thing, "switch", "switch", "Switch", "Licht [%s]", "light")
+#item ($thing, "dimming", "dimmer", "Dimmer", "${thing.description} @ ${thing.location} [%d %%]", "light")
+#item ($thing, "switch", "switch", "Switch", "${thing.description} @ ${thing.location} [%s]", "light")
 #end
 ##
 ## 
@@ -45,30 +45,30 @@ Macros for different items
 ## 
 #macro ( R $thing )
 // $thing.description
-#item ($thing, "move", "shutter", "Rollershutter", "Rollladen [%d %%]", "rollershutter")
-#item ($thing, "currentPosition", "position", "Dimmer", "Position [%d %%]", "rollershutter")
-#item ($thing, "lock", "lock", "Switch", "Gesperrt [%s]", "rollershutter")
-#item ($thing, "shading", "shading", "Switch", "Beschattung [MAP(ACTIVE_LOCKED_de.map):%s]", "rollershutter")
-#item ($thing, "closed", "closed", "Contact", "Geschlossen [%s]", "rollershutter")
+#item ($thing, "move", "shutter", "Rollershutter", "${thing.description} @ ${thing.location} [%d %%]", "rollershutter")
+#item ($thing, "currentPosition", "position", "Dimmer", "Position ${thing.description} @ ${thing.location} [%d %%]", "rollershutter")
+#item ($thing, "lock", "lock", "Switch", "Gesperrt ${thing.description} @ ${thing.location} [%s]", "rollershutter")
+#item ($thing, "shading", "shading", "Switch", "Beschattung ${thing.description} @ ${thing.location} [MAP(ACTIVE_LOCKED_de.map):%s]", "rollershutter")
+#item ($thing, "closed", "closed", "Contact", "Geschlossen ${thing.description} @ ${thing.location} [%s]", "rollershutter")
 #end
 ##
 ## 
 #macro ( J $thing )
 // $thing.description
-#item ($thing, "move", "shutter", "Rollershutter", "Rollladen [%d %%]", "rollershutter")
-#item ($thing, "setBladePosition", "setBladePosition", "Number", "Lamellenstellung [%d %%]", "rollershutter")
-#item ($thing, "currentPosition", "position", "Dimmer", "Position [%d %%]", "rollershutter")
-#item ($thing, "lock", "lock", "Switch", "Gesperrt [%s]", "rollershutter")
-#item ($thing, "shading", "shading", "Switch", "Beschattung [MAP(ACTIVE_LOCKED_de.map):%s]", "rollershutter")
-#item ($thing, "closed", "closed", "Contact", "Geschlossen [%s]", "rollershutter")
+#item ($thing, "move", "shutter", "Rollershutter", "${thing.description} @ ${thing.location} [%d %%]", "rollershutter")
+#item ($thing, "setBladePosition", "setBladePosition", "Number", "Lamellenstellung ${thing.description} @ ${thing.location} [%d %%]", "rollershutter")
+#item ($thing, "currentPosition", "position", "Dimmer", "Position ${thing.description} @ ${thing.location} [%d %%]", "rollershutter")
+#item ($thing, "lock", "lock", "Switch", "Gesperrt ${thing.description} @ ${thing.location} [%s]", "rollershutter")
+#item ($thing, "shading", "shading", "Switch", "Beschattung ${thing.description} @ ${thing.location} [MAP(ACTIVE_LOCKED_de.map):%s]", "rollershutter")
+#item ($thing, "closed", "closed", "Contact", "Geschlossen ${thing.description} @ ${thing.location} [%s]", "rollershutter")
 #end
 ##
 ## 
 #macro ( M $thing )
 // $thing.description
-#item ($thing, "move", "shutter", "Rollershutter", "Rollladen [%d %%]", "rollershutter")
-#item ($thing, "currentPosition", "position", "Number", "Position [%d %%]", "rollershutter")
-#item ($thing, "lock", "lock", "Switch", "Gesperrt [%s]", "rollershutter")
+#item ($thing, "move", "shutter", "Rollershutter", "${thing.description} @ ${thing.location} [%d %%]", "rollershutter")
+#item ($thing, "currentPosition", "position", "Number", "Position ${thing.description} @ ${thing.location} [%d %%]", "rollershutter")
+#item ($thing, "lock", "lock", "Switch", "Gesperrt ${thing.description} @ ${thing.location} [%s]", "rollershutter")
 #item ($thing, "windAlarm", "windAlarm", "Contact", "Windalarm [%s]", "rollershutter")
 #item ($thing, "rainAlarm", "rainAlarm", "Contact", "Regenalarm [%s]", "rollershutter")
 #end
@@ -76,30 +76,30 @@ Macros for different items
 ## 
 #macro ( H $thing )
 // $thing.description
-#item ($thing, "actualTemperature", "actualTemperature", "Number", "Isttemperatur [%.1f °C]", "temperature")
-#item ($thing, "targetTemperature", "targetTemperature", "Number", "Solltemperatur [%.1f °C]", "temperature")
-#item ($thing, "actualTemperatureFloor", "actualTemperatureFloor", "Number", "Isttemperatur Boden [%.1f °C]", "temperature")
+#item ($thing, "actualTemperature", "actualTemperature", "Number", "Isttemperatur ${thing.description} @ ${thing.location} [%.1f °C]", "temperature")
+#item ($thing, "targetTemperature", "targetTemperature", "Number", "Solltemperatur ${thing.description} @ ${thing.location} [%.1f °C]", "temperature")
+#item ($thing, "actualTemperatureFloor", "actualTemperatureFloor", "Number", "Isttemperatur Boden ${thing.description} @ ${thing.location} [%.1f °C]", "temperature")
 #item ($thing, "operatingModeSelection", "operatingModeSelection", "String", "Betriebsart [%s]", "heating")
 #item ($thing, "switchHeatingCooling", "switchHeatingCooling", "Switch", "Heizen/Kühlen [%s]", "heating")
-#item ($thing, "controlValue", "controlValue", "Number", "Stellwert [%d %%]", "heating")
+#item ($thing, "controlValue", "controlValue", "Number", "Stellwert ${thing.description} @ ${thing.location} [%d %%]", "heating")
 #end
 ##
 ## 
 #macro ( FK $thing )
 // $thing.description
-#item ($thing, "windowContact", "contact", "Contact", "Fenster [%s]", "window")
+#item ($thing, "windowContact", "contact", "Contact", "${thing.description} @ ${thing.location} [%s]", "window")
 #end
 ##
 ## 
 #macro ( TK $thing )
 // $thing.description
-#item ($thing, "doorContact", "contact", "Contact", "Tür [%s]", "frontdoor")
+#item ($thing, "doorContact", "contact", "Contact", "${thing.description} @ ${thing.location} [%s]", "frontdoor")
 #end
 ##
 ## 
 #macro ( A $thing )
 // $thing.description
-#item ($thing, "alarm", "alarm", "Contact", "$thing.description [%s]", "siren")
+#item ($thing, "alarm", "alarm", "Contact", "${thing.description} [%s]", "siren")
 #end
 ##      
 ## 
