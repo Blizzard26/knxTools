@@ -93,6 +93,9 @@ Macro's for different things
 #if ( $thing.items.currentPosition )
         Type number        : position                 "Aktuelle Position"                [ ga="$thing.items.currentPosition.type:<$thing.items.currentPosition.address" ]
 #end
+#if ( $thing.items.shading )
+        Type switch        : shading                  "Beschattung"                      [ ga="$thing.items.shading.address" ]
+#end
 #if ( $thing.items.lock )
         Type switch        : lock                     "Sperren"                          [ ga="$thing.items.lock.address" ]
 #end
@@ -115,6 +118,9 @@ Macro's for different things
 #end
 #if ( $thing.items.currentPosition )
         Type number        : position                 "Aktuelle Position"                [ ga="$thing.items.currentPosition.type:<$thing.items.currentPosition.address" ]
+#end
+#if ( $thing.items.shading )
+        Type switch        : shading                  "Beschattung"                      [ ga="$thing.items.shading.address" ]
 #end
 #if ( $thing.items.lock )
         Type switch        : lock                     "Sperren"                          [ ga="$thing.items.lock.address" ]
