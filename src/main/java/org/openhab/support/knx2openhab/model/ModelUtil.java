@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.openhab.support.knx2openhab.etsLoader.ETSUtils;
+import org.openhab.support.knx2openhab.etsLoader.ETSUtil;
+import org.openhab.support.knx2openhab.etsLoader.KnxMasterDataAccess;
 
 public class ModelUtil {
 
@@ -17,7 +18,7 @@ public class ModelUtil {
 	private static final String CONTEXT_END = "#END";
 
 	public static Map<String, String> getContextFromComment(String comment) {
-		String commentAsPlainText = ETSUtils.getCommentAsPlainText(comment);
+		String commentAsPlainText = ETSUtil.getCommentAsPlainText(comment);
 		
 		if (commentAsPlainText == null || commentAsPlainText.length() == 0)
 			return null;

@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -15,13 +16,17 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.knx.KNX;
+import org.knx.KnxComObjectInstanceRefT;
+import org.knx.KnxEnableT;
 import org.knx.KnxFunctionExt;
 import org.knx.KnxGroupAddressExt;
 import org.knx.KnxGroupAddressRefT;
 import org.knx.KnxLocationsT;
 import org.knx.KnxProjectT.KnxInstallations.KnxInstallation;
 import org.knx.KnxSpaceT;
-import org.openhab.support.knx2openhab.etsLoader.ETSUtils;
+import org.openhab.support.knx2openhab.etsLoader.KnxManufacturerDataAccess;
+import org.openhab.support.knx2openhab.etsLoader.KnxMasterDataAccess;
+import org.openhab.support.knx2openhab.etsLoader.KnxInstallationDataAccess;
 import org.openhab.support.knx2openhab.model.KNXItem;
 import org.openhab.support.knx2openhab.model.KNXItemDescriptor;
 import org.openhab.support.knx2openhab.model.KNXLocation;
@@ -38,17 +43,25 @@ public class ThingExtractor {
 	private Map<String, Map<String, KNXThingDescriptor>> thingDescriptors = new HashMap<>();
 	private KNX knx;
 	private KnxInstallation knxInstallation;
-	private Map<String, KnxGroupAddressExt> groupAddresses;
 
 	private boolean logUnusedGroupAddresses = true;
-
 	private boolean logInvalidFunctions = false;
 
 	private Map<String, KNXLocation> locations;
 
+	private KnxMasterDataAccess masterData;
+	private KnxManufacturerDataAccess manufacturerData;
+	private KnxInstallationDataAccess installation;
+
 	public ThingExtractor(KNX knx, KnxInstallation knxInstallation, File thingsConfigFile) {
 		this.knx = knx;
 		this.knxInstallation = knxInstallation;
+		
+		this.masterData = new KnxMasterDataAccess(knx.getMasterData());
+		this.manufacturerData = new KnxManufacturerDataAccess(knx.getManufacturerData());
+		this.installation = new KnxInstallationDataAccess(masterData, manufacturerData, knxInstallation);
+		
+		
 
 		thingDescriptors = loadThingsConfig(thingsConfigFile);
 	}
@@ -75,16 +88,20 @@ public class ThingExtractor {
 	public List<KNXThing> getThings() {
 		List<KnxFunctionExt> functions = getFunctions(knxInstallation);
 
-		if (this.groupAddresses == null || this.groupAddresses.isEmpty()) {
-			groupAddresses = ETSUtils.getGroupAddresses(knx.getMasterData(), knxInstallation).stream()
-					.collect(Collectors.toMap(KnxGroupAddressExt::getId, g -> g));
-		}
+		
+		knxInstallation.getTopology().getArea().forEach(a -> a.getLine().forEach(l -> {
+			if (l.getDeviceInstance() != null)
+			l.getDeviceInstance().forEach(d -> {
+				if (d.getComObjectInstanceRefs() != null)
+				d.getComObjectInstanceRefs().getComObjectInstanceRef().forEach(i -> System.out.println(i.getLinks()));
+			});
+		}));
 
 		if (logUnusedGroupAddresses) {
 			Set<String> usedGroupAddresses = functions.stream().flatMap(f -> f.getGroupAddressRef().stream())
 					.map(g -> g.getRefId()).collect(Collectors.toSet());
 
-			HashMap<String, KnxGroupAddressExt> groupAddresses = new HashMap<>(this.groupAddresses);
+			HashMap<String, KnxGroupAddressExt> groupAddresses = new HashMap<>(installation.getGroupAddresses());
 			usedGroupAddresses.forEach(g -> groupAddresses.remove(g));
 			groupAddresses.values().forEach(g -> LOG.warning("Group address " + g.getAddressAsString() + " ("
 					+ g.getName() + ") is not assigned to any function"));
@@ -174,26 +191,43 @@ public class ThingExtractor {
 			return null;
 		}
 
-		for (KNXItemDescriptor itemDescriptor : thingDescriptor.getItems()) {
-			for (String actionKey : itemDescriptor.getKeywords()) {
-				if (key.toLowerCase().endsWith(" " + actionKey.toLowerCase())) {
-
-					KNXItem action = new KNXItem(itemDescriptor, groupAddress);
-
-					return action;
-				}
-			}
+		
+		Optional<KNXItem> item = thingDescriptor.getItems().stream()
+				.filter(i -> Arrays.asList(i.getKeywords()).stream()
+						.filter(k -> key.toLowerCase().endsWith(" " + k.toLowerCase())).findAny().isPresent())
+				.findFirst().map(d -> getItem(groupAddress, d));
+		
+		if (!item.isPresent()) {
+			LOG.warning("Unable to identify item type for " + groupAddress.getName() + " on thing "
+					+ thingDescriptor.getName());
 		}
+		
+		return item.orElse(null);
+	}
 
-		LOG.warning("Unable to identify item type for " + groupAddress.getName() + " on thing "
-				+ thingDescriptor.getName());
+	private KNXItem getItem(KnxGroupAddressExt groupAddress, KNXItemDescriptor itemDescriptor) {
+		
+		List<KnxComObjectInstanceRefT> linkedComObjects = installation.getLinkedComObjects(groupAddress.getId());
+		
+		Boolean readable = getFlag(linkedComObjects, c -> c.getReadFlag());
+		Boolean writeable = getFlag(linkedComObjects, c -> c.getWriteFlag());
+		
+		KNXItem action = new KNXItem(itemDescriptor, groupAddress, readable, writeable);
+		
+		return action;
+	}
 
-		return null;
+	private Boolean getFlag(List<KnxComObjectInstanceRefT> linkedComObjects,
+			Function<KnxComObjectInstanceRefT, KnxEnableT> flag) {
+		Boolean flagValue = linkedComObjects.stream().map(flag)
+				.reduce((result, c) -> Objects.equals(c, KnxEnableT.ENABLED) ? c : result)
+				.map(r -> r.equals(KnxEnableT.ENABLED)).orElse(Boolean.FALSE);
+		return flagValue;
 	}
 
 	private KnxGroupAddressExt getGroupAddress(KnxGroupAddressRefT groupAddressRef) {
 
-		KnxGroupAddressExt groupAddress = groupAddresses.get(groupAddressRef.getRefId());
+		KnxGroupAddressExt groupAddress = installation.getGroupAddress(groupAddressRef.getRefId());
 
 		return Objects.requireNonNull(groupAddress);
 	}

@@ -7,16 +7,20 @@ import org.knx.KnxGroupAddressExt;
 
 public class KNXItem {
 
-	private KNXItemDescriptor itemDescriptor;
-	private KnxGroupAddressExt groupAddress;
-	
-	public KNXItem(KNXItemDescriptor itemDescriptor, KnxGroupAddressExt groupAddress) {
+	private final KNXItemDescriptor itemDescriptor;
+	private final KnxGroupAddressExt groupAddress;
+	private final boolean readable;
+	private final boolean writeable;
+
+	public KNXItem(KNXItemDescriptor itemDescriptor, KnxGroupAddressExt groupAddress, boolean readable,
+			boolean writeable) {
 		this.itemDescriptor = itemDescriptor;
 		this.groupAddress = groupAddress;
+		this.readable = readable;
+		this.writeable = writeable;
 	}
 
-	public String getKey()
-	{
+	public String getKey() {
 		return itemDescriptor.getKey();
 	}
 
@@ -31,9 +35,8 @@ public class KNXItem {
 	public String getDescription() {
 		return groupAddress.getDescription();
 	}
-	
-	public Map<String, String> getContext()
-	{
+
+	public Map<String, String> getContext() {
 		return ModelUtil.getContextFromComment(groupAddress.getComment());
 	}
 
@@ -66,6 +69,12 @@ public class KNXItem {
 		return groupAddress.getDataPointTypeAsString();
 	}
 
-	
-	
+	public boolean isReadable() {
+		return readable;
+	}
+
+	public boolean isWriteable() {
+		return writeable;
+	}
+
 }
