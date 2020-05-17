@@ -88,15 +88,6 @@ public class ThingExtractor {
 	public List<KNXThing> getThings() {
 		List<KnxFunctionExt> functions = getFunctions(knxInstallation);
 
-		
-		knxInstallation.getTopology().getArea().forEach(a -> a.getLine().forEach(l -> {
-			if (l.getDeviceInstance() != null)
-			l.getDeviceInstance().forEach(d -> {
-				if (d.getComObjectInstanceRefs() != null)
-				d.getComObjectInstanceRefs().getComObjectInstanceRef().forEach(i -> System.out.println(i.getLinks()));
-			});
-		}));
-
 		if (logUnusedGroupAddresses) {
 			Set<String> usedGroupAddresses = functions.stream().flatMap(f -> f.getGroupAddressRef().stream())
 					.map(g -> g.getRefId()).collect(Collectors.toSet());
