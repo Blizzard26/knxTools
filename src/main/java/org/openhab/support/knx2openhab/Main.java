@@ -6,7 +6,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,18 +25,11 @@ import org.openhab.support.knx2openhab.velocity.VelocityProcessor;
 public class Main {
 
 	protected Logger LOG = Logger.getLogger(this.getClass().getName());
-
-	private static final File THINGS_FILE = new File("out/knx.things");
-	private static final File ITEMS_FILE = new File("out/knx.items");
-	private static final File SITEMAP_FILE = new File("out/knx.sitemap");
-
+	
 	private File configDir;
 
 
-
 	public static void main(String[] args) throws IOException, JAXBException {
-		
-		// --project Angerweg12.knxproj --configDir conf/ --template things.vm --out out/knx.things --template items.vm --out out/knx.items
 		
 		Queue<String> paramArgs = new ArrayBlockingQueue<>(args.length);
 		paramArgs.addAll(Arrays.asList(args));
@@ -45,11 +37,8 @@ public class Main {
 		Params params = Params.parseParams(paramArgs);
 		if (params == null)
 			return;
-		
-		
-		
+
 		Main main = new Main(params.getConfigDir());
-		
 		main.process(params.getProjectFile(), params.getPassword(), params.getTemplates());
 	}
 	

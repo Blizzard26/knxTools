@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +18,6 @@ import javax.xml.bind.Unmarshaller;
 
 import org.knx.KNX;
 import org.knx.KnxApplicationProgramT;
-import org.knx.KnxHardwareT;
 import org.knx.KnxManufacturerDataT;
 import org.knx.KnxManufacturerDataT.KnxManufacturer;
 import org.knx.KnxManufacturerDataT.KnxManufacturer.KnxApplicationPrograms;

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -24,9 +25,9 @@ import org.knx.KnxGroupAddressRefT;
 import org.knx.KnxLocationsT;
 import org.knx.KnxProjectT.KnxInstallations.KnxInstallation;
 import org.knx.KnxSpaceT;
+import org.openhab.support.knx2openhab.etsLoader.KnxInstallationDataAccess;
 import org.openhab.support.knx2openhab.etsLoader.KnxManufacturerDataAccess;
 import org.openhab.support.knx2openhab.etsLoader.KnxMasterDataAccess;
-import org.openhab.support.knx2openhab.etsLoader.KnxInstallationDataAccess;
 import org.openhab.support.knx2openhab.model.KNXItem;
 import org.openhab.support.knx2openhab.model.KNXItemDescriptor;
 import org.openhab.support.knx2openhab.model.KNXLocation;
@@ -36,212 +37,250 @@ import org.openhab.support.knx2openhab.model.KNXThingDescriptor;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ThingExtractor {
+public class ThingExtractor
+{
 
-	private final Logger LOG = Logger.getLogger(this.getClass().getName());
+    private final Logger LOG = Logger.getLogger(this.getClass().getName());
 
-	private Map<String, Map<String, KNXThingDescriptor>> thingDescriptors = new HashMap<>();
-	private KNX knx;
-	private KnxInstallation knxInstallation;
+    private final boolean logUnusedGroupAddresses = true;
+    private final boolean logInvalidFunctions = false;
 
-	private boolean logUnusedGroupAddresses = true;
-	private boolean logInvalidFunctions = false;
+    private final KNX knx;
+    private final KnxInstallation knxInstallation;
+    private Map<String, Map<String, KNXThingDescriptor>> thingDescriptors = new HashMap<>();
 
-	private Map<String, KNXLocation> locations;
+    private final Set<String> ignoredGroupAddresses;
+    private Map<String, KNXLocation> locations;
 
-	private KnxMasterDataAccess masterData;
-	private KnxManufacturerDataAccess manufacturerData;
-	private KnxInstallationDataAccess installation;
+    private final KnxMasterDataAccess masterData;
+    private final KnxManufacturerDataAccess manufacturerData;
+    private final KnxInstallationDataAccess installation;
 
-	public ThingExtractor(KNX knx, KnxInstallation knxInstallation, File thingsConfigFile) {
-		this.knx = knx;
-		this.knxInstallation = knxInstallation;
-		
-		this.masterData = new KnxMasterDataAccess(knx.getMasterData());
-		this.manufacturerData = new KnxManufacturerDataAccess(knx.getManufacturerData());
-		this.installation = new KnxInstallationDataAccess(masterData, manufacturerData, knxInstallation);
-		
-		
+    public ThingExtractor(final KNX knx, final KnxInstallation knxInstallation, final File thingsConfigFile)
+    {
+        this.knx = knx;
+        this.knxInstallation = knxInstallation;
 
-		thingDescriptors = loadThingsConfig(thingsConfigFile);
-	}
+        this.masterData = new KnxMasterDataAccess(knx.getMasterData());
+        this.manufacturerData = new KnxManufacturerDataAccess(knx.getManufacturerData());
+        this.installation = new KnxInstallationDataAccess(masterData, manufacturerData, knxInstallation);
 
-	private Map<String, Map<String, KNXThingDescriptor>> loadThingsConfig(File thingsConfig) {
-		Map<String, Map<String, KNXThingDescriptor>> thingDescriptors = new HashMap<>();
-		ObjectMapper mapper = new ObjectMapper();
+        thingDescriptors = loadThingsConfig(thingsConfigFile);
 
-		try {
-			TypeReference<Collection<KNXThingDescriptor>> typeRef = new TypeReference<Collection<KNXThingDescriptor>>() {
-			};
-			Collection<KNXThingDescriptor> thingTypes = mapper.readValue(thingsConfig, typeRef);
+        ignoredGroupAddresses = new HashSet<>();
+        ignoredGroupAddresses.add("D");
+        ignoredGroupAddresses.add("A");
+        ignoredGroupAddresses.add("Spannungsversorgung");
+    }
 
-			thingTypes.forEach(t -> Arrays.stream(t.getFunctionTypes())
-					.forEach(f -> thingDescriptors.computeIfAbsent(f, s -> new HashMap<>()).put(t.getKey(), t)));
+    private Map<String, Map<String, KNXThingDescriptor>> loadThingsConfig(final File thingsConfig)
+    {
+        Map<String, Map<String, KNXThingDescriptor>> thingDescriptors = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return thingDescriptors;
-	}
+        try
+        {
+            TypeReference<Collection<KNXThingDescriptor>> typeRef = new TypeReference<Collection<KNXThingDescriptor>>()
+            {};
+            Collection<KNXThingDescriptor> thingTypes = mapper.readValue(thingsConfig, typeRef);
 
-	public List<KNXThing> getThings() {
-		List<KnxFunctionExt> functions = getFunctions(knxInstallation);
+            thingTypes.forEach(t -> Arrays.stream(t.getFunctionTypes())
+                    .forEach(f -> thingDescriptors.computeIfAbsent(f, s -> new HashMap<>()).put(t.getKey(), t)));
 
-		if (logUnusedGroupAddresses) {
-			Set<String> usedGroupAddresses = functions.stream().flatMap(f -> f.getGroupAddressRef().stream())
-					.map(g -> g.getRefId()).collect(Collectors.toSet());
+        }
+        catch (IOException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return thingDescriptors;
+    }
 
-			HashMap<String, KnxGroupAddressExt> groupAddresses = new HashMap<>(installation.getGroupAddresses());
-			usedGroupAddresses.forEach(g -> groupAddresses.remove(g));
-			groupAddresses.values().forEach(g -> LOG.warning("Group address " + g.getAddressAsString() + " ("
-					+ g.getName() + ") is not assigned to any function"));
-		}
+    public List<KNXThing> getThings()
+    {
+        List<KnxFunctionExt> functions = getFunctions(knxInstallation);
 
-		return functions.stream().filter(f -> {
-			if (isEmpty(f.getNumber())) {
-				if (logInvalidFunctions)
-					LOG.warning(f.getName() + " @ " + f.getSpace().getName() + " has no number");
-				return false;
-			} else {
-				return true;
-			}
-		}).map(this::getThing).filter(Objects::nonNull).collect(Collectors.toList());
-	}
+        if (logUnusedGroupAddresses)
+        {
+            Set<String> usedGroupAddresses = functions.stream().flatMap(f -> f.getGroupAddressRef().stream())
+                    .map(KnxGroupAddressRefT::getRefId).collect(Collectors.toSet());
 
-	private boolean isEmpty(String number) {
-		return number == null || number.length() == 0 || number.trim().length() == 0;
-	}
+            HashMap<String, KnxGroupAddressExt> groupAddresses = new HashMap<>(installation.getGroupAddresses());
+            usedGroupAddresses.forEach(g -> groupAddresses.remove(g));
 
-	private KNXThing getThing(KnxFunctionExt function) {
+            groupAddresses.values()
+                    .removeIf(g -> ignoredGroupAddresses.stream().anyMatch(i -> g.getName().startsWith(i)));
 
-		String functionType = function.getType();
-		Map<String, KNXThingDescriptor> functionTypeThings = thingDescriptors.get(functionType);
+            groupAddresses.values().forEach(g -> LOG.warning("Group address " + g.getAddressAsString() + " ("
+                    + g.getName() + ") is not assigned to any function"));
+        }
 
-		if (functionTypeThings == null) {
-			LOG.warning("Unsupported function type: " + functionType);
-			return null;
-		}
+        return functions.stream().filter(f -> {
+            if (isEmpty(f.getNumber()))
+            {
+                if (logInvalidFunctions)
+                {
+                    LOG.warning(f.getName() + " @ " + f.getSpace().getName() + " has no number");
+                }
+                return false;
+            }
+            else
+                return true;
+        }).map(this::getThing).filter(Objects::nonNull).collect(Collectors.toList());
+    }
 
-		String thingTypeKey = getThingTypeKey(function.getNumber());
+    private boolean isEmpty(final String number)
+    {
+        return number == null || number.length() == 0 || number.trim().length() == 0;
+    }
 
-		KNXThingDescriptor thingDescriptor = functionTypeThings.get(thingTypeKey);
+    private KNXThing getThing(final KnxFunctionExt function)
+    {
 
-		if (thingDescriptor == null) {
-			LOG.warning("Unkown Thing type " + thingTypeKey + " (function type " + functionType + ") for function "
-					+ function.getNumber());
-			return null;
-		}
+        String functionType = function.getType();
+        Map<String, KNXThingDescriptor> functionTypeThings = thingDescriptors.get(functionType);
 
-		KNXLocation location = getLocation(function.getSpace());
+        if (functionTypeThings == null)
+        {
+            LOG.warning("Unsupported function type: " + functionType);
+            return null;
+        }
 
-		KNXThing thing = new KNXThing(thingDescriptor, function, location);
+        String thingTypeKey = getThingTypeKey(function.getNumber());
 
-		List<KNXItem> items = getItems(function, thingDescriptor);
-		thing.setItems(items);
+        KNXThingDescriptor thingDescriptor = functionTypeThings.get(thingTypeKey);
 
-		return thing;
-	}
+        if (thingDescriptor == null)
+        {
+            LOG.warning("Unkown Thing type " + thingTypeKey + " (function type " + functionType + ") for function "
+                    + function.getNumber());
+            return null;
+        }
 
-	private KNXLocation getLocation(KnxSpaceT space) {
-		if (locations == null) {
-			locations = buildLocationsMap();
-		}
-		return locations.get(space.getId());
-	}
+        KNXLocation location = getLocation(function.getSpace());
 
-	private Map<String, KNXLocation> buildLocationsMap() {
-		List<KNXLocation> toplevelLocations = knxInstallation.getLocations().getSpace().stream()
-				.map(s -> buildLocation(s, null)).collect(Collectors.toList());
-		Map<String, KNXLocation> result = new HashMap<>();
-		toplevelLocations.forEach(l -> recursiveFlatMap(l, p -> p.getSubLocations(), p -> result.put(p.getId(), p)));
-		return result;
-	}
+        KNXThing thing = new KNXThing(thingDescriptor, function, location);
 
-	private <T> void recursiveFlatMap(T l, Function<T, ? extends Collection<T>> supplier, Consumer<T> consumer) {
-		consumer.accept(l);
-		supplier.apply(l).forEach(l1 -> recursiveFlatMap(l1, supplier, consumer));
-	}
+        List<KNXItem> items = getItems(function, thingDescriptor);
+        thing.setItems(items);
 
-	private KNXLocation buildLocation(KnxSpaceT s, KNXLocation parentLocation) {
-		KNXLocation location = new KNXLocation(s.getId(), s.getName(), parentLocation);
-		location.addAll(s.getSpace().stream().map(s1 -> buildLocation(s1, location)).collect(Collectors.toList()));
-		return location;
-	}
+        return thing;
+    }
 
-	private List<KNXItem> getItems(KnxFunctionExt function, KNXThingDescriptor thingDescriptor) {
-		return function.getGroupAddressRef().stream().map(g -> getGroupAddress(g)).map(g -> getItem(g, thingDescriptor))
-				.filter(Objects::nonNull).collect(Collectors.toList());
-	}
+    private KNXLocation getLocation(final KnxSpaceT space)
+    {
+        if (locations == null)
+        {
+            locations = buildLocationsMap();
+        }
+        return locations.get(space.getId());
+    }
 
-	private KNXItem getItem(KnxGroupAddressExt groupAddress, KNXThingDescriptor thingDescriptor) {
-		String key = groupAddress.getName();
+    private Map<String, KNXLocation> buildLocationsMap()
+    {
+        List<KNXLocation> toplevelLocations = knxInstallation.getLocations().getSpace().stream()
+                .map(s -> buildLocation(s, null)).collect(Collectors.toList());
+        Map<String, KNXLocation> result = new HashMap<>();
+        toplevelLocations
+                .forEach(l -> recursiveFlatMap(l, KNXLocation::getSubLocations, p -> result.put(p.getId(), p)));
+        return result;
+    }
 
-		if (key == null) {
-			LOG.warning("Group Address " + groupAddress.getAddressAsString() + " has no key");
-			return null;
-		}
+    private <T> void recursiveFlatMap(final T l, final Function<T, ? extends Collection<T>> supplier,
+            final Consumer<T> consumer)
+    {
+        consumer.accept(l);
+        supplier.apply(l).forEach(l1 -> recursiveFlatMap(l1, supplier, consumer));
+    }
 
-		
-		Optional<KNXItem> item = thingDescriptor.getItems().stream()
-				.filter(i -> Arrays.asList(i.getKeywords()).stream()
-						.filter(k -> key.toLowerCase().endsWith(" " + k.toLowerCase())).findAny().isPresent())
-				.findFirst().map(d -> getItem(groupAddress, d));
-		
-		if (!item.isPresent()) {
-			LOG.warning("Unable to identify item type for " + groupAddress.getName() + " on thing "
-					+ thingDescriptor.getName());
-		}
-		
-		return item.orElse(null);
-	}
+    private KNXLocation buildLocation(final KnxSpaceT s, final KNXLocation parentLocation)
+    {
+        KNXLocation location = new KNXLocation(s.getId(), s.getName(), parentLocation);
+        location.addAll(s.getSpace().stream().map(s1 -> buildLocation(s1, location)).collect(Collectors.toList()));
+        return location;
+    }
 
-	private KNXItem getItem(KnxGroupAddressExt groupAddress, KNXItemDescriptor itemDescriptor) {
-		
-		List<KnxComObjectInstanceRefT> linkedComObjects = installation.getLinkedComObjects(groupAddress.getId());
-		
-		Boolean readable = getFlag(linkedComObjects, c -> c.getReadFlag());
-		Boolean writeable = getFlag(linkedComObjects, c -> c.getWriteFlag());
-		
-		KNXItem action = new KNXItem(itemDescriptor, groupAddress, readable, writeable);
-		
-		return action;
-	}
+    private List<KNXItem> getItems(final KnxFunctionExt function, final KNXThingDescriptor thingDescriptor)
+    {
+        return function.getGroupAddressRef().stream().map(this::getGroupAddress).map(g -> getItem(g, thingDescriptor))
+                .filter(Objects::nonNull).collect(Collectors.toList());
+    }
 
-	private Boolean getFlag(List<KnxComObjectInstanceRefT> linkedComObjects,
-			Function<KnxComObjectInstanceRefT, KnxEnableT> flag) {
-		Boolean flagValue = linkedComObjects.stream().map(flag)
-				.reduce((result, c) -> Objects.equals(c, KnxEnableT.ENABLED) ? c : result)
-				.map(r -> r.equals(KnxEnableT.ENABLED)).orElse(Boolean.FALSE);
-		return flagValue;
-	}
+    private KNXItem getItem(final KnxGroupAddressExt groupAddress, final KNXThingDescriptor thingDescriptor)
+    {
+        String key = groupAddress.getName();
 
-	private KnxGroupAddressExt getGroupAddress(KnxGroupAddressRefT groupAddressRef) {
+        if (key == null)
+        {
+            LOG.warning("Group Address " + groupAddress.getAddressAsString() + " has no key");
+            return null;
+        }
 
-		KnxGroupAddressExt groupAddress = installation.getGroupAddress(groupAddressRef.getRefId());
+        Optional<KNXItem> item = thingDescriptor.getItems().stream()
+                .filter(i -> Arrays.asList(i.getKeywords()).stream()
+                        .filter(k -> key.toLowerCase().endsWith(" " + k.toLowerCase())).findAny().isPresent())
+                .findFirst().map(d -> getItem(groupAddress, d));
 
-		return Objects.requireNonNull(groupAddress);
-	}
+        if (!item.isPresent())
+        {
+            LOG.warning("Unable to identify item type for " + groupAddress.getName() + " on thing "
+                    + thingDescriptor.getName());
+        }
 
-	private String getThingTypeKey(String number) {
-		int index = number.indexOf(" ");
+        return item.orElse(null);
+    }
 
-		if (index >= 0) {
-			return number.substring(0, index);
-		}
-		return number;
-	}
+    private KNXItem getItem(final KnxGroupAddressExt groupAddress, final KNXItemDescriptor itemDescriptor)
+    {
 
-	public static List<KnxFunctionExt> getFunctions(KnxInstallation knxInstallation) {
-		KnxLocationsT locations = knxInstallation.getLocations();
-		return locations.getSpace().stream().flatMap(s -> getFunctions(s).stream()).collect(Collectors.toList());
-	}
+        List<KnxComObjectInstanceRefT> linkedComObjects = installation.getLinkedComObjects(groupAddress.getId());
 
-	private static List<KnxFunctionExt> getFunctions(KnxSpaceT space) {
-		List<KnxFunctionExt> functions = space.getFunction().stream().map(f -> new KnxFunctionExt(space, f))
-				.collect(Collectors.toList());
-		functions.addAll(space.getSpace().stream().flatMap(s -> getFunctions(s).stream()).collect(Collectors.toList()));
-		return functions;
-	}
+        Boolean readable = getFlag(linkedComObjects, KnxComObjectInstanceRefT::getReadFlag);
+        Boolean writeable = getFlag(linkedComObjects, KnxComObjectInstanceRefT::getWriteFlag);
+
+        KNXItem action = new KNXItem(itemDescriptor, groupAddress, readable, writeable);
+
+        return action;
+    }
+
+    private Boolean getFlag(final List<KnxComObjectInstanceRefT> linkedComObjects,
+            final Function<KnxComObjectInstanceRefT, KnxEnableT> flag)
+    {
+        Boolean flagValue = linkedComObjects.stream().map(flag)
+                .reduce((result, c) -> Objects.equals(c, KnxEnableT.ENABLED) ? c : result)
+                .map(r -> r.equals(KnxEnableT.ENABLED)).orElse(Boolean.FALSE);
+        return flagValue;
+    }
+
+    private KnxGroupAddressExt getGroupAddress(final KnxGroupAddressRefT groupAddressRef)
+    {
+
+        KnxGroupAddressExt groupAddress = installation.getGroupAddress(groupAddressRef.getRefId());
+
+        return Objects.requireNonNull(groupAddress);
+    }
+
+    private String getThingTypeKey(final String number)
+    {
+        int index = number.indexOf(" ");
+
+        if (index >= 0)
+            return number.substring(0, index);
+        return number;
+    }
+
+    public static List<KnxFunctionExt> getFunctions(final KnxInstallation knxInstallation)
+    {
+        KnxLocationsT locations = knxInstallation.getLocations();
+        return locations.getSpace().stream().flatMap(s -> getFunctions(s).stream()).collect(Collectors.toList());
+    }
+
+    private static List<KnxFunctionExt> getFunctions(final KnxSpaceT space)
+    {
+        List<KnxFunctionExt> functions = space.getFunction().stream().map(f -> new KnxFunctionExt(space, f))
+                .collect(Collectors.toList());
+        functions.addAll(space.getSpace().stream().flatMap(s -> getFunctions(s).stream()).collect(Collectors.toList()));
+        return functions;
+    }
 
 }
