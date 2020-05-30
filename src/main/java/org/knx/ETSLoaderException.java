@@ -1,4 +1,4 @@
-package org.openhab.support.knx2openhab.etsLoader;
+package org.knx;
 
 public class ETSLoaderException extends RuntimeException {
 

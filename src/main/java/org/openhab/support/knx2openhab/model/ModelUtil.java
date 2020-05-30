@@ -9,7 +9,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openhab.support.knx2openhab.Tupel;
-import org.openhab.support.knx2openhab.etsLoader.RTFUtil;
 
 public class ModelUtil {
 

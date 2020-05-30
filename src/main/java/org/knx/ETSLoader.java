@@ -1,4 +1,4 @@
-package org.openhab.support.knx2openhab.etsLoader;
+package org.knx;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +47,10 @@ public class ETSLoader {
 	private static final String MAIN_PROJECT_FILE = "project.xml";
 
 	public KNX load(File file, Optional<String> password) throws ETSLoaderException {
+		return load(file, password, k -> k);
+	}
+	
+	public <T> T load(File file, Optional<String> password, java.util.function.Function<KNX, T> mappingFunction) throws ETSLoaderException {
 		ZipFile projectZipFile = new ZipFile(file);
 
 		KNX knx = loadMasterData(projectZipFile);
@@ -59,7 +63,7 @@ public class ETSLoader {
 		List<KnxProjectT> projects = loadProjects(password, projectZipFile);
 		knx.getProject().addAll(projects);
 
-		return knx;
+		return mappingFunction.apply(knx);
 	}
 
 	/**

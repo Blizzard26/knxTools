@@ -1,4 +1,4 @@
-package org.openhab.support.knx2openhab.etsLoader;
+package org.openhab.support.knx2openhab.model;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

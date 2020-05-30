@@ -1,12 +1,9 @@
-package org.openhab.support.knx2openhab.etsLoader;
+package org.knx.xml;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.knx.xml.KnxDatapointTypeT;
 import org.knx.xml.KnxDatapointTypeT.KnxDatapointSubtypes.KnxDatapointSubtype;
-import org.knx.xml.KnxFunctionTypeT;
-import org.knx.xml.KnxMasterDataT;
 import org.openhab.support.knx2openhab.Tupel;
 
 public class KnxMasterDataAccess {
@@ -21,20 +18,31 @@ public class KnxMasterDataAccess {
 	}
 
 	public String resolveFunctionType(String type) {
-		return getFunctionTypes().get(type).getText();
+		if (type == null)
+			return null;
+		return getFunctionType(type).getText();
+	}
+
+	public KnxFunctionTypeT getFunctionType(String type) {
+		if (type == null)
+			return null;
+		return getFunctionTypes().get(type);
 	}
 
 	public String resolveDatapointType(String dataPointType) {
-		if (dataPointType == null)
-			return null;
-
-		Tupel<KnxDatapointTypeT,KnxDatapointSubtype> dataPointSubType = getDataPointTypes().get(dataPointType);
+		Tupel<KnxDatapointTypeT, KnxDatapointSubtype> dataPointSubType = getDataPointType(dataPointType);
 		if (dataPointSubType != null) {
 			return String.format("%1$d.%2$03d", dataPointSubType.getFirst().getNumber(),
 					dataPointSubType.getSecond() != null ? dataPointSubType.getSecond().getNumber() : 0);
 		}
 
 		return null;
+	}
+
+	public Tupel<KnxDatapointTypeT, KnxDatapointSubtype> getDataPointType(String dataPointType) {
+		if (dataPointType == null)
+			return null;
+		return getDataPointTypes().get(dataPointType);
 	}
 	
 	private Map<String, KnxFunctionTypeT> getFunctionTypes() {

@@ -1,4 +1,4 @@
-package org.openhab.support.knx2openhab.etsLoader;
+package org.knx.xml;
 
 import java.util.Collections;
 import java.util.List;
@@ -7,15 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.knx.xml.KnxApplicationProgramT;
-import org.knx.xml.KnxComObjectInstanceRefT;
-import org.knx.xml.KnxComObjectRefT;
-import org.knx.xml.KnxComObjectT;
-import org.knx.xml.KnxDeviceInstanceT;
-import org.knx.xml.KnxGroupAddressExt;
-import org.knx.xml.KnxGroupAddressT;
 import org.knx.xml.KnxGroupAddressesT.KnxGroupRanges;
-import org.knx.xml.KnxGroupRangeT;
 import org.knx.xml.KnxProjectT.KnxInstallations.KnxInstallation;
 
 public class KnxInstallationDataAccess {
