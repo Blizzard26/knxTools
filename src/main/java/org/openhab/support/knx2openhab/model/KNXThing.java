@@ -60,6 +60,7 @@ public class KNXThing {
 		this.items.putAll(items.stream().collect(Collectors.toMap(i -> i.getKey(), i -> i)));
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(getDescriptor().getName()).append(": ").append(getKey()).append(" {");

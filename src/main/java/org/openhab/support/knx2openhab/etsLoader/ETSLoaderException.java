@@ -12,4 +12,18 @@ public class ETSLoaderException extends RuntimeException {
 		super(e);
 	}
 
+	public ETSLoaderException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	public ETSLoaderException(String message) {
+		super(message);
+	}
+
+	public ETSLoaderException(Throwable cause) {
+		super(cause);
+	}
+	
+	
+
 }

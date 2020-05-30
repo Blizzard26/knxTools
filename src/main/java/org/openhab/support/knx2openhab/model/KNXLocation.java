@@ -45,6 +45,7 @@ public class KNXLocation {
 		return Objects.equals(id, other.id);
 	}
 	
+	@Override
 	public String toString()
 	{
 		return name;

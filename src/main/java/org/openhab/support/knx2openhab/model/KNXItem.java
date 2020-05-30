@@ -40,6 +40,7 @@ public class KNXItem {
 		return ModelUtil.getContextFromComment(groupAddress.getComment());
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append(getItemDescriptor().getKey()).append(" => ").append(getAddress());

@@ -7,8 +7,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.openhab.support.knx2openhab.etsLoader.ETSUtil;
-import org.openhab.support.knx2openhab.etsLoader.KnxMasterDataAccess;
+import org.apache.commons.lang3.StringUtils;
+import org.openhab.support.knx2openhab.Tupel;
+import org.openhab.support.knx2openhab.etsLoader.RTFUtil;
 
 public class ModelUtil {
 
@@ -18,43 +19,47 @@ public class ModelUtil {
 	private static final String CONTEXT_END = "#END";
 
 	public static Map<String, String> getContextFromComment(String comment) {
-		String commentAsPlainText = ETSUtil.getCommentAsPlainText(comment);
-		
+		String commentAsPlainText = RTFUtil.getRTF2PlainText(comment);
+
 		if (commentAsPlainText == null || commentAsPlainText.length() == 0)
-			return null;
-			
+			return Collections.emptyMap();
+
+		String context = extractContext(commentAsPlainText);
+
+		if (context == null)
+			return Collections.emptyMap();
+
+		return parseContext(context.trim());
+	}
+
+	private static String extractContext(String commentAsPlainText) {
+		String context = null;
 
 		int startIndex = commentAsPlainText.indexOf(CONTEXT_START);
-		int endIndex = commentAsPlainText.indexOf(CONTEXT_END);
-
 		if (startIndex >= 0) {
-			String context;
+			int endIndex = commentAsPlainText.indexOf(CONTEXT_END);
 			if (endIndex < 0) {
-				logger.warning("LOG: Unclosed comment tag in '" + comment + "'");
+				logger.warning("LOG: Unclosed comment tag in '" + commentAsPlainText + "'");
 				context = commentAsPlainText.substring(startIndex + CONTEXT_START.length());
 			} else {
 				context = commentAsPlainText.substring(startIndex + CONTEXT_START.length(), endIndex);
 			}
-
-			return parseContext(context.trim());
 		}
-
-		return Collections.emptyMap();
+		return context;
 	}
 
 	private static Map<String, String> parseContext(String contextString) {
 		BufferedReader reader = new BufferedReader(new StringReader(contextString));
-		return reader.lines().map(l -> l.trim()).filter(l -> l.length() > 0).map(l -> {
-			String[] result = new String[2];
+		return reader.lines().filter(l -> !StringUtils.isBlank(l)).map(l -> {
+			Tupel<String, String> result;
 			int index = l.indexOf("=");
 			if (index < 0) {
-				result[0] = l;
+				result = new Tupel<>(l.trim(), null);
 			} else {
-				result[0] = l.substring(0, index);
-				result[1] = l.substring(index + 1);
+				result = new Tupel<>(l.substring(0, index).trim(), l.substring(index + 1).trim());
 			}
 			return result;
-		}).collect(Collectors.toMap(a -> a[0].trim(), a -> a[1].trim()));
+		}).collect(Collectors.toMap(a -> a.getFirst(), a -> a.getSecond()));
 	}
 
 }

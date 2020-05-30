@@ -17,5 +17,13 @@ public class Tupel<K, V> {
 	public V getSecond() {
 		return second;
 	}
+	
+	public K first() {
+		return first;
+	}
+	
+	public V second() {
+		return second;
+	}
 
 }

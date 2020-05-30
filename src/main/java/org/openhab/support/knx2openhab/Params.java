@@ -12,8 +12,12 @@ public class Params {
 	private File projectFile;
 	private File configDirFile;
 	private Map<String, File> templates = new LinkedHashMap<>();
+	private Optional<String> password = Optional.empty();
+	private Optional<String> projectId = Optional.empty();
+	private Optional<Integer> installationId = Optional.empty();
 
-	// --project Angerweg12.knxproj --configDir conf/ --template things.vm --out
+	// --project Angerweg12.knxproj --password pass --projectId 0 --installationId 0
+	// --configDir conf/ --template things.vm --out
 	// out/knx.things --template items.vm --out out/knx.items
 	public static Params parseParams(Queue<String> args) {
 		try {
@@ -22,7 +26,7 @@ public class Params {
 			System.out.println(e.getMessage());
 			printUsage();
 			return null;
-		} catch (NoSuchElementException e) {
+		} catch (@SuppressWarnings("unused") NoSuchElementException e) {
 			printUsage();
 			return null;
 		}
@@ -49,7 +53,27 @@ public class Params {
 
 		while (!args.isEmpty()) {
 			param = args.remove();
-			if (param.equalsIgnoreCase("--configDir")) {
+			if (param.equalsIgnoreCase("--password")) {
+				String password = args.remove();
+
+				params.setPassword(password);
+			} else if (param.equalsIgnoreCase("--projectId")) {
+				String projectId = args.remove();
+
+				params.setProjectId(projectId);
+			} else if (param.equalsIgnoreCase("--installationId")) {
+				String installationIdString = args.remove();
+
+				int installationId;
+				try {
+					installationId = Integer.parseInt(installationIdString);
+				} catch (@SuppressWarnings("unused") NumberFormatException e) {
+					throw new IllegalArgumentException(
+							"InstallationId '" + installationIdString + "' is not a valid number");
+				}
+
+				params.setInstallationId(installationId);
+			} else if (param.equalsIgnoreCase("--configDir")) {
 				String configDir = args.remove();
 
 				if (configDir.startsWith("--")) {
@@ -76,14 +100,24 @@ public class Params {
 					throw new IllegalArgumentException("Output-File cannot start with '--'");
 				}
 				params.addTemplate(template, new File(output));
-			}
-			else
-			{
+			} else {
 				throw new IllegalArgumentException("Unkown parameter: " + param);
 			}
 		}
 
 		return params;
+	}
+
+	private void setInstallationId(Integer installationId) {
+		this.installationId = Optional.of(installationId);
+	}
+
+	private void setProjectId(String projectId) {
+		this.projectId = Optional.of(projectId);
+	}
+
+	private void setPassword(String password) {
+		this.password = Optional.of(password);
 	}
 
 	private void addTemplate(String template, File output) {
@@ -99,9 +133,9 @@ public class Params {
 		this.projectFile = file;
 	}
 
-	private static void printUsage() {
+	public static void printUsage() {
 		System.out.println("Usage:\r\n"
-				+ "--project projectFile.knxproj --configDir conf/ --template template.vm --out outputfile");
+				+ "--project projectFile.knxproj [--password pass --projectId 0 --installationId 0] --configDir conf/ --template template.vm --out outputfile");
 
 	}
 
@@ -118,8 +152,15 @@ public class Params {
 	}
 
 	public Optional<String> getPassword() {
-		// TODO Auto-generated method stub
-		return Optional.of("2G8d4yu!");
+		return password;
+	}
+
+	public Optional<String> getProjectId() {
+		return projectId;
+	}
+
+	public Optional<Integer> getInstallationId() {
+		return installationId;
 	}
 
 }
