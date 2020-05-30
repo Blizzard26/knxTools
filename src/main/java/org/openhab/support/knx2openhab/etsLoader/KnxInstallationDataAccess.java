@@ -7,16 +7,16 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.knx.KnxApplicationProgramT;
-import org.knx.KnxComObjectInstanceRefT;
-import org.knx.KnxComObjectRefT;
-import org.knx.KnxComObjectT;
-import org.knx.KnxDeviceInstanceT;
-import org.knx.KnxGroupAddressExt;
-import org.knx.KnxGroupAddressT;
-import org.knx.KnxGroupAddressesT.KnxGroupRanges;
-import org.knx.KnxGroupRangeT;
-import org.knx.KnxProjectT.KnxInstallations.KnxInstallation;
+import org.knx.xml.KnxApplicationProgramT;
+import org.knx.xml.KnxComObjectInstanceRefT;
+import org.knx.xml.KnxComObjectRefT;
+import org.knx.xml.KnxComObjectT;
+import org.knx.xml.KnxDeviceInstanceT;
+import org.knx.xml.KnxGroupAddressExt;
+import org.knx.xml.KnxGroupAddressT;
+import org.knx.xml.KnxGroupAddressesT.KnxGroupRanges;
+import org.knx.xml.KnxGroupRangeT;
+import org.knx.xml.KnxProjectT.KnxInstallations.KnxInstallation;
 
 public class KnxInstallationDataAccess {
 

@@ -15,16 +15,16 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
-import org.knx.KNX;
-import org.knx.KnxApplicationProgramT;
-import org.knx.KnxManufacturerDataT;
-import org.knx.KnxManufacturerDataT.KnxManufacturer;
-import org.knx.KnxManufacturerDataT.KnxManufacturer.KnxApplicationPrograms;
-import org.knx.KnxManufacturerDataT.KnxManufacturer.KnxCatalog;
-import org.knx.KnxManufacturerDataT.KnxManufacturer.KnxHardware;
-import org.knx.KnxProjectT;
-import org.knx.KnxProjectT.KnxInstallations;
-import org.knx.KnxProjectT.KnxInstallations.KnxInstallation;
+import org.knx.xml.KNX;
+import org.knx.xml.KnxApplicationProgramT;
+import org.knx.xml.KnxManufacturerDataT;
+import org.knx.xml.KnxManufacturerDataT.KnxManufacturer;
+import org.knx.xml.KnxManufacturerDataT.KnxManufacturer.KnxApplicationPrograms;
+import org.knx.xml.KnxManufacturerDataT.KnxManufacturer.KnxCatalog;
+import org.knx.xml.KnxManufacturerDataT.KnxManufacturer.KnxHardware;
+import org.knx.xml.KnxProjectT;
+import org.knx.xml.KnxProjectT.KnxInstallations;
+import org.knx.xml.KnxProjectT.KnxInstallations.KnxInstallation;
 
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;

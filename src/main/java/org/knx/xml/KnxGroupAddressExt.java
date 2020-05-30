@@ -1,4 +1,4 @@
-package org.knx;
+package org.knx.xml;
 
 public class KnxGroupAddressExt extends KnxGroupAddressT {
 

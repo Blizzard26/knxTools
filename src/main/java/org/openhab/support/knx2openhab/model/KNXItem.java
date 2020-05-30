@@ -3,7 +3,7 @@ package org.openhab.support.knx2openhab.model;
 import java.util.Map;
 import java.util.Objects;
 
-import org.knx.KnxGroupAddressExt;
+import org.knx.xml.KnxGroupAddressExt;
 
 public class KNXItem {
 

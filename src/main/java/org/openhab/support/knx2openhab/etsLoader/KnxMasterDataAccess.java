@@ -3,10 +3,10 @@ package org.openhab.support.knx2openhab.etsLoader;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.knx.KnxDatapointTypeT;
-import org.knx.KnxDatapointTypeT.KnxDatapointSubtypes.KnxDatapointSubtype;
-import org.knx.KnxFunctionTypeT;
-import org.knx.KnxMasterDataT;
+import org.knx.xml.KnxDatapointTypeT;
+import org.knx.xml.KnxDatapointTypeT.KnxDatapointSubtypes.KnxDatapointSubtype;
+import org.knx.xml.KnxFunctionTypeT;
+import org.knx.xml.KnxMasterDataT;
 import org.openhab.support.knx2openhab.Tupel;
 
 public class KnxMasterDataAccess {

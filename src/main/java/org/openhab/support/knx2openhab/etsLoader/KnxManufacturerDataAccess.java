@@ -4,11 +4,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.knx.KnxApplicationProgramRefT;
-import org.knx.KnxApplicationProgramT;
-import org.knx.KnxHardware2ProgramT;
-import org.knx.KnxManufacturerDataT;
-import org.knx.KnxManufacturerDataT.KnxManufacturer;
+import org.knx.xml.KnxApplicationProgramRefT;
+import org.knx.xml.KnxApplicationProgramT;
+import org.knx.xml.KnxHardware2ProgramT;
+import org.knx.xml.KnxManufacturerDataT;
+import org.knx.xml.KnxManufacturerDataT.KnxManufacturer;
 
 public class KnxManufacturerDataAccess {
 

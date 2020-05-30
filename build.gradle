@@ -57,10 +57,16 @@ dependencies {
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.+'
 }
 
+eclipseJdt.doLast {
+    File f = file('.settings/org.eclipse.core.resources.prefs')
+    f.write('eclipse.preferences.version=1\n')
+    f.append('encoding/<project>=UTF-8')
+}
+
 jaxb {
     javaGen {
         knxConfig {
-            packageName = 'org.knx'
+            packageName = 'org.knx.xml'
             schemas = fileTree(dir: 'src/main/resources', include: 'knx.xsd')
             binding = file('src/main/resources/knx.xjb')
             extension = true

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.knx.KnxFunctionExt;
+import org.knx.xml.KnxFunctionExt;
 
 public class KNXThing {
 

@@ -15,9 +15,9 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import org.knx.KNX;
-import org.knx.KnxProjectT;
-import org.knx.KnxProjectT.KnxInstallations.KnxInstallation;
+import org.knx.xml.KNX;
+import org.knx.xml.KnxProjectT;
+import org.knx.xml.KnxProjectT.KnxInstallations.KnxInstallation;
 import org.openhab.support.knx2openhab.etsLoader.ETSLoader;
 import org.openhab.support.knx2openhab.model.KNXThing;
 import org.openhab.support.knx2openhab.velocity.VelocityProcessor;
