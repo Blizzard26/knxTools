@@ -198,9 +198,7 @@ public class LookupIdResolver extends IDResolver {
 			{
 				internalResolveProxies(value, visited);
 			}
-
 		}
-
 	}
 
 	public void purgeSuperHierarchy(BaseClass base) {

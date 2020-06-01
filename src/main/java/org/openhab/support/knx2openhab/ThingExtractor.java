@@ -14,7 +14,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,13 +29,16 @@ import org.openhab.support.knx2openhab.model.KNXItem;
 import org.openhab.support.knx2openhab.model.KNXItemDescriptor;
 import org.openhab.support.knx2openhab.model.KNXThing;
 import org.openhab.support.knx2openhab.model.KNXThingDescriptor;
+import org.openhab.support.knx2openhab.model.ModelUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ThingExtractor {
 
-	private final Logger LOG = Logger.getLogger(this.getClass().getName());
+	private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
 	private final boolean logUnusedGroupAddresses = true;
 	private final boolean logInvalidFunctions = false;
@@ -92,8 +94,7 @@ public class ThingExtractor {
 			groupAddresses.removeAll(usedGroupAddresses);
 			groupAddresses.removeIf(g -> ignoredGroupAddresses.stream().anyMatch(i -> g.getName().startsWith(i)));
 
-			groupAddresses.forEach(g -> LOG.warning("Group address " + g.getAddress() + " ("
-					+ g.getName() + ") is not assigned to any function"));
+			groupAddresses.forEach(g -> LOG.warn("Group address {} ({}) is not assigned to any function", ModelUtil.getAddressAsString(g), g.getName()));
 		}
 
 		return functions.stream().filter(this::isValidFunction).map(this::getThing).filter(Objects::nonNull)
@@ -103,7 +104,7 @@ public class ThingExtractor {
 	private boolean isValidFunction(KnxFunctionT f) {
 		if (isBlank(f.getNumber())) {
 			if (logInvalidFunctions) {
-				LOG.warning(f.getName() + " @ " + ((KnxSpaceT)f.getParent().getParent()).getName() + " has no number");
+				LOG.warn(f.getName() + " @ " + ((KnxSpaceT)f.getParent().getParent()).getName() + " has no number");
 			}
 			return false;
 		}
@@ -116,7 +117,7 @@ public class ThingExtractor {
 		
 		Map<String, KNXThingDescriptor> functionTypeThings = thingDescriptors.get(functionType);
 		if (functionTypeThings == null) {
-			LOG.warning("Unsupported function type: " + functionType);
+			LOG.warn("Unsupported function type: " + functionType);
 			return null;
 		}
 
@@ -124,7 +125,7 @@ public class ThingExtractor {
 
 		KNXThingDescriptor thingDescriptor = functionTypeThings.get(thingTypeKey);
 		if (thingDescriptor == null) {
-			LOG.warning("Unkown Thing type " + thingTypeKey + " (function type " + functionType + ") for function "
+			LOG.warn("Unkown Thing type " + thingTypeKey + " (function type " + functionType + ") for function "
 					+ function.getNumber());
 			return null;
 		}
@@ -147,7 +148,7 @@ public class ThingExtractor {
 		final String key = groupAddress.getName() != null ? groupAddress.getName().toLowerCase() : null;
 
 		if (key == null || isBlank(key)) {
-			LOG.warning("Group Address " + groupAddress.getAddress() + " has no key");
+			LOG.warn("Group Address " + groupAddress.getAddress() + " has no key");
 			return null;
 		}
 
@@ -157,16 +158,14 @@ public class ThingExtractor {
 				.findFirst().map(itemDescriptor -> getItem(groupAddress, itemDescriptor));
 
 		if (!item.isPresent()) {
-			LOG.warning("Unable to identify item type for " + groupAddress.getName() + " on thing "
+			LOG.warn("Unable to identify item type for " + groupAddress.getName() + " on thing "
 					+ thingDescriptor.getName());
 		}
 
 		return item.orElse(null);
 	}
 
-	private KNXItem getItem(final KnxGroupAddressT groupAddress, final KNXItemDescriptor itemDescriptor) {
-
-		
+	private KNXItem getItem(final KnxGroupAddressT groupAddress, final KNXItemDescriptor itemDescriptor) {	
 		List<KnxComObjectInstanceRefT> linkedComObjects = getLinkedComObjects(groupAddress);
 
 		boolean readable = or(linkedComObjects, c -> nvl(c, KnxComObjectInstanceRefT::isReadFlag, r -> r.getComObjectRef().getComObject().isReadFlag()));

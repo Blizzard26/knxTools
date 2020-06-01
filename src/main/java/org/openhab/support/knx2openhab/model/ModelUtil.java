@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.Collections;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,10 +12,12 @@ import org.knx.xml.KnxDatapointTypeT;
 import org.knx.xml.KnxGroupAddressT;
 import org.knx.xml.KnxDatapointTypeT.KnxDatapointSubtypes.KnxDatapointSubtype;
 import org.openhab.support.knx2openhab.Tupel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ModelUtil {
 
-	private static final Logger logger = Logger.getLogger(ModelUtil.class.getName());
+	private static final Logger logger = LoggerFactory.getLogger(ModelUtil.class);
 
 	private static final String CONTEXT_START = "#OPENHAB";
 	private static final String CONTEXT_END = "#END";
@@ -42,7 +43,7 @@ public class ModelUtil {
 		if (startIndex >= 0) {
 			int endIndex = commentAsPlainText.indexOf(CONTEXT_END);
 			if (endIndex < 0) {
-				logger.warning("LOG: Unclosed comment tag in '" + commentAsPlainText + "'");
+				logger.warn("LOG: Unclosed comment tag in '{}'", commentAsPlainText);
 				context = commentAsPlainText.substring(startIndex + CONTEXT_START.length());
 			} else {
 				context = commentAsPlainText.substring(startIndex + CONTEXT_START.length(), endIndex);
@@ -65,12 +66,14 @@ public class ModelUtil {
 		}).collect(Collectors.toMap(a -> a.getFirst(), a -> a.getSecond()));
 	}
 	
-	public static String getAddressAsString(long longAddress) {
+	public static String getAddressAsString(KnxGroupAddressT groupAddress)
+	{
+		long longAddress = groupAddress.getAddress();
 		int low = (int) (longAddress % 256);
 		longAddress /= 256;
 		int middle = (int) (longAddress % 8);
 		int high = (int) (longAddress / 8);
-
+		
 		return high + "/" + middle + "/" + low;
 	}
 	

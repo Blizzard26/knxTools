@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import javax.xml.bind.JAXBContext;
@@ -31,6 +30,7 @@ import org.knx.xml.KnxManufacturerDataT.KnxManufacturer.KnxHardware;
 import org.knx.xml.KnxProjectT;
 import org.knx.xml.KnxProjectT.KnxInstallations;
 import org.knx.xml.KnxProjectT.KnxInstallations.KnxInstallation;
+import org.slf4j.LoggerFactory;
 
 import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
@@ -40,7 +40,8 @@ import net.lingala.zip4j.util.FileUtils;
 
 public class ETSLoader {
 	
-	protected final Logger LOG = Logger.getLogger(this.getClass().getName());
+	
+	protected final org.slf4j.Logger LOG = LoggerFactory.getLogger(this.getClass());
 
 	private static final String TEMP_FILE_PREFIX = "knx-project";
 	private static final String ZIP_EXTENSION = "zip";
@@ -60,17 +61,17 @@ public class ETSLoader {
 
 		LookupIdResolver idResolver = new LookupIdResolver();
 
-		LOG.fine("Loading Master Data");
+		LOG.debug("Loading Master Data");
 
 		KNX knx = loadMasterData(projectZipFile, idResolver);
 
-		LOG.fine("Loading Manufacturer Data");
+		LOG.debug("Loading Manufacturer Data");
 
 		KnxManufacturerDataT manufacturerData = new KnxManufacturerDataT();
 		loadManufacturerData(projectZipFile, manufacturerData, idResolver);
 		reconnect(manufacturerData, knx, KNX::setManufacturerData, idResolver);
 
-		LOG.fine("Loading Projects");
+		LOG.debug("Loading Projects");
 
 		loadProjects(password, projectZipFile, knx, idResolver);
 

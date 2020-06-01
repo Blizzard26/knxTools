@@ -29,7 +29,7 @@ public class KNXItem {
 	}
 
 	public String getAddress() {
-		return ModelUtil.getAddressAsString(groupAddress.getAddress());
+		return ModelUtil.getAddressAsString(groupAddress);
 	}
 
 

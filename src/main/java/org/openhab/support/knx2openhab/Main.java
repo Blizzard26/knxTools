@@ -12,7 +12,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.knx.ETSLoader;
@@ -21,10 +20,12 @@ import org.knx.xml.KnxProjectT;
 import org.knx.xml.KnxProjectT.KnxInstallations.KnxInstallation;
 import org.openhab.support.knx2openhab.model.KNXThing;
 import org.openhab.support.knx2openhab.velocity.VelocityProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Main {
 
-	protected Logger LOG = Logger.getLogger(this.getClass().getName());
+	protected Logger LOG = LoggerFactory.getLogger(this.getClass());
 
 
 	public static void main(String[] args) throws IOException {
