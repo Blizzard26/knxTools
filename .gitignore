@@ -15,3 +15,5 @@ bin/
 # Ignore output directories
 out/
 
+# Ignore any KNX Project Files
+*.knxproj
