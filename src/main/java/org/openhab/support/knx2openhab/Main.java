@@ -23,113 +23,131 @@ import org.openhab.support.knx2openhab.velocity.VelocityProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Main {
+public class Main
+{
 
-	protected Logger LOG = LoggerFactory.getLogger(this.getClass());
+    protected Logger LOG = LoggerFactory.getLogger(this.getClass());
 
+    public static void main(final String[] args) throws IOException
+    {
+        if (args.length == 0)
+        {
+            Params.printUsage();
+            return;
+        }
 
-	public static void main(String[] args) throws IOException {
-		if (args.length == 0)
-		{
-			Params.printUsage();
-			return;
-		}
-		
-		Queue<String> paramArgs = new ArrayBlockingQueue<>(args.length);
-		paramArgs.addAll(Arrays.asList(args));
+        Queue<String> paramArgs = new ArrayBlockingQueue<>(args.length);
+        paramArgs.addAll(Arrays.asList(args));
 
-		Params params = Params.parseParams(paramArgs);
-		if (params == null)
-			return;
+        Params params = Params.parseParams(paramArgs);
+        if (params == null)
+        {
+            return;
+        }
 
-		Main main = new Main();
-		main.process(params);
-	}
+        Main main = new Main();
+        main.process(params);
+    }
 
-	public Main() {
-	}
+    public Main()
+    {
+    }
 
-	public void process(Params params) throws IOException {
-		ETSLoader loader = new ETSLoader();
+    public void process(final Params params) throws IOException
+    {
+        ETSLoader loader = new ETSLoader();
 
-		File knxProjectFile = params.getProjectFile();
+        File knxProjectFile = params.getProjectFile();
 
-		System.out.println("======================================");
-		System.out.println("Loading ETS file " + knxProjectFile.getAbsolutePath());
-		System.out.println("======================================");
+        System.out.println("======================================");
+        System.out.println("Loading ETS file " + knxProjectFile.getAbsolutePath());
+        System.out.println("======================================");
 
-		KNX knx = loader.load(knxProjectFile, params.getPassword());
-		
-		LOG.info("Projects: " + knx.getProject().stream().map(p -> p.getId()).collect(Collectors.joining(", ")));
-		
-		KnxProjectT knxProject = getProjectById(knx, params.getProjectId());
-		
-		LOG.info("Installations on project " + knxProject.getId() + ": " + knxProject.getInstallations().getInstallation().stream().map(i -> i.getInstallationId()).map(String::valueOf).collect(Collectors.joining(", ")));
+        KNX knx = loader.load(knxProjectFile, params.getPassword());
 
-		KnxInstallation knxInstallation = getInstallationById(knxProject, params.getInstallationId());
-		
-		File thingsConfigFile = new File(params.getConfigDir(), "things.json");
+        this.LOG.info(
+                "Projects: " + knx.getProject().stream().map(KnxProjectT::getId).collect(Collectors.joining(", ")));
 
-		processInstallation(knx, knxInstallation, params.getTemplates(), thingsConfigFile);
-	}
+        KnxProjectT knxProject = getProjectById(knx, params.getProjectId());
 
-	private KnxInstallation getInstallationById(KnxProjectT knxProject, Optional<Integer> installationId) {
-		KnxInstallation knxInstallation;
-		if (installationId.isPresent()) {
-			knxInstallation = knxProject.getInstallations().getInstallation().stream()
-					.filter(i -> i.getInstallationId() == installationId.get()).findAny()
-					.orElseThrow(() -> new IllegalArgumentException("No installation with id "
-							+ installationId.get() + " found on project " + knxProject.getId()));
-		} else {
-			knxInstallation = knxProject.getInstallations().getInstallation().get(0);
-		}
-		return knxInstallation;
-	}
+        this.LOG.info("Installations on project " + knxProject.getId() + ": "
+                + knxProject.getInstallations().getInstallation().stream().map(KnxInstallation::getInstallationId)
+                        .map(String::valueOf).collect(Collectors.joining(", ")));
 
-	private KnxProjectT getProjectById(KNX knx, Optional<String> projectId) {
-		KnxProjectT knxProject;
-		if (projectId.isPresent()) {
-			knxProject = knx.getProject().stream().filter(p -> {
-				
-				return p.getId().equals(projectId.get());
-			}).findAny()
-					.orElseThrow(() -> new IllegalArgumentException(
-							"No project with id " + projectId.get() + " found!"));
-		} else {
-			knxProject = knx.getProject().get(0);
-		}
-		return knxProject;
-	}
+        KnxInstallation knxInstallation = getInstallationById(knxProject, params.getInstallationId());
 
-	public void processInstallation(KNX knx, KnxInstallation knxInstallation, Map<String, File> templates,
-			File thingsConfigFile) throws IOException {
+        File thingsConfigFile = new File(params.getConfigDir(), "things.json");
 
-		System.out.println("======================================");
-		System.out.println("Extracting things");
-		System.out.println("======================================");
-		
-		ThingExtractor thingExtractor = new ThingExtractor(knx, knxInstallation, thingsConfigFile);
-		List<KNXThing> things = thingExtractor.getThings();
+        processInstallation(knx, knxInstallation, params.getTemplates(), thingsConfigFile);
+    }
 
-		for (Entry<String, File> e : templates.entrySet()) {
-			processTemplate(things, e.getKey(), e.getValue());
-		}
-	}
+    private KnxInstallation getInstallationById(final KnxProjectT knxProject, final Optional<Integer> installationId)
+    {
+        KnxInstallation knxInstallation;
+        if (installationId.isPresent())
+        {
+            knxInstallation = knxProject.getInstallations().getInstallation().stream()
+                    .filter(i -> i.getInstallationId() == installationId.get()).findAny()
+                    .orElseThrow(() -> new IllegalArgumentException("No installation with id " + installationId.get()
+                            + " found on project " + knxProject.getId()));
+        }
+        else
+        {
+            knxInstallation = knxProject.getInstallations().getInstallation().get(0);
+        }
+        return knxInstallation;
+    }
 
-	public void processTemplate(List<KNXThing> things, String templateFile, File outputFile) throws IOException {
-		System.out.println("======================================");
-		System.out.println("Processing " + templateFile + " to " + outputFile.getName());
-		System.out.println("======================================");
+    private KnxProjectT getProjectById(final KNX knx, final Optional<String> projectId)
+    {
+        KnxProjectT knxProject;
+        if (projectId.isPresent())
+        {
+            knxProject = knx.getProject().stream().filter(p -> p.getId().equals(projectId.get())).findAny().orElseThrow(
+                    () -> new IllegalArgumentException("No project with id " + projectId.get() + " found!"));
+        }
+        else
+        {
+            knxProject = knx.getProject().get(0);
+        }
+        return knxProject;
+    }
 
-		File parentFile = outputFile.getParentFile();
-		if (parentFile != null && !parentFile.exists()) {
-			parentFile.mkdirs();
-		}
+    public void processInstallation(final KNX knx, final KnxInstallation knxInstallation,
+            final Map<String, File> templates, final File thingsConfigFile) throws IOException
+    {
 
-		VelocityProcessor processor = new VelocityProcessor(new File("templates"), templateFile);
-		try (Writer writer = Files.newBufferedWriter(outputFile.toPath(), StandardCharsets.UTF_8)) {
-			processor.process(things, writer);
-		}
-	}
+        System.out.println("======================================");
+        System.out.println("Extracting things");
+        System.out.println("======================================");
+
+        ThingExtractor thingExtractor = new ThingExtractor(knx, knxInstallation, thingsConfigFile);
+        List<KNXThing> things = thingExtractor.getThings();
+
+        for (Entry<String, File> e : templates.entrySet())
+        {
+            processTemplate(things, e.getKey(), e.getValue());
+        }
+    }
+
+    public void processTemplate(final List<KNXThing> things, final String templateFile, final File outputFile)
+            throws IOException
+    {
+        System.out.println("======================================");
+        System.out.println("Processing " + templateFile + " to " + outputFile.getName());
+        System.out.println("======================================");
+
+        File parentFile = outputFile.getParentFile();
+        if (parentFile != null && !parentFile.exists())
+        {
+            parentFile.mkdirs();
+        }
+
+        VelocityProcessor processor = new VelocityProcessor(new File("templates"), templateFile);
+        try (Writer writer = Files.newBufferedWriter(outputFile.toPath(), StandardCharsets.UTF_8))
+        {
+            processor.process(things, writer);
+        }
+    }
 
 }

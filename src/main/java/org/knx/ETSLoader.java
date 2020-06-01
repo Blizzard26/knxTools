@@ -38,263 +38,321 @@ import net.lingala.zip4j.io.inputstream.ZipInputStream;
 import net.lingala.zip4j.model.FileHeader;
 import net.lingala.zip4j.util.FileUtils;
 
-public class ETSLoader {
-	
-	
-	protected final org.slf4j.Logger LOG = LoggerFactory.getLogger(this.getClass());
+public class ETSLoader
+{
 
-	private static final String TEMP_FILE_PREFIX = "knx-project";
-	private static final String ZIP_EXTENSION = "zip";
+    protected final org.slf4j.Logger LOG = LoggerFactory.getLogger(this.getClass());
 
-	private static final String MASTER_DATA_FILE = "knx_master.xml";
+    private static final String TEMP_FILE_PREFIX = "knx-project";
+    private static final String ZIP_EXTENSION = "zip";
 
-	private static final String MANUFACTURER_DIR_PREFIX = "M-";
-	private static final String BAGGAGES_FILE = "Baggages.xml";
-	private static final String HARDWARE_FILE = "Hardware.xml";
-	private static final String CATALOG_FILE = "Catalog.xml";
+    private static final String MASTER_DATA_FILE = "knx_master.xml";
 
-	private static final String PROJECT_ZIP_FILE_PREFIX = "P-";
-	private static final String MAIN_PROJECT_FILE = "project.xml";
+    private static final String MANUFACTURER_DIR_PREFIX = "M-";
+    private static final String BAGGAGES_FILE = "Baggages.xml";
+    private static final String HARDWARE_FILE = "Hardware.xml";
+    private static final String CATALOG_FILE = "Catalog.xml";
 
-	public KNX load(File file, Optional<String> password) throws ETSLoaderException {
-		ZipFile projectZipFile = new ZipFile(file);
+    private static final String PROJECT_ZIP_FILE_PREFIX = "P-";
+    private static final String MAIN_PROJECT_FILE = "project.xml";
 
-		LookupIdResolver idResolver = new LookupIdResolver();
+    public KNX load(File file, Optional<String> password) throws ETSLoaderException
+    {
+        ZipFile projectZipFile = new ZipFile(file);
 
-		LOG.debug("Loading Master Data");
+        LookupIdResolver idResolver = new LookupIdResolver();
 
-		KNX knx = loadMasterData(projectZipFile, idResolver);
+        LOG.debug("Loading Master Data");
 
-		LOG.debug("Loading Manufacturer Data");
+        KNX knx = loadMasterData(projectZipFile, idResolver);
 
-		KnxManufacturerDataT manufacturerData = new KnxManufacturerDataT();
-		loadManufacturerData(projectZipFile, manufacturerData, idResolver);
-		reconnect(manufacturerData, knx, KNX::setManufacturerData, idResolver);
+        LOG.debug("Loading Manufacturer Data");
 
-		LOG.debug("Loading Projects");
+        KnxManufacturerDataT manufacturerData = new KnxManufacturerDataT();
+        loadManufacturerData(projectZipFile, manufacturerData, idResolver);
+        reconnect(manufacturerData, knx, KNX::setManufacturerData, idResolver);
 
-		loadProjects(password, projectZipFile, knx, idResolver);
+        LOG.debug("Loading Projects");
 
-		return knx;
-	}
+        loadProjects(password, projectZipFile, knx, idResolver);
 
-	private <T extends BaseClass, P extends BaseClass> void reconnect(T element, P newParent,
-			BiConsumer<P, T> adder, LookupIdResolver idResolver) {
-		if (element.getParent() != null) {
-			idResolver.purgeSuperHierarchy(element.getParent());
-		}
-		adder.accept(newParent, element);
-		element.setParent(newParent);
-	}
+        return knx;
+    }
 
-	/**
-	 * Load manufacturer data from Zip file
-	 * 
-	 * @param projectZipFile
-	 * @param manufacturerData 
-	 * @param idLookupMap
-	 * @return
-	 */
-	protected void loadManufacturerData(ZipFile projectZipFile, KnxManufacturerDataT manufacturerData, LookupIdResolver idResolver) {
+    private <T extends BaseClass, P extends BaseClass> void reconnect(T element, P newParent, BiConsumer<P, T> adder,
+            LookupIdResolver idResolver)
+    {
+        if (element.getParent() != null)
+        {
+            idResolver.purgeSuperHierarchy(element.getParent());
+        }
+        adder.accept(newParent, element);
+        element.setParent(newParent);
+    }
 
-		try {
-			// Group files in Zip by manufacturer directory name
-			Map<String, List<FileHeader>> directories = projectZipFile.getFileHeaders().stream()
-					.filter(h -> h.getFileName().indexOf('/') > 0)
-					.filter(h -> h.getFileName().startsWith(MANUFACTURER_DIR_PREFIX))
-					.collect(Collectors.groupingBy(h -> h.getFileName().substring(0, h.getFileName().indexOf('/'))));
+    /**
+     * Load manufacturer data from Zip file
+     *
+     * @param projectZipFile
+     * @param manufacturerData
+     * @param idLookupMap
+     * @return
+     */
+    protected void loadManufacturerData(ZipFile projectZipFile, KnxManufacturerDataT manufacturerData,
+            LookupIdResolver idResolver)
+    {
 
-			// Load manufacturers
-			directories.values().stream().forEach(d -> loadManufacturer(projectZipFile, d, manufacturerData, idResolver));
-		} catch (ZipException e) {
-			throw new ETSLoaderException(e);
-		}
-	}
+        try
+        {
+            // Group files in Zip by manufacturer directory name
+            Map<String, List<FileHeader>> directories = projectZipFile.getFileHeaders().stream()
+                    .filter(h -> h.getFileName().indexOf('/') > 0)
+                    .filter(h -> h.getFileName().startsWith(MANUFACTURER_DIR_PREFIX))
+                    .collect(Collectors.groupingBy(h -> h.getFileName().substring(0, h.getFileName().indexOf('/'))));
 
-	protected void loadManufacturer(ZipFile projectZipFile, List<FileHeader> directory,
-			KnxManufacturerDataT manufacturerData, LookupIdResolver idResolver) {
-		KnxManufacturer manufacturer = new KnxManufacturer();
+            // Load manufacturers
+            directories.values().stream()
+            .forEach(d -> loadManufacturer(projectZipFile, d, manufacturerData, idResolver));
+        }
+        catch (ZipException e)
+        {
+            throw new ETSLoaderException(e);
+        }
+    }
 
-		// Extract manufacturer ID from directory name
-		String fileName = directory.get(0).getFileName();
-		String manufacturerId = fileName.substring(0, fileName.indexOf('/'));
-		manufacturer.setRefId(manufacturerId);
+    protected void loadManufacturer(ZipFile projectZipFile, List<FileHeader> directory,
+            KnxManufacturerDataT manufacturerData, LookupIdResolver idResolver)
+    {
+        KnxManufacturer manufacturer = new KnxManufacturer();
 
-		directory.stream().filter(d -> d.getFileName().endsWith(BAGGAGES_FILE))
-				.findAny().ifPresent(h -> loadBaggage(projectZipFile, h, manufacturer, idResolver));
+        // Extract manufacturer ID from directory name
+        String fileName = directory.get(0).getFileName();
+        String manufacturerId = fileName.substring(0, fileName.indexOf('/'));
+        manufacturer.setRefId(manufacturerId);
 
-		KnxApplicationPrograms knxApplicationPrograms = new KnxApplicationPrograms();
-		directory.stream()
-				.filter(d -> d.getFileName().startsWith(MANUFACTURER_DIR_PREFIX, d.getFileName().indexOf('/') + 1))
-				.forEach(d -> loadApplicationProgram(projectZipFile, d, knxApplicationPrograms, idResolver));
-		reconnect(knxApplicationPrograms, manufacturer, KnxManufacturer::setApplicationPrograms, idResolver);
-		
+        directory.stream().filter(d -> d.getFileName().endsWith(BAGGAGES_FILE)).findAny()
+        .ifPresent(h -> loadBaggage(projectZipFile, h, manufacturer, idResolver));
 
-		directory.stream().filter(d -> d.getFileName().endsWith(HARDWARE_FILE))
-				.findAny().ifPresent(h -> loadHardware(projectZipFile, h, manufacturer, idResolver));
-		
-		directory.stream().filter(d -> d.getFileName().endsWith(CATALOG_FILE))
-				.findAny().ifPresent(h -> loadCatalog(projectZipFile, h, manufacturer, idResolver));
+        KnxApplicationPrograms knxApplicationPrograms = new KnxApplicationPrograms();
+        directory.stream()
+        .filter(d -> d.getFileName().startsWith(MANUFACTURER_DIR_PREFIX, d.getFileName().indexOf('/') + 1))
+        .forEach(d -> loadApplicationProgram(projectZipFile, d, knxApplicationPrograms, idResolver));
+        reconnect(knxApplicationPrograms, manufacturer, KnxManufacturer::setApplicationPrograms, idResolver);
 
-		reconnect(manufacturer, manufacturerData, (p, e) -> p.getManufacturer().add(e), idResolver);
-	}
+        directory.stream().filter(d -> d.getFileName().endsWith(HARDWARE_FILE)).findAny()
+        .ifPresent(h -> loadHardware(projectZipFile, h, manufacturer, idResolver));
 
-	protected void loadBaggage(ZipFile zipFile, FileHeader fileHeader, KnxManufacturer manufacturer, LookupIdResolver idResolver) {
-		try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader)) {
-			KNX knx = loadKnxFromInputStream(stream, idResolver, null);
-			KnxBaggages baggages = knx.getManufacturerData().getManufacturer().get(0).getBaggages();
-			reconnect(baggages, manufacturer, KnxManufacturer::setBaggages, idResolver);
-		} catch (IOException e) {
-			throw new ETSLoaderException(e);
-		}
-	}
+        directory.stream().filter(d -> d.getFileName().endsWith(CATALOG_FILE)).findAny()
+        .ifPresent(h -> loadCatalog(projectZipFile, h, manufacturer, idResolver));
 
-	protected void loadApplicationProgram(ZipFile zipFile, FileHeader fileHeader,
-			KnxApplicationPrograms knxApplicationPrograms, LookupIdResolver idResolver) {
-		try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader)) {
-			KNX knx = loadKnxFromInputStream(stream, idResolver, null);
-			KnxApplicationProgramT knxApplicationProgramT = knx.getManufacturerData().getManufacturer().get(0).getApplicationPrograms().getApplicationProgram()
-					.get(0);
-			
-			reconnect(knxApplicationProgramT, knxApplicationPrograms, (p, e) -> p.getApplicationProgram().add(e), idResolver);
-		} catch (IOException e) {
-			throw new ETSLoaderException(e);
-		}
-	}
+        reconnect(manufacturer, manufacturerData, (p, e) -> p.getManufacturer().add(e), idResolver);
+    }
 
-	protected void loadHardware(ZipFile zipFile, FileHeader fileHeader, KnxManufacturer manufacturer, LookupIdResolver idResolver) {
-		try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader)) {
-			KNX knx = loadKnxFromInputStream(stream, idResolver, null);
-			KnxHardware hardware = knx.getManufacturerData().getManufacturer().get(0).getHardware();
-			reconnect(hardware, manufacturer, KnxManufacturer::setHardware, idResolver);
-		} catch (IOException e) {
-			throw new ETSLoaderException(e);
-		}
-	}
+    protected void loadBaggage(ZipFile zipFile, FileHeader fileHeader, KnxManufacturer manufacturer,
+            LookupIdResolver idResolver)
+    {
+        try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader))
+        {
+            KNX knx = loadKnxFromInputStream(stream, idResolver, null);
+            KnxBaggages baggages = knx.getManufacturerData().getManufacturer().get(0).getBaggages();
+            reconnect(baggages, manufacturer, KnxManufacturer::setBaggages, idResolver);
+        }
+        catch (IOException e)
+        {
+            throw new ETSLoaderException(e);
+        }
+    }
 
-	protected void loadCatalog(ZipFile zipFile, FileHeader fileHeader, KnxManufacturer manufacturer, LookupIdResolver idResolver) {
-		try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader)) {
-			KNX knx = loadKnxFromInputStream(stream, idResolver, null);
-			KnxCatalog catalog = knx.getManufacturerData().getManufacturer().get(0).getCatalog();
-			reconnect(catalog, manufacturer, KnxManufacturer::setCatalog, idResolver);
-		} catch (IOException e) {
-			throw new ETSLoaderException(e);
-		}
-	}
+    protected void loadApplicationProgram(ZipFile zipFile, FileHeader fileHeader,
+            KnxApplicationPrograms knxApplicationPrograms, LookupIdResolver idResolver)
+    {
+        try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader))
+        {
+            KNX knx = loadKnxFromInputStream(stream, idResolver, null);
+            KnxApplicationProgramT knxApplicationProgramT = knx.getManufacturerData().getManufacturer().get(0)
+                    .getApplicationPrograms().getApplicationProgram().get(0);
 
-	protected void loadProjects(Optional<String> password, ZipFile projectZipFile,
-			KNX knx, LookupIdResolver idResolver) {
+            reconnect(knxApplicationProgramT, knxApplicationPrograms, (p, e) -> p.getApplicationProgram().add(e),
+                    idResolver);
+        }
+        catch (IOException e)
+        {
+            throw new ETSLoaderException(e);
+        }
+    }
 
-		try {
-			projectZipFile.getFileHeaders().stream().filter(this::isProjectFile)
-					.forEach(h -> loadProjectFile(projectZipFile, h, password, knx,  idResolver));
-		} catch (ZipException e) {
-			throw new ETSLoaderException(e);
-		}
+    protected void loadHardware(ZipFile zipFile, FileHeader fileHeader, KnxManufacturer manufacturer,
+            LookupIdResolver idResolver)
+    {
+        try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader))
+        {
+            KNX knx = loadKnxFromInputStream(stream, idResolver, null);
+            KnxHardware hardware = knx.getManufacturerData().getManufacturer().get(0).getHardware();
+            reconnect(hardware, manufacturer, KnxManufacturer::setHardware, idResolver);
+        }
+        catch (IOException e)
+        {
+            throw new ETSLoaderException(e);
+        }
+    }
 
-	}
+    protected void loadCatalog(ZipFile zipFile, FileHeader fileHeader, KnxManufacturer manufacturer,
+            LookupIdResolver idResolver)
+    {
+        try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader))
+        {
+            KNX knx = loadKnxFromInputStream(stream, idResolver, null);
+            KnxCatalog catalog = knx.getManufacturerData().getManufacturer().get(0).getCatalog();
+            reconnect(catalog, manufacturer, KnxManufacturer::setCatalog, idResolver);
+        }
+        catch (IOException e)
+        {
+            throw new ETSLoaderException(e);
+        }
+    }
 
-	protected KNX loadMasterData(ZipFile projectZipFile, LookupIdResolver idResolver) throws ETSLoaderException {
-		try {
-			FileHeader masterDataFileHeader = projectZipFile.getFileHeader(MASTER_DATA_FILE);
-			try (InputStream masterDataFileStream = getInputStreamFromZip(projectZipFile, masterDataFileHeader)) {
-				return loadKnxFromInputStream(masterDataFileStream, idResolver, null);
-			}
-		} catch (IOException e) {
-			throw new ETSLoaderException(e);
-		}
-	}
+    protected void loadProjects(Optional<String> password, ZipFile projectZipFile, KNX knx, LookupIdResolver idResolver)
+    {
 
-	protected void loadProjectFile(ZipFile zipFile, FileHeader fileHeader, Optional<String> password,
-			KNX knx, LookupIdResolver idResolver) throws ETSLoaderException {
-		try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader)) {
-			Path tempFile = Files.createTempFile(TEMP_FILE_PREFIX, "." + ZIP_EXTENSION);
-			tempFile.toFile().deleteOnExit();
+        try
+        {
+            projectZipFile.getFileHeaders().stream().filter(this::isProjectFile)
+            .forEach(h -> loadProjectFile(projectZipFile, h, password, knx, idResolver));
+        }
+        catch (ZipException e)
+        {
+            throw new ETSLoaderException(e);
+        }
 
-			Files.copy(stream, tempFile, StandardCopyOption.REPLACE_EXISTING);
-			ZipFile projectZipFile = new ZipFile(tempFile.toFile(), password.map(String::toCharArray).orElse(null));
+    }
 
-			KnxInstallations installations = new KnxInstallations();
-			projectZipFile.getFileHeaders().stream()
-					.filter(h -> isInstallationFile(h)).sorted((o1, o2) -> o1.getFileName().compareTo(o2.getFileName()))
-					.forEach(h -> loadInstallationFile(projectZipFile, h, installations, idResolver));
-			
+    protected KNX loadMasterData(ZipFile projectZipFile, LookupIdResolver idResolver) throws ETSLoaderException
+    {
+        try
+        {
+            FileHeader masterDataFileHeader = projectZipFile.getFileHeader(MASTER_DATA_FILE);
+            try (InputStream masterDataFileStream = getInputStreamFromZip(projectZipFile, masterDataFileHeader))
+            {
+                return loadKnxFromInputStream(masterDataFileStream, idResolver, null);
+            }
+        }
+        catch (IOException e)
+        {
+            throw new ETSLoaderException(e);
+        }
+    }
 
-			FileHeader projectFileHeader = projectZipFile.getFileHeader(MAIN_PROJECT_FILE);
-			KNX knxProject;
-			try (ZipInputStream inputStream = getInputStreamFromZip(projectZipFile, projectFileHeader)) {
-				knxProject = loadKnxFromInputStream(inputStream, idResolver, null);
-			}
-			KnxProjectT project = knxProject.getProject().get(0);
-			reconnect(project, knx, (p, e) -> p.getProject().add(e), idResolver);
+    protected void loadProjectFile(ZipFile zipFile, FileHeader fileHeader, Optional<String> password, KNX knx,
+            LookupIdResolver idResolver) throws ETSLoaderException
+    {
+        try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader))
+        {
+            Path tempFile = Files.createTempFile(TEMP_FILE_PREFIX, "." + ZIP_EXTENSION);
+            tempFile.toFile().deleteOnExit();
 
-			reconnect(installations, project, KnxProjectT::setInstallations, idResolver);
-		} catch (IOException e) {
-			throw new ETSLoaderException(e);
-		}
-	}
+            Files.copy(stream, tempFile, StandardCopyOption.REPLACE_EXISTING);
+            ZipFile projectZipFile = new ZipFile(tempFile.toFile(), password.map(String::toCharArray).orElse(null));
 
-	protected void loadInstallationFile(ZipFile zipFile, FileHeader fileHeader,
-			KnxInstallations installations, LookupIdResolver idResolver) {
-		try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader)) {
-			int installationId = Integer.parseInt(FileUtils.getFileNameWithoutExtension(fileHeader.getFileName()));
-			KNX knxFile = loadKnxFromInputStream(stream, idResolver, (knx) -> knx.getProject().get(0).getInstallations()
-					.getInstallation().get(0).setInstallationId(installationId));
-			KnxInstallation installation = knxFile.getProject().get(0).getInstallations().getInstallation().get(0);
-			reconnect(installation, installations, (p, e) -> p.getInstallation().add(e), idResolver);
-		} catch (IOException e) {
-			throw new ETSLoaderException(e);
-		}
-	}
+            KnxInstallations installations = new KnxInstallations();
+            projectZipFile.getFileHeaders().stream().filter(this::isInstallationFile)
+            .sorted((o1, o2) -> o1.getFileName().compareTo(o2.getFileName()))
+            .forEach(h -> loadInstallationFile(projectZipFile, h, installations, idResolver));
 
-	protected ZipInputStream getInputStreamFromZip(ZipFile zipFile, FileHeader fileHeader) throws IOException {
-		return zipFile.getInputStream(fileHeader);
-	}
+            FileHeader projectFileHeader = projectZipFile.getFileHeader(MAIN_PROJECT_FILE);
+            KNX knxProject;
+            try (ZipInputStream inputStream = getInputStreamFromZip(projectZipFile, projectFileHeader))
+            {
+                knxProject = loadKnxFromInputStream(inputStream, idResolver, null);
+            }
+            KnxProjectT project = knxProject.getProject().get(0);
+            reconnect(project, knx, (p, e) -> p.getProject().add(e), idResolver);
 
-	protected KNX loadKnxFromInputStream(InputStream inputStream, LookupIdResolver idResolver,
-			Consumer<KNX> postProcessing) throws ETSLoaderException {
-		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(KNX.class);
-			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			jaxbUnmarshaller.setProperty(com.sun.xml.bind.IDResolver.class.getName(), idResolver);
-			jaxbUnmarshaller.setListener(new Listener() {
+            reconnect(installations, project, KnxProjectT::setInstallations, idResolver);
+        }
+        catch (IOException e)
+        {
+            throw new ETSLoaderException(e);
+        }
+    }
 
-				@Override
-				public void afterUnmarshal(Object target, Object parent) {
+    protected void loadInstallationFile(ZipFile zipFile, FileHeader fileHeader, KnxInstallations installations,
+            LookupIdResolver idResolver)
+    {
+        try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader))
+        {
+            int installationId = Integer.parseInt(FileUtils.getFileNameWithoutExtension(fileHeader.getFileName()));
+            KNX knxFile = loadKnxFromInputStream(stream, idResolver, knx -> knx.getProject().get(0).getInstallations()
+                    .getInstallation().get(0).setInstallationId(installationId));
+            KnxInstallation installation = knxFile.getProject().get(0).getInstallations().getInstallation().get(0);
+            reconnect(installation, installations, (p, e) -> p.getInstallation().add(e), idResolver);
+        }
+        catch (IOException e)
+        {
+            throw new ETSLoaderException(e);
+        }
+    }
 
-					((BaseClass) target).setParent((BaseClass) parent);
+    protected ZipInputStream getInputStreamFromZip(ZipFile zipFile, FileHeader fileHeader) throws IOException
+    {
+        return zipFile.getInputStream(fileHeader);
+    }
 
-					super.afterUnmarshal(target, parent);
-				}
+    protected KNX loadKnxFromInputStream(InputStream inputStream, LookupIdResolver idResolver,
+            Consumer<KNX> postProcessing) throws ETSLoaderException
+    {
+        try
+        {
+            JAXBContext jaxbContext = JAXBContext.newInstance(KNX.class);
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            jaxbUnmarshaller.setProperty(com.sun.xml.bind.IDResolver.class.getName(), idResolver);
+            jaxbUnmarshaller.setListener(new Listener()
+            {
 
-			});
+                @Override
+                public void afterUnmarshal(Object target, Object parent)
+                {
 
-			KNX knx = (KNX) jaxbUnmarshaller.unmarshal(inputStream);
+                    ((BaseClass) target).setParent((BaseClass) parent);
 
-			if (postProcessing != null) {
-				postProcessing.accept(knx);
-			}
+                    super.afterUnmarshal(target, parent);
+                }
 
-			idResolver.resolveProxies(knx);
+            });
 
-			return knx;
-		} catch (JAXBException e) {
-			throw new ETSLoaderException(e);
-		}
-	}
+            KNX knx = (KNX) jaxbUnmarshaller.unmarshal(inputStream);
 
-	protected boolean isInstallationFile(FileHeader h) {
-		String fileName = FileUtils.getFileNameWithoutExtension(h.getFileName());
-		try {
-			Integer.parseInt(fileName);
-			return true;
-		} catch (@SuppressWarnings("unused") NumberFormatException e) {
-			return false;
-		}
-	}
+            if (postProcessing != null)
+            {
+                postProcessing.accept(knx);
+            }
 
-	protected boolean isProjectFile(FileHeader p) {
-		return p.getFileName().startsWith(PROJECT_ZIP_FILE_PREFIX) && p.getFileName().endsWith("." + ZIP_EXTENSION);
-	}
+            idResolver.resolveProxies(knx);
+
+            return knx;
+        }
+        catch (JAXBException e)
+        {
+            throw new ETSLoaderException(e);
+        }
+    }
+
+    protected boolean isInstallationFile(FileHeader h)
+    {
+        String fileName = FileUtils.getFileNameWithoutExtension(h.getFileName());
+        try
+        {
+            Integer.parseInt(fileName);
+            return true;
+        }
+        catch (@SuppressWarnings("unused") NumberFormatException e)
+        {
+            return false;
+        }
+    }
+
+    protected boolean isProjectFile(FileHeader p)
+    {
+        return p.getFileName().startsWith(PROJECT_ZIP_FILE_PREFIX) && p.getFileName().endsWith("." + ZIP_EXTENSION);
+    }
 
 }

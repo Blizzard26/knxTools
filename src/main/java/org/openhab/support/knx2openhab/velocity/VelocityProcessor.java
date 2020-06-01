@@ -27,14 +27,14 @@ public class VelocityProcessor
     {
         VelocityEngine velocityEngine = new VelocityEngine();
         Properties props = new Properties();
-        props.put("resource.loader.file.path", templatePath.getAbsolutePath());
+        props.put("resource.loader.file.path", this.templatePath.getAbsolutePath());
         velocityEngine.init(props);
 
         ToolManager manager = new ToolManager(false, true);
         manager.setVelocityEngine(velocityEngine);
         manager.configure("/org/apache/velocity/tools/generic/tools.xml");
 
-        Template t = velocityEngine.getTemplate(template, "UTF-8");
+        Template t = velocityEngine.getTemplate(this.template, "UTF-8");
         Context context = manager.createContext();
 
         context.put("things", things);

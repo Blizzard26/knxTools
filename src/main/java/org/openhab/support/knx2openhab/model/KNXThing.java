@@ -10,84 +10,98 @@ import java.util.stream.Collectors;
 import org.knx.xml.KnxFunctionT;
 import org.knx.xml.KnxSpaceT;
 
-public class KNXThing {
+public class KNXThing
+{
 
-	private final KNXThingDescriptor descriptor;
+    private final KNXThingDescriptor descriptor;
 
-	private final Map<String, KNXItem> items = new HashMap<>();
-	private KnxFunctionT function;
+    private final Map<String, KNXItem> items = new HashMap<>();
+    private final KnxFunctionT function;
 
+    public KNXThing(final KNXThingDescriptor thingDescriptor, final KnxFunctionT function)
+    {
+        this.descriptor = Objects.requireNonNull(thingDescriptor, "descriptor");
+        this.function = Objects.requireNonNull(function);
+    }
 
-	public KNXThing(KNXThingDescriptor thingDescriptor, KnxFunctionT function) {
-		this.descriptor = Objects.requireNonNull(thingDescriptor, "descriptor");
-		this.function = Objects.requireNonNull(function);	
-	}
+    public KNXThingDescriptor getDescriptor()
+    {
+        return this.descriptor;
+    }
 
-	public KNXThingDescriptor getDescriptor() {
-		return descriptor;
-	}
+    public String getKey()
+    {
+        return this.function.getNumber().replace(' ', '_').replace('\\', '_').replace('/', '_');
+    }
 
-	public String getKey() {
-		return function.getNumber().replace(' ', '_').replace('\\', '_').replace('/', '_');
-	}
+    public String getDescription()
+    {
+        return this.function.getName();
+    }
 
-	public String getDescription() {
-		return function.getName();
-	}
-	
-	public String getLocation() {
-		String name = getSpace().getName();
-		return name != null ? name : "";
-	}
+    public String getLocation()
+    {
+        String name = getSpace().getName();
+        return name != null ? name : "";
+    }
 
-	private KnxSpaceT getSpace() {
-		return (KnxSpaceT) function.getParent();
-	}
+    private KnxSpaceT getSpace()
+    {
+        return (KnxSpaceT) this.function.getParent();
+    }
 
-	public Map<String, KNXItem> getItems() {
-		return Collections.unmodifiableMap(items);
-	}
-	
-	public Map<String, String> getContext()
-	{
-		return ModelUtil.getContextFromComment(function.getComment());
-	}
+    public Map<String, KNXItem> getItems()
+    {
+        return Collections.unmodifiableMap(this.items);
+    }
 
-	public KNXThing addItem(KNXItem item) {
-		this.items.put(item.getKey(), item);
-		return this;
-	}
+    public Map<String, String> getContext()
+    {
+        return ModelUtil.getContextFromComment(this.function.getComment());
+    }
 
-	public void setItems(Collection<KNXItem> items) {
-		this.items.clear();
-		this.items.putAll(items.stream().collect(Collectors.toMap(i -> i.getKey(), i -> i)));
-	}
+    public KNXThing addItem(final KNXItem item)
+    {
+        this.items.put(item.getKey(), item);
+        return this;
+    }
 
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(getDescriptor().getName()).append(": ").append(getKey()).append(" {");
-		builder.append(getItems().values().stream().map(Object::toString).collect(Collectors.joining("; ")));
-		builder.append("}");
-		return builder.toString();
-	}
+    public void setItems(final Collection<KNXItem> items)
+    {
+        this.items.clear();
+        this.items.putAll(items.stream().collect(Collectors.toMap(i -> i.getKey(), i -> i)));
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(function.getNumber());
-	}
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getDescriptor().getName()).append(": ").append(getKey()).append(" {");
+        builder.append(getItems().values().stream().map(Object::toString).collect(Collectors.joining("; ")));
+        builder.append("}");
+        return builder.toString();
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof KNXThing)) {
-			return false;
-		}
-		KNXThing other = (KNXThing) obj;
-		return Objects.equals(items, other.items) && Objects.equals(descriptor, other.descriptor)
-				&& Objects.equals(function.getNumber(), other.function.getNumber());
-	}
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(this.function.getNumber());
+    }
+
+    @Override
+    public boolean equals(final Object obj)
+    {
+        if (this == obj)
+        {
+            return true;
+        }
+        if (!(obj instanceof KNXThing))
+        {
+            return false;
+        }
+        KNXThing other = (KNXThing) obj;
+        return Objects.equals(this.items, other.items) && Objects.equals(this.descriptor, other.descriptor)
+                && Objects.equals(this.function.getNumber(), other.function.getNumber());
+    }
 
 }

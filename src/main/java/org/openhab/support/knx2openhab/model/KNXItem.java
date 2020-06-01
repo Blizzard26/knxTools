@@ -5,82 +5,89 @@ import java.util.Objects;
 
 import org.knx.xml.KnxGroupAddressT;
 
-public class KNXItem {
+public class KNXItem
+{
 
-	private final KNXItemDescriptor itemDescriptor;
-	private final KnxGroupAddressT groupAddress;
-	private final boolean readable;
-	private final boolean writeable;
+    private final KNXItemDescriptor itemDescriptor;
+    private final KnxGroupAddressT groupAddress;
+    private final boolean readable;
+    private final boolean writeable;
 
-	public KNXItem(KNXItemDescriptor itemDescriptor, KnxGroupAddressT groupAddress, boolean readable,
-			boolean writeable) {
-		this.itemDescriptor = itemDescriptor;
-		this.groupAddress = groupAddress;
-		this.readable = readable;
-		this.writeable = writeable;
-	}
+    public KNXItem(KNXItemDescriptor itemDescriptor, KnxGroupAddressT groupAddress, boolean readable, boolean writeable)
+    {
+        this.itemDescriptor = itemDescriptor;
+        this.groupAddress = groupAddress;
+        this.readable = readable;
+        this.writeable = writeable;
+    }
 
-	public String getKey() {
-		return itemDescriptor.getKey();
-	}
+    public String getKey()
+    {
+        return itemDescriptor.getKey();
+    }
 
-	public KNXItemDescriptor getItemDescriptor() {
-		return itemDescriptor;
-	}
+    public KNXItemDescriptor getItemDescriptor()
+    {
+        return itemDescriptor;
+    }
 
-	public String getAddress() {
-		return ModelUtil.getAddressAsString(groupAddress);
-	}
+    public String getAddress()
+    {
+        return ModelUtil.getAddressAsString(groupAddress);
+    }
 
+    public String getDescription()
+    {
+        return groupAddress.getDescription();
+    }
 
+    public Map<String, String> getContext()
+    {
+        return ModelUtil.getContextFromComment(groupAddress.getComment());
+    }
 
-	public String getDescription() {
-		return groupAddress.getDescription();
-	}
+    public String getType()
+    {
+        return ModelUtil.getDataPointTypeAsString(groupAddress);
+    }
 
-	public Map<String, String> getContext() {
-		return ModelUtil.getContextFromComment(groupAddress.getComment());
-	}
-	
-	public String getType() {
-		return ModelUtil.getDataPointTypeAsString(groupAddress);
-	}
+    public boolean isReadable()
+    {
+        return readable;
+    }
 
+    public boolean isWriteable()
+    {
+        return writeable;
+    }
 
-	public boolean isReadable() {
-		return readable;
-	}
+    @Override
+    public String toString()
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append(getItemDescriptor().getKey()).append(" => ").append(getAddress());
+        if (getDescription() != null)
+        {
+            builder.append(" (").append(getDescription()).append(")");
+        }
+        return builder.toString();
+    }
 
-	public boolean isWriteable() {
-		return writeable;
-	}
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(groupAddress.getAddress());
+    }
 
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append(getItemDescriptor().getKey()).append(" => ").append(getAddress());
-		if (getDescription() != null)
-			builder.append(" (").append(getDescription()).append(")");
-		return builder.toString();
-	}
-
-	@Override
-	public int hashCode() {
-		return Objects.hash(groupAddress.getAddress());
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof KNXItem)) {
-			return false;
-		}
-		KNXItem other = (KNXItem) obj;
-		return Objects.equals(getAddress(), other.getAddress());
-	}
-
+    @Override
+    public boolean equals(Object obj)
+    {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof KNXItem))
+            return false;
+        KNXItem other = (KNXItem) obj;
+        return Objects.equals(getAddress(), other.getAddress());
+    }
 
 }

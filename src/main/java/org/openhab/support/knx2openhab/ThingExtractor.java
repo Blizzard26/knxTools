@@ -36,197 +36,225 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class ThingExtractor {
+public class ThingExtractor
+{
 
-	private final Logger LOG = LoggerFactory.getLogger(this.getClass());
+    private final Logger LOG = LoggerFactory.getLogger(this.getClass());
 
-	private final boolean logUnusedGroupAddresses = true;
-	private final boolean logInvalidFunctions = false;
+    private final boolean logUnusedGroupAddresses = true;
+    private final boolean logInvalidFunctions = false;
 
-	private final KnxInstallation knxInstallation;
-	private Map<String, Map<String, KNXThingDescriptor>> thingDescriptors = new HashMap<>();
+    private final KnxInstallation knxInstallation;
+    private Map<String, Map<String, KNXThingDescriptor>> thingDescriptors = new HashMap<>();
 
-	private final Set<String> ignoredGroupAddresses;
+    private final Set<String> ignoredGroupAddresses;
 
+    public ThingExtractor(final KNX knx, final KnxInstallation knxInstallation, final File thingsConfigFile)
+    {
+        this.knxInstallation = knxInstallation;
 
-	public ThingExtractor(final KNX knx, final KnxInstallation knxInstallation, final File thingsConfigFile) {
-		this.knxInstallation = knxInstallation;
+        this.thingDescriptors = loadThingsConfig(thingsConfigFile);
 
-		thingDescriptors = loadThingsConfig(thingsConfigFile);
+        this.ignoredGroupAddresses = new HashSet<>();
+        this.ignoredGroupAddresses.add("D");
+        this.ignoredGroupAddresses.add("A");
+        this.ignoredGroupAddresses.add("Spannungsversorgung");
+    }
 
-		ignoredGroupAddresses = new HashSet<>();
-		ignoredGroupAddresses.add("D");
-		ignoredGroupAddresses.add("A");
-		ignoredGroupAddresses.add("Spannungsversorgung");
-	}
+    private Map<String, Map<String, KNXThingDescriptor>> loadThingsConfig(final File thingsConfig)
+    {
+        Map<String, Map<String, KNXThingDescriptor>> thingDescriptorsMap = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
 
-	private Map<String, Map<String, KNXThingDescriptor>> loadThingsConfig(final File thingsConfig) {
-		Map<String, Map<String, KNXThingDescriptor>> thingDescriptorsMap = new HashMap<>();
-		ObjectMapper mapper = new ObjectMapper();
+        try
+        {
+            TypeReference<Collection<KNXThingDescriptor>> typeRef = new TypeReference<Collection<KNXThingDescriptor>>()
+            {
+                // no use
+            };
+            Collection<KNXThingDescriptor> thingTypes = mapper.readValue(thingsConfig, typeRef);
 
-		try {
-			TypeReference<Collection<KNXThingDescriptor>> typeRef = new TypeReference<Collection<KNXThingDescriptor>>() {
-				// no use
-			};
-			Collection<KNXThingDescriptor> thingTypes = mapper.readValue(thingsConfig, typeRef);
+            thingTypes.forEach(thingDescriptor -> Arrays.stream(thingDescriptor.getFunctionTypes())
+                    .forEach(functionType -> thingDescriptorsMap.computeIfAbsent(functionType, s -> new HashMap<>())
+                            .put(thingDescriptor.getKey(), thingDescriptor)));
+        }
+        catch (IOException e)
+        {
+            throw new ThingExtractorException(e);
+        }
+        return thingDescriptorsMap;
+    }
 
-			thingTypes.forEach(thingDescriptor -> Arrays.stream(thingDescriptor.getFunctionTypes())
-					.forEach(functionType -> thingDescriptorsMap.computeIfAbsent(functionType, s -> new HashMap<>())
-							.put(thingDescriptor.getKey(), thingDescriptor)));
-		} catch (IOException e) {
-			throw new ThingExtractorException(e);
-		}
-		return thingDescriptorsMap;
-	}
+    public List<KNXThing> getThings()
+    {
+        // Get a list of all functions on all spaces
+        List<KnxFunctionT> functions = this.knxInstallation.getLocations().getSpace().stream()
+                .flatMap(s -> Tools.recursiveFlatMap(s, s1 -> s1.getSpace().stream()))
+                .flatMap(s -> s.getFunction().stream()).collect(Collectors.toList());
 
-	public List<KNXThing> getThings() {
-		// Get a list of all functions on all spaces
-		List<KnxFunctionT> functions = knxInstallation.getLocations().getSpace().stream()
-				.flatMap(s -> Tools.recursiveFlatMap(s, s1 -> s1.getSpace().stream()))
-				.flatMap(s -> s.getFunction().stream()).collect(Collectors.toList());
+        if (this.logUnusedGroupAddresses)
+        {
+            Set<KnxGroupAddressT> usedGroupAddresses = functions.stream().flatMap(f -> f.getGroupAddressRef().stream())
+                    .map(KnxGroupAddressRefT::getGroupAddress).collect(Collectors.toSet());
 
-		if (logUnusedGroupAddresses) {
-			Set<KnxGroupAddressT> usedGroupAddresses = functions.stream().flatMap(f -> f.getGroupAddressRef().stream())
-					.map(KnxGroupAddressRefT::getGroupAddress).collect(Collectors.toSet());
-			
-			List<KnxGroupAddressT> groupAddresses = knxInstallation.getGroupAddresses().getGroupRanges().getGroupRange().stream().flatMap(r -> Tools.recursiveFlatMap(r, r1 -> r1.getGroupRange() != null ? r1.getGroupRange().stream() : Stream.empty())).flatMap(r -> r.getGroupAddress().stream()).collect(Collectors.toList());
+            List<KnxGroupAddressT> groupAddresses = this.knxInstallation.getGroupAddresses().getGroupRanges()
+                    .getGroupRange().stream()
+                    .flatMap(r -> Tools.recursiveFlatMap(r,
+                            r1 -> r1.getGroupRange() != null ? r1.getGroupRange().stream() : Stream.empty()))
+                    .flatMap(r -> r.getGroupAddress().stream()).collect(Collectors.toList());
 
-			groupAddresses.removeAll(usedGroupAddresses);
-			groupAddresses.removeIf(g -> ignoredGroupAddresses.stream().anyMatch(i -> g.getName().startsWith(i)));
+            groupAddresses.removeAll(usedGroupAddresses);
+            groupAddresses.removeIf(g -> this.ignoredGroupAddresses.stream().anyMatch(i -> g.getName().startsWith(i)));
 
-			groupAddresses.forEach(g -> LOG.warn("Group address {} ({}) is not assigned to any function", ModelUtil.getAddressAsString(g), g.getName()));
-		}
+            groupAddresses.forEach(g -> this.LOG.warn("Group address {} ({}) is not assigned to any function",
+                    ModelUtil.getAddressAsString(g), g.getName()));
+        }
 
-		return functions.stream().filter(this::isValidFunction).map(this::getThing).filter(Objects::nonNull)
-				.collect(Collectors.toList());
-	}
+        return functions.stream().filter(this::isValidFunction).map(this::getThing).filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
 
-	private boolean isValidFunction(KnxFunctionT f) {
-		if (isBlank(f.getNumber())) {
-			if (logInvalidFunctions) {
-				LOG.warn(f.getName() + " @ " + ((KnxSpaceT)f.getParent().getParent()).getName() + " has no number");
-			}
-			return false;
-		}
-		return true;
-	}
+    private boolean isValidFunction(final KnxFunctionT f)
+    {
+        if (isBlank(f.getNumber()))
+        {
+            if (this.logInvalidFunctions)
+            {
+                this.LOG.warn(
+                        "{} @ {} has no number", f.getName(), ((KnxSpaceT) f.getParent().getParent()).getName());
+            }
+            return false;
+        }
+        return true;
+    }
 
-	private KNXThing getThing(final KnxFunctionT function) {
+    private KNXThing getThing(final KnxFunctionT function)
+    {
 
-		String functionType = function.getType();
-		
-		Map<String, KNXThingDescriptor> functionTypeThings = thingDescriptors.get(functionType);
-		if (functionTypeThings == null) {
-			LOG.warn("Unsupported function type: " + functionType);
-			return null;
-		}
+        String functionType = function.getType();
 
-		String thingTypeKey = getThingTypeKey(function.getNumber());
+        Map<String, KNXThingDescriptor> functionTypeThings = this.thingDescriptors.get(functionType);
+        if (functionTypeThings == null)
+        {
+            this.LOG.warn("Unsupported function type: {}", functionType);
+            return null;
+        }
 
-		KNXThingDescriptor thingDescriptor = functionTypeThings.get(thingTypeKey);
-		if (thingDescriptor == null) {
-			LOG.warn("Unkown Thing type " + thingTypeKey + " (function type " + functionType + ") for function "
-					+ function.getNumber());
-			return null;
-		}
+        String thingTypeKey = getThingTypeKey(function.getNumber());
 
-		KNXThing thing = new KNXThing(thingDescriptor, function);
+        KNXThingDescriptor thingDescriptor = functionTypeThings.get(thingTypeKey);
+        if (thingDescriptor == null)
+        {
+            this.LOG.warn("Unkown Thing type {} (function type {}) for function {}", thingTypeKey, functionType,
+                    function.getNumber());
+            return null;
+        }
 
-		List<KNXItem> items = getItems(function, thingDescriptor);
-		thing.setItems(items);
+        KNXThing thing = new KNXThing(thingDescriptor, function);
 
-		return thing;
-	}
+        List<KNXItem> items = getItems(function, thingDescriptor);
+        thing.setItems(items);
 
-	
-	private List<KNXItem> getItems(final KnxFunctionT function, final KNXThingDescriptor thingDescriptor) {
-		return function.getGroupAddressRef().stream().map(KnxGroupAddressRefT::getGroupAddress).map(g -> getItem(g, thingDescriptor))
-				.filter(Objects::nonNull).collect(Collectors.toList());
-	}
+        return thing;
+    }
 
-	private KNXItem getItem(final KnxGroupAddressT groupAddress, final KNXThingDescriptor thingDescriptor) {
-		final String key = groupAddress.getName() != null ? groupAddress.getName().toLowerCase() : null;
+    private List<KNXItem> getItems(final KnxFunctionT function, final KNXThingDescriptor thingDescriptor)
+    {
+        return function.getGroupAddressRef().stream().map(KnxGroupAddressRefT::getGroupAddress)
+                .map(g -> getItem(g, thingDescriptor)).filter(Objects::nonNull).collect(Collectors.toList());
+    }
 
-		if (key == null || isBlank(key)) {
-			LOG.warn("Group Address " + groupAddress.getAddress() + " has no key");
-			return null;
-		}
+    private KNXItem getItem(final KnxGroupAddressT groupAddress, final KNXThingDescriptor thingDescriptor)
+    {
+        final String key = groupAddress.getName() != null ? groupAddress.getName().toLowerCase() : null;
 
-		Optional<KNXItem> item = thingDescriptor.getItems().stream()
-				.filter(i -> Arrays.stream(i.getKeywords())
-						.anyMatch(keySuffix -> key.endsWith(" " + keySuffix.toLowerCase())))
-				.findFirst().map(itemDescriptor -> getItem(groupAddress, itemDescriptor));
+        if (key == null || isBlank(key))
+        {
+            this.LOG.warn("Group Address {} has no key.", ModelUtil.getAddressAsString(groupAddress));
+            return null;
+        }
 
-		if (!item.isPresent()) {
-			LOG.warn("Unable to identify item type for " + groupAddress.getName() + " on thing "
-					+ thingDescriptor.getName());
-		}
+        Optional<KNXItem> item = thingDescriptor.getItems().stream().filter(
+                i -> Arrays.stream(i.getKeywords()).anyMatch(keySuffix -> key.endsWith(" " + keySuffix.toLowerCase())))
+                .findFirst().map(itemDescriptor -> getItem(groupAddress, itemDescriptor));
 
-		return item.orElse(null);
-	}
+        if (!item.isPresent())
+        {
+            this.LOG.warn("Unable to identify item type for {} on thing {}", groupAddress.getName(),
+                    thingDescriptor.getName());
+        }
 
-	private KNXItem getItem(final KnxGroupAddressT groupAddress, final KNXItemDescriptor itemDescriptor) {	
-		List<KnxComObjectInstanceRefT> linkedComObjects = getLinkedComObjects(groupAddress);
+        return item.orElse(null);
+    }
 
-		boolean readable = or(linkedComObjects, c -> nvl(c, KnxComObjectInstanceRefT::isReadFlag, r -> r.getComObjectRef().getComObject().isReadFlag()));
-		boolean writeable = or(linkedComObjects, c -> nvl(c, KnxComObjectInstanceRefT::isWriteFlag, r -> r.getComObjectRef().getComObject().isWriteFlag()));
+    private KNXItem getItem(final KnxGroupAddressT groupAddress, final KNXItemDescriptor itemDescriptor)
+    {
+        List<KnxComObjectInstanceRefT> linkedComObjects = getLinkedComObjects(groupAddress);
 
-		KNXItem action = new KNXItem(itemDescriptor, groupAddress, readable, writeable);
+        boolean readable = or(linkedComObjects, c -> nvl(c, KnxComObjectInstanceRefT::isReadFlag,
+                r -> r.getComObjectRef().getComObject().isReadFlag()));
+        boolean writeable = or(linkedComObjects, c -> nvl(c, KnxComObjectInstanceRefT::isWriteFlag,
+                r -> r.getComObjectRef().getComObject().isWriteFlag()));
 
-		return action;
-	}
-	
-	public List<KnxComObjectInstanceRefT> getLinkedComObjects(KnxGroupAddressT groupAddress) {
-		KnxInstallation installation = getParent(groupAddress, KnxInstallation.class);
-		List<KnxComObjectInstanceRefT> linkedComObjects = Stream.concat(
-				installation.getTopology().getArea().stream().flatMap(a -> a.getLine().stream())
-						.flatMap(l -> l.getDeviceInstance().stream()),
-				installation.getTopology().getUnassignedDevices() != null ? installation.getTopology().getUnassignedDevices().getDeviceInstance().stream()
-						: Stream.empty())
-				.filter(d -> d.getComObjectInstanceRefs() != null)
-				.flatMap(d -> d.getComObjectInstanceRefs().getComObjectInstanceRef().stream())
-				.filter(c -> c.getLinks().contains(groupAddress))
-				.collect(Collectors.toList());
-		return linkedComObjects;
-	}
+        KNXItem action = new KNXItem(itemDescriptor, groupAddress, readable, writeable);
 
-	@SuppressWarnings("unchecked")
-	private <T> T getParent(BaseClass obj, Class<T> clazz) {
-		BaseClass p = obj;
+        return action;
+    }
 
-		while (p != null) {
-			if (clazz.isAssignableFrom(p.getClass()))
-				return (T) p;
-			p = p.getParent();
-		}
-		return null;
-	}
+    public List<KnxComObjectInstanceRefT> getLinkedComObjects(final KnxGroupAddressT groupAddress)
+    {
+        KnxInstallation installation = getParent(groupAddress, KnxInstallation.class);
+        List<KnxComObjectInstanceRefT> linkedComObjects = Stream
+                .concat(installation.getTopology().getArea().stream().flatMap(a -> a.getLine().stream())
+                        .flatMap(l -> l.getDeviceInstance().stream()),
+                        installation.getTopology().getUnassignedDevices() != null
+                        ? installation.getTopology().getUnassignedDevices().getDeviceInstance().stream()
+                                : Stream.empty())
+                .filter(d -> d.getComObjectInstanceRefs() != null)
+                .flatMap(d -> d.getComObjectInstanceRefs().getComObjectInstanceRef().stream())
+                .filter(c -> c.getLinks().contains(groupAddress)).collect(Collectors.toList());
+        return linkedComObjects;
+    }
 
-	@SafeVarargs
-	public static final <T, V> V nvl(T t, Function<T, V>... funcs) {
-		for (Function<T, V> f : funcs)
-		{
-			V value = f.apply(t);
-			if (value != null)
-				return value;
-		}
-		return null;
-	}
+    @SuppressWarnings("unchecked")
+    private <T> T getParent(final BaseClass obj, final Class<T> clazz)
+    {
+        BaseClass p = obj;
 
-	public static <T> boolean or(final List<T> objects,
-			final Function<T, Boolean> f) {
-		return objects.stream().map(f)
-				.reduce((result, c) -> Objects.equals(c, Boolean.TRUE) ? Boolean.TRUE : result)
-				.orElse(Boolean.FALSE);
-	}
+        while (p != null)
+        {
+            if (clazz.isAssignableFrom(p.getClass()))
+                return (T) p;
+            p = p.getParent();
+        }
+        return null;
+    }
 
-	private String getThingTypeKey(final String number) {
-		int index = number.indexOf(" ");
+    @SafeVarargs
+    public static final <T, V> V nvl(final T t, final Function<T, V>... funcs)
+    {
+        for (Function<T, V> f : funcs)
+        {
+            V value = f.apply(t);
+            if (value != null)
+                return value;
+        }
+        return null;
+    }
 
-		if (index >= 0)
-			return number.substring(0, index);
-		return number;
-	}
+    public static <T> boolean or(final List<T> objects, final Function<T, Boolean> f)
+    {
+        return objects.stream().map(f).reduce((result, c) -> Objects.equals(c, Boolean.TRUE) ? Boolean.TRUE : result)
+                .orElse(Boolean.FALSE);
+    }
 
+    private String getThingTypeKey(final String number)
+    {
+        int index = number.indexOf(" ");
+
+        if (index >= 0)
+            return number.substring(0, index);
+        return number;
+    }
 
 }
