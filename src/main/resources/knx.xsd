@@ -1,13 +1,13 @@
 <xs:schema xmlns:knx="http://knx.org/xml/project/20" xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://knx.org/xml/project/20" elementFormDefault="qualified" attributeFormDefault="unqualified" version="1.0">
   <!-- Simple types -->
   <xs:simpleType name="IDREF">
-    <xs:restriction base="xs:NCName"/>
+    <xs:restriction base="xs:IDREF"/>
   </xs:simpleType>
   <xs:simpleType name="IDREFS">
     <xs:list itemType="knx:IDREF"/>
   </xs:simpleType>
   <xs:simpleType name="RELIDREF">
-    <xs:restriction base="xs:NCName"/>
+    <xs:restriction base="xs:IDREF"/>
   </xs:simpleType>
   <xs:simpleType name="RELIDREFS">
     <xs:list itemType="knx:RELIDREF"/>

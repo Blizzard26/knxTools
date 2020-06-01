@@ -9,7 +9,8 @@ buildscript {
     }
     
     dependencies {
-      classpath group: 'com.intershop.gradle.jaxb', name: 'jaxb-gradle-plugin', version: '3.+'
+      classpath 'com.intershop.gradle.jaxb:jaxb-gradle-plugin:4.+'
+      classpath 'com.github.ben-manes:gradle-versions-plugin:0.28.+'
     }
 }
 
@@ -17,29 +18,49 @@ buildscript {
 plugins {
     id 'java'
     id 'eclipse'
+    id 'application'
 }
 
+repositories {
+    jcenter()
+    mavenCentral()
+}
 
 apply plugin: "com.intershop.gradle.jaxb"
+apply plugin: "com.github.ben-manes.versions"
+
+sourceCompatibility = 8
+targetCompatibility = 8
+
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
+mainClassName = 'org.openhab.support.knx2openhab.Main'
 
 eclipse {
     classpath {
         downloadSources = true
     }
 }
-repositories {
-    jcenter()
-    mavenCentral()
-}
 
 dependencies {
+	jaxb 'org.glassfish.jaxb:jaxb-runtime:2.3.3'
+    jaxb 'com.sun.xml.bind:jaxb-jxc:2.3.3'
+    jaxb 'com.sun.xml.bind:jaxb-xjc:2.3.3'
+    jaxb 'com.sun.xml.bind:jaxb-core:2.3.0'
+	jaxbext 'org.jvnet.jaxb2_commons:jaxb2-basics:0.12.0'
+	jaxbext 'org.jvnet.jaxb2_commons:jaxb2-basics-runtime:0.12.0'
+	
+	implementation 'org.glassfish.jaxb:jaxb-runtime:2.+'
+
     // This dependency is exported to consumers, that is to say found on their compile classpath.
-    implementation 'org.apache.commons:commons-csv:1.7'
+    implementation 'org.apache.commons:commons-csv:1.+'
     
     // https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j
     implementation 'net.lingala.zip4j:zip4j:2.+'
     
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.+'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.+'
+    implementation 'cglib:cglib:3.3.+'
     
     implementation 'org.apache.velocity:velocity-engine-core:2.+'
     implementation 'org.apache.velocity.tools:velocity-tools-generic:3.+'
@@ -51,7 +72,7 @@ dependencies {
     // Use JUnit test framework
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
     
-    testImplementation group: 'org.mockito', name: 'mockito-core', version: '2.+'
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.+'
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.+'
     
     testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.+'
@@ -63,6 +84,15 @@ eclipseJdt.doLast {
     f.append('encoding/<project>=UTF-8')
 }
 
+jar {
+  dependsOn configurations.runtime
+  manifest {
+    attributes(
+       'Main-Class': mainClassName
+    )
+  }
+}
+
 jaxb {
     javaGen {
         knxConfig {
@@ -70,6 +100,8 @@ jaxb {
             schemas = fileTree(dir: 'src/main/resources', include: 'knx.xsd')
             binding = file('src/main/resources/knx.xjb')
             extension = true
+            strictValidation = false
+            args = ['-verbose']
         }
     }
 }

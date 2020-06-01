@@ -7,21 +7,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import org.knx.xml.KnxFunctionExt;
+import org.knx.xml.KnxFunctionT;
+import org.knx.xml.KnxSpaceT;
 
 public class KNXThing {
 
 	private final KNXThingDescriptor descriptor;
 
 	private final Map<String, KNXItem> items = new HashMap<>();
-	private KnxFunctionExt function;
+	private KnxFunctionT function;
 
-	private KNXLocation location;
 
-	public KNXThing(KNXThingDescriptor thingDescriptor, KnxFunctionExt function, KNXLocation location) {
+	public KNXThing(KNXThingDescriptor thingDescriptor, KnxFunctionT function) {
 		this.descriptor = Objects.requireNonNull(thingDescriptor, "descriptor");
-		this.function = Objects.requireNonNull(function);
-		this.location = Objects.requireNonNull(location);		
+		this.function = Objects.requireNonNull(function);	
 	}
 
 	public KNXThingDescriptor getDescriptor() {
@@ -37,8 +36,12 @@ public class KNXThing {
 	}
 	
 	public String getLocation() {
-		String name = location.getName();
+		String name = getSpace().getName();
 		return name != null ? name : "";
+	}
+
+	private KnxSpaceT getSpace() {
+		return (KnxSpaceT) function.getParent();
 	}
 
 	public Map<String, KNXItem> getItems() {

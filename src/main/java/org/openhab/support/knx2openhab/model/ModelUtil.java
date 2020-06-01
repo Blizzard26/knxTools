@@ -8,6 +8,10 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.knx.xml.BaseClass;
+import org.knx.xml.KnxDatapointTypeT;
+import org.knx.xml.KnxGroupAddressT;
+import org.knx.xml.KnxDatapointTypeT.KnxDatapointSubtypes.KnxDatapointSubtype;
 import org.openhab.support.knx2openhab.Tupel;
 
 public class ModelUtil {
@@ -60,5 +64,36 @@ public class ModelUtil {
 			return result;
 		}).collect(Collectors.toMap(a -> a.getFirst(), a -> a.getSecond()));
 	}
+	
+	public static String getAddressAsString(long longAddress) {
+		int low = (int) (longAddress % 256);
+		longAddress /= 256;
+		int middle = (int) (longAddress % 8);
+		int high = (int) (longAddress / 8);
+
+		return high + "/" + middle + "/" + low;
+	}
+	
+	public static String getDataPointTypeAsString(KnxGroupAddressT groupAddress) {
+		BaseClass datapointType = groupAddress.getDatapointType();
+		if (datapointType != null) {
+			if (datapointType instanceof KnxDatapointSubtype) {
+				KnxDatapointSubtype datapointSubType = (KnxDatapointSubtype) datapointType;
+				KnxDatapointTypeT dataPointMainType = (KnxDatapointTypeT) datapointSubType.getParent().getParent();
+				return getDataPointTypeAsString(dataPointMainType, datapointSubType);
+			} else if (datapointType instanceof KnxDatapointTypeT) {
+				return getDataPointTypeAsString((KnxDatapointTypeT) datapointType, null);
+			} else {
+				throw new IllegalArgumentException("" + datapointType.getClass());
+			}
+
+		} else
+			return null;
+	}
+
+	private static String getDataPointTypeAsString(KnxDatapointTypeT dataPointMainType, KnxDatapointSubtype datapointSubType) {
+		return String.format("%1$d.%2$03d", dataPointMainType.getNumber(), datapointSubType != null ? datapointSubType.getNumber() : 0);
+	}
+
 
 }

@@ -3,16 +3,16 @@ package org.openhab.support.knx2openhab.model;
 import java.util.Map;
 import java.util.Objects;
 
-import org.knx.xml.KnxGroupAddressExt;
+import org.knx.xml.KnxGroupAddressT;
 
 public class KNXItem {
 
 	private final KNXItemDescriptor itemDescriptor;
-	private final KnxGroupAddressExt groupAddress;
+	private final KnxGroupAddressT groupAddress;
 	private final boolean readable;
 	private final boolean writeable;
 
-	public KNXItem(KNXItemDescriptor itemDescriptor, KnxGroupAddressExt groupAddress, boolean readable,
+	public KNXItem(KNXItemDescriptor itemDescriptor, KnxGroupAddressT groupAddress, boolean readable,
 			boolean writeable) {
 		this.itemDescriptor = itemDescriptor;
 		this.groupAddress = groupAddress;
@@ -29,8 +29,10 @@ public class KNXItem {
 	}
 
 	public String getAddress() {
-		return groupAddress.getAddressAsString();
+		return ModelUtil.getAddressAsString(groupAddress.getAddress());
 	}
+
+
 
 	public String getDescription() {
 		return groupAddress.getDescription();
@@ -39,6 +41,20 @@ public class KNXItem {
 	public Map<String, String> getContext() {
 		return ModelUtil.getContextFromComment(groupAddress.getComment());
 	}
+	
+	public String getType() {
+		return ModelUtil.getDataPointTypeAsString(groupAddress);
+	}
+
+
+	public boolean isReadable() {
+		return readable;
+	}
+
+	public boolean isWriteable() {
+		return writeable;
+	}
+
 
 	@Override
 	public String toString() {
@@ -66,16 +82,5 @@ public class KNXItem {
 		return Objects.equals(getAddress(), other.getAddress());
 	}
 
-	public String getType() {
-		return groupAddress.getDataPointTypeAsString();
-	}
-
-	public boolean isReadable() {
-		return readable;
-	}
-
-	public boolean isWriteable() {
-		return writeable;
-	}
 
 }

@@ -59,13 +59,11 @@ public class Main {
 
 		KNX knx = loader.load(knxProjectFile, params.getPassword());
 		
-		System.out.print("Projects: ");
-		System.out.println(knx.getProject().stream().map(p -> p.getId()).collect(Collectors.joining(", ")));
+		LOG.info("Projects: " + knx.getProject().stream().map(p -> p.getId()).collect(Collectors.joining(", ")));
 		
 		KnxProjectT knxProject = getProjectById(knx, params.getProjectId());
 		
-		System.out.print("Installations on project " + knxProject.getId() + ": ");
-		System.out.println(knxProject.getInstallations().getInstallation().stream().map(i -> i.getInstallationId()).map(String::valueOf).collect(Collectors.joining(", ")));
+		LOG.info("Installations on project " + knxProject.getId() + ": " + knxProject.getInstallations().getInstallation().stream().map(i -> i.getInstallationId()).map(String::valueOf).collect(Collectors.joining(", ")));
 
 		KnxInstallation knxInstallation = getInstallationById(knxProject, params.getInstallationId());
 		

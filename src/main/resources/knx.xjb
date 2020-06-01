@@ -1,36 +1,107 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <jaxb:bindings
-	xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
-	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:annox="http://annox.dev.java.net"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd"
-	xmlns:basic="http://jaxb2-commons.dev.java.net/basic"
-	xmlns:equals="http://jaxb2-commons.dev.java.net/basic/equals"
-	xmlns:hashCode="http://jaxb2-commons.dev.java.net/basic/hashCode"
-	xmlns:toString="http://jaxb2-commons.dev.java.net/basic/toString"
-	jaxb:extensionBindingPrefixes="basic equals hashCode toString"
-	version="2.1">
+  xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd http://jaxb2-commons.dev.java.net/basic/inheritance"
+
+  xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+  xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  xmlns:xjc="http://java.sun.com/xml/ns/jaxb/xjc"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:inheritance="http://jaxb2-commons.dev.java.net/basic/inheritance"
+  xmlns:annox="http://annox.dev.java.net"
+
+  extensionBindingPrefixes="xjc inheritance"
+  version="2.1">
+
+  <jaxb:globalBindings>
+    <xjc:superClass name="org.knx.xml.BaseClass" />
+  </jaxb:globalBindings>
+
+  <jaxb:bindings
+    schemaLocation="knx.xsd"
+    node="/xs:schema">
+
+    <jaxb:schemaBindings>
+      <jaxb:nameXmlTransform>
+        <jaxb:typeName prefix="Knx" />
+        <jaxb:anonymousTypeName prefix="Knx" />
+      </jaxb:nameXmlTransform>
+    </jaxb:schemaBindings>
 
 
-	<jaxb:bindings schemaLocation="knx.xsd"
-		node="/xsd:schema">
-
-		<jaxb:schemaBindings>
-			<jaxb:nameXmlTransform>
-				<jaxb:typeName prefix="Knx" />
-				<jaxb:anonymousTypeName prefix="Knx" />
-			</jaxb:nameXmlTransform>
-		</jaxb:schemaBindings>
+    <jaxb:bindings node="//xs:simpleType[@name='Enable_t']">
+      <jaxb:javaType
+        name="java.lang.Boolean"
+        parseMethod="org.knx.xml.TypeMapping.parseEnableT"
+        printMethod="org.knx.xml.TypeMapping.printEnableT" />
+    </jaxb:bindings>
 
 
-		<jaxb:bindings
-			node="//xs:complexType[@name='DeviceInstance_t']/xs:sequence/xs:element[@name='BinaryData']/xs:complexType/xs:sequence/xs:element[@name='BinaryData']/xs:complexType">
-			<jaxb:class name="BinaryData" />
-		</jaxb:bindings>
+    <jaxb:bindings node="//xs:complexType[@name='FunctionType_t']//xs:element[@name='FunctionPoint']//xs:attribute[@name='DatapointType']">
+      <jaxb:property>
+        <jaxb:baseType name="org.knx.xml.KnxDatapointTypeT" />
+      </jaxb:property>
+    </jaxb:bindings>
 
-	</jaxb:bindings>
+    <jaxb:bindings node="//xs:complexType[@name='GroupAddressRef_t']//xs:attribute[@name='RefId']">
+      <jaxb:property name="groupAddress">
+        <jaxb:baseType name="org.knx.xml.KnxGroupAddressT" />
+      </jaxb:property>
+    </jaxb:bindings>
+
+    <jaxb:bindings node="//xs:complexType[@name='GroupAddress_t']/xs:attribute[@name='DatapointType']">
+      <jaxb:property>
+        <jaxb:baseType name="org.knx.xml.BaseClass" />
+      </jaxb:property>
+    </jaxb:bindings>
+
+
+    <jaxb:bindings node="//xs:complexType[@name='DeviceInstance_t']">
+      <jaxb:bindings node="xs:attribute[@name='Hardware2ProgramRefId']">
+        <jaxb:property name="hardware2Program">
+          <jaxb:baseType name="org.knx.xml.KnxHardware2ProgramT" />
+        </jaxb:property>
+      </jaxb:bindings>
+      <jaxb:bindings node="xs:sequence/xs:element[@name='BinaryData']/xs:complexType/xs:sequence/xs:element[@name='BinaryData']/xs:complexType">
+        <jaxb:class name="BinaryData" />
+      </jaxb:bindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings node="//xs:complexType[@name='ComObjectInstanceRef_t']">
+      <jaxb:bindings node="xs:attribute[@name='RefId']">
+        <jaxb:property name="comObjectRef">
+          <jaxb:baseType name="org.knx.xml.KnxComObjectRefT" />
+        </jaxb:property>
+      </jaxb:bindings>
+      <jaxb:bindings node="xs:attribute[@name='DatapointType']">
+        <jaxb:property>
+          <jaxb:baseType name="org.knx.xml.BaseClass" />
+        </jaxb:property>
+      </jaxb:bindings>
+      <jaxb:bindings node="xs:attribute[@name='ChannelId']" />
+      <jaxb:bindings node="xs:attribute[@name='Links']">
+        <jaxb:property>
+          <jaxb:baseType name="org.knx.xml.KnxGroupAddressT" />
+        </jaxb:property>
+      </jaxb:bindings>
+      <jaxb:bindings node="xs:attribute[@name='Acknowledges']" />
+
+    </jaxb:bindings>
+
+    <jaxb:bindings node="//xs:complexType[@name='ComObjectRef_t']">
+      <jaxb:bindings node="xs:attribute[@name='RefId']">
+        <jaxb:property name="comObject">
+          <jaxb:baseType name="org.knx.xml.KnxComObjectT" />
+        </jaxb:property>
+      </jaxb:bindings>
+    </jaxb:bindings>
+
+    <jaxb:bindings node="//xs:complexType[@name='ApplicationProgramRef_t']/xs:attribute[@name='RefId']">
+      <jaxb:property name="applicationProgram">
+        <jaxb:baseType name="org.knx.xml.KnxApplicationProgramT" />
+      </jaxb:property>
+    </jaxb:bindings>
+
+
+  </jaxb:bindings>
 
 </jaxb:bindings>
