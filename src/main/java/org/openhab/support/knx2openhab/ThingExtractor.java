@@ -191,6 +191,7 @@ public class ThingExtractor {
 		return linkedComObjects;
 	}
 
+	@SuppressWarnings("unchecked")
 	private <T> T getParent(BaseClass obj, Class<T> clazz) {
 		BaseClass p = obj;
 

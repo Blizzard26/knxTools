@@ -29,13 +29,19 @@ repositories {
 apply plugin: "com.intershop.gradle.jaxb"
 apply plugin: "com.github.ben-manes.versions"
 
-sourceCompatibility = 8
-targetCompatibility = 8
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 compileJava.options.encoding = 'UTF-8'
 compileTestJava.options.encoding = 'UTF-8'
 
-mainClassName = 'org.openhab.support.knx2openhab.Main'
+
+application {
+    executableDir = ''
+	mainClassName = 'org.openhab.support.knx2openhab.Main'
+}
 
 eclipse {
     classpath {
@@ -44,38 +50,34 @@ eclipse {
 }
 
 dependencies {
+	// JAXB Plugin
 	jaxb 'org.glassfish.jaxb:jaxb-runtime:2.3.3'
     jaxb 'com.sun.xml.bind:jaxb-jxc:2.3.3'
     jaxb 'com.sun.xml.bind:jaxb-xjc:2.3.3'
     jaxb 'com.sun.xml.bind:jaxb-core:2.3.0'
-	jaxbext 'org.jvnet.jaxb2_commons:jaxb2-basics:0.12.0'
-	jaxbext 'org.jvnet.jaxb2_commons:jaxb2-basics-runtime:0.12.0'
-	
-	implementation 'org.glassfish.jaxb:jaxb-runtime:2.+'
 
-    // This dependency is exported to consumers, that is to say found on their compile classpath.
-    implementation 'org.apache.commons:commons-csv:1.+'
-    
-    // https://mvnrepository.com/artifact/net.lingala.zip4j/zip4j
+	// ETS Loader	
+	implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.+'    
+    implementation 'cglib:cglib:3.3.+'
     implementation 'net.lingala.zip4j:zip4j:2.+'
     
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.+'
-    implementation 'cglib:cglib:3.3.+'
-    
-    implementation 'org.apache.velocity:velocity-engine-core:2.+'
-    implementation 'org.apache.velocity.tools:velocity-tools-generic:3.+'
-    
-    implementation 'org.slf4j:slf4j-jdk14:1.+'
-    
+    // RTF Comment Processing
     implementation 'com.github.joniles:rtfparserkit:1.+'
     
+    // JSON Config
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.+'
+    
+    // Apache Velocity
+    implementation 'org.apache.velocity:velocity-engine-core:2.+'
+    implementation 'org.apache.velocity.tools:velocity-tools-generic:3.+'
+    implementation 'org.slf4j:slf4j-jdk14:1.7.+'
+    
     // Use JUnit test framework
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.+'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.+'
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.+'
     
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.+'
-    testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.+'
-    
-    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.+'
+    testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.+'    
 }
 
 eclipseJdt.doLast {
@@ -104,4 +106,20 @@ jaxb {
             args = ['-verbose']
         }
     }
+}
+
+dependencyUpdates {
+  revision = 'release'
+  resolutionStrategy {
+    componentSelection { rules ->
+       rules.all { ComponentSelection selection ->
+         boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview', 'b', 'ea'].any { qualifier ->
+           selection.candidate.version ==~ /(?i).*[.-]$qualifier[.\d-+]*/
+         }
+         if (rejected) {
+           selection.reject('Release candidate')
+         }
+       }
+    }
+  }
 }
