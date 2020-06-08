@@ -11,13 +11,13 @@ public class Params
 {
 
     private File projectFile;
-    private File configDirFile;
+    private File configDirFile = new File("conf/");
     private final Map<String, File> templates = new LinkedHashMap<>();
     private Optional<String> password = Optional.empty();
     private Optional<String> projectId = Optional.empty();
     private Optional<Integer> installationId = Optional.empty();
 
-    // --project Angerweg12.knxproj --password pass --projectId 0 --installationId 0
+    // --project Angerweg12.knxproj --password pass --projectId P53 --installationId 0
     // --configDir conf/ --template things.vm --out
     // out/knx.things --template items.vm --out out/knx.items
     public static Params parseParams(final Queue<String> args)
@@ -45,21 +45,15 @@ public class Params
 
         String param = args.remove();
         if (!param.equalsIgnoreCase("--project"))
-        {
             throw new IllegalArgumentException("Project-File must be provided");
-        }
 
         String projectFile = args.remove();
         if (projectFile.startsWith("--"))
-        {
             throw new IllegalArgumentException("Project-File cannot start with '--'");
-        }
 
         File file = new File(projectFile);
         if (!file.exists() || !file.isFile())
-        {
             throw new IllegalArgumentException("Project-File " + file + " does not exist");
-        }
         params.setProjectFile(file);
 
         while (!args.isEmpty())
@@ -99,15 +93,11 @@ public class Params
                 String configDir = args.remove();
 
                 if (configDir.startsWith("--"))
-                {
                     throw new IllegalArgumentException("Config-Dir cannot start with '--'");
-                }
 
                 File configDirFile = new File(configDir);
                 if (!configDirFile.exists() || !configDirFile.isDirectory())
-                {
                     throw new IllegalArgumentException("Config-Dir " + configDirFile + " does not exist");
-                }
 
                 params.setConfigDir(configDirFile);
             }
@@ -115,25 +105,17 @@ public class Params
             {
                 String template = args.remove();
                 if (template.startsWith("--"))
-                {
                     throw new IllegalArgumentException("Template cannot start with '--'");
-                }
                 param = args.remove();
                 if (!param.equalsIgnoreCase("--out"))
-                {
                     throw new IllegalArgumentException("Missing --out argument");
-                }
                 String output = args.remove();
                 if (output.startsWith("--"))
-                {
                     throw new IllegalArgumentException("Output-File cannot start with '--'");
-                }
                 params.addTemplate(template, new File(output));
             }
             else
-            {
                 throw new IllegalArgumentException("Unkown parameter: " + param);
-            }
         }
 
         return params;
@@ -173,7 +155,7 @@ public class Params
     public static void printUsage()
     {
         System.out.println("Usage:\r\n"
-                + "--project projectFile.knxproj [--password pass --projectId 0 --installationId 0] --configDir conf/ --template template.vm --out outputfile");
+                + "--project projectFile.knxproj [--password pass] [--projectId P53] [--installationId 0] [--configDir conf/] (--template template.vm --out outputfile)*");
 
     }
 
