@@ -41,9 +41,7 @@ public class Main
 
         Params params = Params.parseParams(paramArgs);
         if (params == null)
-        {
             return;
-        }
 
         Main main = new Main();
         main.process(params);
@@ -126,12 +124,12 @@ public class Main
 
         for (Entry<String, File> e : templates.entrySet())
         {
-            processTemplate(things, e.getKey(), e.getValue());
+            processTemplate(knx, knxInstallation, things, e.getKey(), e.getValue());
         }
     }
 
-    public void processTemplate(final List<KNXThing> things, final String templateFile, final File outputFile)
-            throws IOException
+    public void processTemplate(final KNX knx, final KnxInstallation knxInstallation, final List<KNXThing> things,
+            final String templateFile, final File outputFile) throws IOException
     {
         System.out.println("======================================");
         System.out.println("Processing " + templateFile + " to " + outputFile.getName());
@@ -146,7 +144,7 @@ public class Main
         VelocityProcessor processor = new VelocityProcessor(new File("templates"), templateFile);
         try (Writer writer = Files.newBufferedWriter(outputFile.toPath(), StandardCharsets.UTF_8))
         {
-            processor.process(things, writer);
+            processor.process(knx, knxInstallation, things, writer);
         }
     }
 
