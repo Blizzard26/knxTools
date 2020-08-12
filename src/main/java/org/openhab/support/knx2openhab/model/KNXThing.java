@@ -45,7 +45,7 @@ public class KNXThing
         return name != null ? name : "";
     }
 
-    private KnxSpaceT getSpace()
+    public KnxSpaceT getSpace()
     {
         return (KnxSpaceT) this.function.getParent();
     }
@@ -69,7 +69,7 @@ public class KNXThing
     public void setItems(final Collection<KNXItem> items)
     {
         this.items.clear();
-        this.items.putAll(items.stream().collect(Collectors.toMap(i -> i.getKey(), i -> i)));
+        this.items.putAll(items.stream().collect(Collectors.toMap(KNXItem::getKey, i -> i)));
     }
 
     @Override
@@ -92,13 +92,9 @@ public class KNXThing
     public boolean equals(final Object obj)
     {
         if (this == obj)
-        {
             return true;
-        }
         if (!(obj instanceof KNXThing))
-        {
             return false;
-        }
         KNXThing other = (KNXThing) obj;
         return Objects.equals(this.items, other.items) && Objects.equals(this.descriptor, other.descriptor)
                 && Objects.equals(this.function.getNumber(), other.function.getNumber());
