@@ -17,30 +17,19 @@ pipeline {
     }
     
     stages {
-
-        stage('Prepare') {
-            steps {
-                script {
-                    sh 'chmod a+x gradlew'
-                }
-            }
-        }
         
         stage('Build') {
             steps {
-                script {
-                    sh './gradle clean compile --no-daemon --priority=low'
+                gradle {
+                    sh './gradlew clean compile --no-daemon --priority=low'
                 }
             }
         }
         stage('Unit-Tests') {
             steps {
-                script {
-                    try {
-                        sh './gradle -Dtest.ignoreFailures=true test --no-daemon --priority=low'
-                    } finally {
-                        junit '**/build/test-results/test/*.xml'
-                    }
+                gradle {
+                    sh './gradlew -Dtest.ignoreFailures=true test --no-daemon --priority=low'
+                    junit '**/build/test-results/test/*.xml'
                 }
             }
         }
