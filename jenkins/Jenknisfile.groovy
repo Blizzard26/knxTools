@@ -7,7 +7,7 @@ pipeline {
     }
     
     options {
-      buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '2', daysToKeepStr: '14', numToKeepStr: '15'))
+      buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '2', numToKeepStr: '5'))
       disableConcurrentBuilds()
     }
     
@@ -20,19 +20,31 @@ pipeline {
         
         stage('Build') {
             steps {
-                gradle {
-                    sh './gradlew clean compile --no-daemon --priority=low'
+                script {
+                    sh 'gradle clean classes --no-daemon --priority=low'
                 }
             }
         }
         stage('Unit-Tests') {
             steps {
-                gradle {
-                    sh './gradlew -Dtest.ignoreFailures=true test --no-daemon --priority=low'
-                    junit '**/build/test-results/test/*.xml'
+                script {
+                    sh 'gradle -Dtest.ignoreFailures=true test --no-daemon --priority=low'
                 }
+                junit allowEmptyResults: true, testResults: 'build/test-results/test/*.xml'
             }
         }
+        
+        stage('Release') {
+            when { expression { return params.RELEASE } }
+            steps {
+                script {
+                    sh 'gradle assembleDist --no-daemon --priority=low'
+                }
+                archiveArtifacts artifacts: 'build/distributions/*.zip', fingerprint: true
+                archiveArtifacts artifacts: 'build/distributions/*.tar', fingerprint: true
+            }
+        }
+    
     }
     
     post {
