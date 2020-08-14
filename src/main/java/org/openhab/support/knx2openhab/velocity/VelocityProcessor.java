@@ -51,6 +51,7 @@ public class VelocityProcessor
         context.put("knx", knx);
         context.put("installation", knxInstallation);
         context.put("modelUtil", ModelUtil.class);
+        context.put("tools", VelocityTools.class);
 
         t.merge(context, writer);
 
