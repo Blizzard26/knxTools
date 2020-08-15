@@ -11,18 +11,20 @@ public class KNXItemDescriptor
 
     private final String key;
     private final String[] keyWords;
+    private final String overrideType;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public KNXItemDescriptor(@JsonProperty("key") final String key, @JsonProperty("keywords") final String... keywords)
+    public KNXItemDescriptor(@JsonProperty("key") final String key, @JsonProperty("keywords") final String[] keywords,
+            @JsonProperty("overrideType") final String overrideType)
     {
         this.key = Objects.requireNonNull(key);
 
         this.keyWords = Objects.requireNonNull(keywords, "keyWords");
 
         if (keywords.length == 0)
-        {
             throw new IllegalArgumentException();
-        }
+
+        this.overrideType = overrideType;
     }
 
     @JsonProperty("key")
@@ -35,6 +37,12 @@ public class KNXItemDescriptor
     public String[] getKeywords()
     {
         return this.keyWords;
+    }
+
+    @JsonProperty("overrideType")
+    public String getOverrideType()
+    {
+        return this.overrideType;
     }
 
     @Override
@@ -50,13 +58,9 @@ public class KNXItemDescriptor
     public boolean equals(final Object obj)
     {
         if (this == obj)
-        {
             return true;
-        }
         if (!(obj instanceof KNXItemDescriptor))
-        {
             return false;
-        }
         KNXItemDescriptor other = (KNXItemDescriptor) obj;
         return Arrays.equals(this.keyWords, other.keyWords);
     }

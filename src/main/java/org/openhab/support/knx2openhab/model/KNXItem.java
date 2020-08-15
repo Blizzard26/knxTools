@@ -13,7 +13,8 @@ public class KNXItem
     private final boolean readable;
     private final boolean writeable;
 
-    public KNXItem(KNXItemDescriptor itemDescriptor, KnxGroupAddressT groupAddress, boolean readable, boolean writeable)
+    public KNXItem(final KNXItemDescriptor itemDescriptor, final KnxGroupAddressT groupAddress, final boolean readable,
+            final boolean writeable)
     {
         this.itemDescriptor = itemDescriptor;
         this.groupAddress = groupAddress;
@@ -48,6 +49,8 @@ public class KNXItem
 
     public String getType()
     {
+        if (itemDescriptor.getOverrideType() != null)
+            return itemDescriptor.getOverrideType();
         return ModelUtil.getDataPointTypeAsString(groupAddress);
     }
 
@@ -80,7 +83,7 @@ public class KNXItem
     }
 
     @Override
-    public boolean equals(Object obj)
+    public boolean equals(final Object obj)
     {
         if (this == obj)
             return true;
