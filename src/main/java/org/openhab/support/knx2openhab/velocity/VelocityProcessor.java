@@ -1,14 +1,19 @@
 package org.openhab.support.knx2openhab.velocity;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.util.Collection;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.velocity.Template;
 import org.apache.velocity.app.VelocityEngine;
 import org.apache.velocity.app.event.MethodExceptionEventHandler;
 import org.apache.velocity.context.Context;
+import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.tools.ToolManager;
 import org.apache.velocity.util.introspection.Info;
 import org.knx.xml.KNX;
@@ -36,7 +41,7 @@ public class VelocityProcessor
     {
         VelocityEngine velocityEngine = new VelocityEngine();
         Properties props = new Properties();
-        props.put("resource.loader.file.path", this.templatePath.getAbsolutePath());
+        props.put(RuntimeConstants.FILE_RESOURCE_LOADER_PATH, this.templatePath.getAbsolutePath());
         props.put("event_handler.method_exception.class", ExceptionHandler.class.getName());
         velocityEngine.init(props);
 
@@ -53,8 +58,27 @@ public class VelocityProcessor
         context.put("modelUtil", ModelUtil.class);
         context.put("tools", VelocityTools.class);
 
+        List<String> templates = getTemplates(this.templatePath);
+        context.put("templates", templates);
+
         t.merge(context, writer);
 
+    }
+
+    private List<String> getTemplates(final File templatePath)
+    {
+        List<String> templates;
+        try
+        {
+            templates = Files.walk(templatePath.toPath()).filter(p -> !Files.isDirectory(p))
+                    .map(p -> p.getFileName().toString()).filter(p -> p.substring(p.lastIndexOf('.')).equals(".vm"))
+                    .collect(Collectors.toList());
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+        return templates;
     }
 
     public static class ExceptionHandler implements MethodExceptionEventHandler
