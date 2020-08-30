@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -47,18 +46,11 @@ public class ThingExtractor
     private final KnxInstallation knxInstallation;
     private Map<String, Map<String, KNXThingDescriptor>> thingDescriptors = new HashMap<>();
 
-    private final Set<String> ignoredGroupAddresses;
-
     public ThingExtractor(final KNX knx, final KnxInstallation knxInstallation, final File thingsConfigFile)
     {
         this.knxInstallation = knxInstallation;
 
         this.thingDescriptors = loadThingsConfig(thingsConfigFile);
-
-        this.ignoredGroupAddresses = new HashSet<>();
-        this.ignoredGroupAddresses.add("D");
-        this.ignoredGroupAddresses.add("A");
-        this.ignoredGroupAddresses.add("Spannungsversorgung");
     }
 
     private Map<String, Map<String, KNXThingDescriptor>> loadThingsConfig(final File thingsConfig)
@@ -104,7 +96,6 @@ public class ThingExtractor
                     .flatMap(r -> r.getGroupAddress().stream()).collect(Collectors.toList());
 
             groupAddresses.removeAll(usedGroupAddresses);
-            groupAddresses.removeIf(g -> this.ignoredGroupAddresses.stream().anyMatch(i -> g.getName().startsWith(i)));
 
             groupAddresses.forEach(g -> this.LOG.warn("Group address {} ({}) is not assigned to any function",
                     ModelUtil.getAddressAsString(g), g.getName()));
@@ -120,8 +111,7 @@ public class ThingExtractor
         {
             if (this.logInvalidFunctions)
             {
-                this.LOG.warn(
-                        "{} @ {} has no number", f.getName(), ((KnxSpaceT) f.getParent().getParent()).getName());
+                this.LOG.warn("{} @ {} has no number", f.getName(), ((KnxSpaceT) f.getParent().getParent()).getName());
             }
             return false;
         }
@@ -208,7 +198,7 @@ public class ThingExtractor
                 .concat(installation.getTopology().getArea().stream().flatMap(a -> a.getLine().stream())
                         .flatMap(l -> l.getDeviceInstance().stream()),
                         installation.getTopology().getUnassignedDevices() != null
-                        ? installation.getTopology().getUnassignedDevices().getDeviceInstance().stream()
+                                ? installation.getTopology().getUnassignedDevices().getDeviceInstance().stream()
                                 : Stream.empty())
                 .filter(d -> d.getComObjectInstanceRefs() != null)
                 .flatMap(d -> d.getComObjectInstanceRefs().getComObjectInstanceRef().stream())
