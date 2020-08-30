@@ -42,6 +42,11 @@ public class KNXItem
         return groupAddress.getDescription();
     }
 
+    public String getName()
+    {
+        return groupAddress.getName();
+    }
+
     public Map<String, String> getContext()
     {
         return ModelUtil.getContextFromComment(groupAddress.getComment());
