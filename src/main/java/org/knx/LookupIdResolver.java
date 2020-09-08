@@ -1,7 +1,6 @@
 package org.knx;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,20 +15,23 @@ import org.knx.xml.BaseClass;
 import org.knx.xml.KnxDeviceInstanceT;
 import org.knx.xml.KnxProjectT;
 import org.knx.xml.KnxProjectT.KnxInstallations.KnxInstallation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 import com.sun.xml.bind.IDResolver;
 
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
-import net.sf.cglib.proxy.MethodProxy;
 
 public class LookupIdResolver extends IDResolver
 {
 
+    protected Logger LOG = LoggerFactory.getLogger(this.getClass());
+
     public interface DynamicProxyResolution<T>
     {
-        public T resolveObject(BaseClass context);
+        T resolveObject(BaseClass context);
     }
 
     protected final Map<String, Object> lookupMap = new HashMap<>();
@@ -39,7 +41,7 @@ public class LookupIdResolver extends IDResolver
     }
 
     @Override
-    public void bind(String key, Object value) throws SAXException
+    public void bind(final String key, final Object value) throws SAXException
     {
         final Object oldValue = lookupMap.put(key, value);
         if (oldValue != null)
@@ -51,7 +53,7 @@ public class LookupIdResolver extends IDResolver
     }
 
     @Override
-    public Callable<?> resolve(String key, Class clazz) throws SAXException
+    public Callable<?> resolve(final String key, final Class clazz) throws SAXException
     {
 
         return new Callable<Object>()
@@ -76,7 +78,7 @@ public class LookupIdResolver extends IDResolver
     }
 
     @SuppressWarnings("unchecked")
-    public <T> T createDummyProxy(String key, Class<T> clazz)
+    public <T> T createDummyProxy(final String key, final Class<T> clazz)
     {
 
         Enhancer e = new Enhancer();
@@ -84,37 +86,31 @@ public class LookupIdResolver extends IDResolver
         e.setSuperclass(BaseClass.class.isAssignableFrom(clazz) ? clazz : BaseClass.class);
         e.setInterfaces(new Class[] { DynamicProxyResolution.class });
 
-        e.setCallback(new MethodInterceptor()
-        {
-
-            @Override
-            public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable
+        e.setCallback((MethodInterceptor) (obj, method, args, proxy) -> {
+            if (method.getName().equals("resolveObject"))
             {
-                if (method.getName().equals("resolveObject"))
-                {
-                    BaseClass context = (BaseClass) args[0];
-                    return resolveObject(key, context);
-                }
-                else
-                    return proxy.invokeSuper(obj, args);
+                BaseClass context = (BaseClass) args[0];
+                return resolveObject(key, context);
             }
+            else
+                return proxy.invokeSuper(obj, args);
         });
         T myProxy = (T) e.create();
         return myProxy;
     }
 
-    protected KnxDeviceInstanceT getDeviceInstance(BaseClass context)
+    protected KnxDeviceInstanceT getDeviceInstance(final BaseClass context)
     {
         return getParent(context, KnxDeviceInstanceT.class);
     }
 
-    protected KnxInstallation getInstallation(BaseClass context)
+    protected KnxInstallation getInstallation(final BaseClass context)
     {
         return getParent(context, KnxInstallation.class);
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T getParent(BaseClass context, Class<T> clazz)
+    private <T> T getParent(final BaseClass context, final Class<T> clazz)
     {
         BaseClass p = context;
 
@@ -127,7 +123,7 @@ public class LookupIdResolver extends IDResolver
         return null;
     }
 
-    protected Object resolveObject(String key, BaseClass context)
+    protected Object resolveObject(final String key, final BaseClass context)
     {
         final String extendedKey;
         if (key.startsWith("GA-"))
@@ -144,17 +140,20 @@ public class LookupIdResolver extends IDResolver
         }
         else
         {
-
             extendedKey = key;
         }
 
         if (lookupMap.containsKey(extendedKey))
             return lookupMap.get(extendedKey);
         else
-            throw new AssertionError("Unable to resolve id: " + key);
+        {
+            LOG.error("Unable to resolve id: " + key);
+            return null;
+            // throw new AssertionError("Unable to resolve id: " + key);
+        }
     }
 
-    private String getChannelKey(String key, BaseClass context)
+    private String getChannelKey(final String key, final BaseClass context)
     {
         KnxDeviceInstanceT deviceInstance = getDeviceInstance(context);
         final String extendedKey = deviceInstance.getHardware2Program().getApplicationProgramRef().get(0)
@@ -162,7 +161,7 @@ public class LookupIdResolver extends IDResolver
         return extendedKey;
     }
 
-    private String getComObjectKey(String key, BaseClass context)
+    private String getComObjectKey(final String key, final BaseClass context)
     {
         KnxDeviceInstanceT deviceInstance = getDeviceInstance(context);
         final String extendedKey = deviceInstance.getHardware2Program().getApplicationProgramRef().get(0)
@@ -170,7 +169,7 @@ public class LookupIdResolver extends IDResolver
         return extendedKey;
     }
 
-    private String getGroupAddressKey(String key, BaseClass context)
+    private String getGroupAddressKey(final String key, final BaseClass context)
     {
         KnxInstallation installation = getInstallation(context);
         final String extendedKey = ((KnxProjectT) installation.getParent().getParent()).getId() + "-"
@@ -178,7 +177,7 @@ public class LookupIdResolver extends IDResolver
         return extendedKey;
     }
 
-    public void resolveProxies(BaseClass object)
+    public void resolveProxies(final BaseClass object)
     {
         Set<Object> visited = Collections.newSetFromMap(new IdentityHashMap<>());
         try
@@ -193,7 +192,7 @@ public class LookupIdResolver extends IDResolver
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void internalResolveProxies(Object obj, Set<Object> visited)
+    private void internalResolveProxies(final Object obj, final Set<Object> visited)
             throws IllegalArgumentException, IllegalAccessException
     {
         if (obj == null)
@@ -240,7 +239,7 @@ public class LookupIdResolver extends IDResolver
         }
     }
 
-    public void purgeSuperHierarchy(BaseClass base)
+    public void purgeSuperHierarchy(final BaseClass base)
     {
         BaseClass p = base;
         while (p != null)
