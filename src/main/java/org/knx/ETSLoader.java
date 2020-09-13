@@ -294,6 +294,7 @@ public class ETSLoader
 
     protected ZipInputStream getInputStreamFromZip(ZipFile zipFile, FileHeader fileHeader) throws IOException
     {
+        LOG.debug("Processing " + fileHeader.getFileName());
         return zipFile.getInputStream(fileHeader);
     }
 

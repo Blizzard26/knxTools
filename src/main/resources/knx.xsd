@@ -13,7 +13,7 @@
     <xs:list itemType="knx:RELIDREF"/>
   </xs:simpleType>
   <xs:simpleType name="RELID">
-    <xs:restriction base="xs:NCName"/>
+    <xs:restriction base="xs:ID"/>
   </xs:simpleType>
   <xs:simpleType name="LanguageDependentIDREF">
     <xs:restriction base="xs:NCName"/>

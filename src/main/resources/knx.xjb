@@ -100,7 +100,14 @@
         <jaxb:baseType name="org.knx.xml.KnxApplicationProgramT" />
       </jaxb:property>
     </jaxb:bindings>
-
+    
+    <jaxb:bindings node="//xs:complexType[@name='ModuleInstance_t']">
+      <jaxb:bindings node="xs:attribute[@name='RefId']">
+        <jaxb:property name="module">
+          <jaxb:baseType name="org.knx.xml.KnxModuleT" />
+        </jaxb:property>
+      </jaxb:bindings>
+    </jaxb:bindings>
 
   </jaxb:bindings>
 
