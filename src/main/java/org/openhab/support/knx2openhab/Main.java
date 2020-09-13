@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Queue;
@@ -23,10 +22,14 @@ import org.openhab.support.knx2openhab.velocity.VelocityProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class Main
 {
 
     protected Logger LOG = LoggerFactory.getLogger(this.getClass());
+    private final Params params;
+    private final Config configuration;
 
     public static void main(final String[] args) throws IOException
     {
@@ -43,16 +46,19 @@ public class Main
         if (params == null)
             return;
 
-        Main main = new Main();
-        main.process(params);
+        Main main = new Main(params);
+        main.process();
     }
 
-    public Main()
+    public Main(final Params params)
     {
+        this.params = params;
+        this.configuration = loadConfiguration(params.getConfigDir());
     }
 
-    public void process(final Params params) throws IOException
+    public void process() throws IOException
     {
+
         ETSLoader loader = new ETSLoader();
 
         File knxProjectFile = params.getProjectFile();
@@ -74,9 +80,24 @@ public class Main
 
         KnxInstallation knxInstallation = getInstallationById(knxProject, params.getInstallationId());
 
-        File thingsConfigFile = new File(params.getConfigDir(), "things.json");
+        processInstallation(knx, knxInstallation);
+    }
 
-        processInstallation(knx, knxInstallation, params.getTemplates(), thingsConfigFile);
+    private Config loadConfiguration(final File configDir)
+    {
+        File configFile = new File(configDir, "conf.json");
+        ObjectMapper mapper = new ObjectMapper();
+
+        try
+        {
+            Config config = mapper.readValue(configFile, Config.class);
+            return config;
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+
     }
 
     private KnxInstallation getInstallationById(final KnxProjectT knxProject, final Optional<Integer> installationId)
@@ -111,18 +132,18 @@ public class Main
         return knxProject;
     }
 
-    public void processInstallation(final KNX knx, final KnxInstallation knxInstallation,
-            final Map<String, File> templates, final File thingsConfigFile) throws IOException
+    public void processInstallation(final KNX knx, final KnxInstallation knxInstallation) throws IOException
     {
-
         System.out.println("======================================");
         System.out.println("Extracting things");
         System.out.println("======================================");
 
+        File thingsConfigFile = new File(configuration.configFile);
+
         ThingExtractor thingExtractor = new ThingExtractor(knx, knxInstallation, thingsConfigFile);
         List<KNXThing> things = thingExtractor.getThings();
 
-        for (Entry<String, File> e : templates.entrySet())
+        for (Entry<String, File> e : params.getTemplates().entrySet())
         {
             processTemplate(knx, knxInstallation, things, e.getKey(), e.getValue());
         }
@@ -141,10 +162,10 @@ public class Main
             parentFile.mkdirs();
         }
 
-        VelocityProcessor processor = new VelocityProcessor(new File("templates"), templateFile);
+        VelocityProcessor processor = new VelocityProcessor(new File(configuration.templateDir), templateFile);
         try (Writer writer = Files.newBufferedWriter(outputFile.toPath(), StandardCharsets.UTF_8))
         {
-            processor.process(knx, knxInstallation, things, writer);
+            processor.process(knx, knxInstallation, things, writer, configuration.env);
         }
     }
 

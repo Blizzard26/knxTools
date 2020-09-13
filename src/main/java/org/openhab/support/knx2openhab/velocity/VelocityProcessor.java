@@ -6,6 +6,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -37,7 +38,7 @@ public class VelocityProcessor
     }
 
     public void process(final KNX knx, final KnxInstallation knxInstallation, final Collection<KNXThing> things,
-            final Writer writer)
+            final Writer writer, final Map<String, String> env)
     {
         VelocityEngine velocityEngine = new VelocityEngine();
         Properties props = new Properties();
@@ -52,6 +53,7 @@ public class VelocityProcessor
         Template t = velocityEngine.getTemplate(this.template, "UTF-8");
         Context context = manager.createContext();
 
+        context.put("env", env);
         context.put("things", things);
         context.put("knx", knx);
         context.put("installation", knxInstallation);
