@@ -56,7 +56,7 @@ public class ETSLoader
     private static final String PROJECT_ZIP_FILE_PREFIX = "P-";
     private static final String MAIN_PROJECT_FILE = "project.xml";
 
-    public KNX load(File file, Optional<String> password) throws ETSLoaderException
+    public KNX load(final File file, final Optional<String> password) throws ETSLoaderException
     {
         ZipFile projectZipFile = new ZipFile(file);
 
@@ -79,8 +79,8 @@ public class ETSLoader
         return knx;
     }
 
-    private <T extends BaseClass, P extends BaseClass> void reconnect(T element, P newParent, BiConsumer<P, T> adder,
-            LookupIdResolver idResolver)
+    private <T extends BaseClass, P extends BaseClass> void reconnect(final T element, final P newParent,
+            final BiConsumer<P, T> adder, final LookupIdResolver idResolver)
     {
         if (element.getParent() != null)
         {
@@ -98,8 +98,8 @@ public class ETSLoader
      * @param idLookupMap
      * @return
      */
-    protected void loadManufacturerData(ZipFile projectZipFile, KnxManufacturerDataT manufacturerData,
-            LookupIdResolver idResolver)
+    protected void loadManufacturerData(final ZipFile projectZipFile, final KnxManufacturerDataT manufacturerData,
+            final LookupIdResolver idResolver)
     {
 
         try
@@ -112,7 +112,7 @@ public class ETSLoader
 
             // Load manufacturers
             directories.values().stream()
-            .forEach(d -> loadManufacturer(projectZipFile, d, manufacturerData, idResolver));
+                    .forEach(d -> loadManufacturer(projectZipFile, d, manufacturerData, idResolver));
         }
         catch (ZipException e)
         {
@@ -120,8 +120,8 @@ public class ETSLoader
         }
     }
 
-    protected void loadManufacturer(ZipFile projectZipFile, List<FileHeader> directory,
-            KnxManufacturerDataT manufacturerData, LookupIdResolver idResolver)
+    protected void loadManufacturer(final ZipFile projectZipFile, final List<FileHeader> directory,
+            final KnxManufacturerDataT manufacturerData, final LookupIdResolver idResolver)
     {
         KnxManufacturer manufacturer = new KnxManufacturer();
 
@@ -131,25 +131,25 @@ public class ETSLoader
         manufacturer.setRefId(manufacturerId);
 
         directory.stream().filter(d -> d.getFileName().endsWith(BAGGAGES_FILE)).findAny()
-        .ifPresent(h -> loadBaggage(projectZipFile, h, manufacturer, idResolver));
+                .ifPresent(h -> loadBaggage(projectZipFile, h, manufacturer, idResolver));
 
         KnxApplicationPrograms knxApplicationPrograms = new KnxApplicationPrograms();
         directory.stream()
-        .filter(d -> d.getFileName().startsWith(MANUFACTURER_DIR_PREFIX, d.getFileName().indexOf('/') + 1))
-        .forEach(d -> loadApplicationProgram(projectZipFile, d, knxApplicationPrograms, idResolver));
+                .filter(d -> d.getFileName().startsWith(MANUFACTURER_DIR_PREFIX, d.getFileName().indexOf('/') + 1))
+                .forEach(d -> loadApplicationProgram(projectZipFile, d, knxApplicationPrograms, idResolver));
         reconnect(knxApplicationPrograms, manufacturer, KnxManufacturer::setApplicationPrograms, idResolver);
 
         directory.stream().filter(d -> d.getFileName().endsWith(HARDWARE_FILE)).findAny()
-        .ifPresent(h -> loadHardware(projectZipFile, h, manufacturer, idResolver));
+                .ifPresent(h -> loadHardware(projectZipFile, h, manufacturer, idResolver));
 
         directory.stream().filter(d -> d.getFileName().endsWith(CATALOG_FILE)).findAny()
-        .ifPresent(h -> loadCatalog(projectZipFile, h, manufacturer, idResolver));
+                .ifPresent(h -> loadCatalog(projectZipFile, h, manufacturer, idResolver));
 
         reconnect(manufacturer, manufacturerData, (p, e) -> p.getManufacturer().add(e), idResolver);
     }
 
-    protected void loadBaggage(ZipFile zipFile, FileHeader fileHeader, KnxManufacturer manufacturer,
-            LookupIdResolver idResolver)
+    protected void loadBaggage(final ZipFile zipFile, final FileHeader fileHeader, final KnxManufacturer manufacturer,
+            final LookupIdResolver idResolver)
     {
         try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader))
         {
@@ -163,8 +163,8 @@ public class ETSLoader
         }
     }
 
-    protected void loadApplicationProgram(ZipFile zipFile, FileHeader fileHeader,
-            KnxApplicationPrograms knxApplicationPrograms, LookupIdResolver idResolver)
+    protected void loadApplicationProgram(final ZipFile zipFile, final FileHeader fileHeader,
+            final KnxApplicationPrograms knxApplicationPrograms, final LookupIdResolver idResolver)
     {
         try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader))
         {
@@ -181,8 +181,8 @@ public class ETSLoader
         }
     }
 
-    protected void loadHardware(ZipFile zipFile, FileHeader fileHeader, KnxManufacturer manufacturer,
-            LookupIdResolver idResolver)
+    protected void loadHardware(final ZipFile zipFile, final FileHeader fileHeader, final KnxManufacturer manufacturer,
+            final LookupIdResolver idResolver)
     {
         try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader))
         {
@@ -196,8 +196,8 @@ public class ETSLoader
         }
     }
 
-    protected void loadCatalog(ZipFile zipFile, FileHeader fileHeader, KnxManufacturer manufacturer,
-            LookupIdResolver idResolver)
+    protected void loadCatalog(final ZipFile zipFile, final FileHeader fileHeader, final KnxManufacturer manufacturer,
+            final LookupIdResolver idResolver)
     {
         try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader))
         {
@@ -211,13 +211,14 @@ public class ETSLoader
         }
     }
 
-    protected void loadProjects(Optional<String> password, ZipFile projectZipFile, KNX knx, LookupIdResolver idResolver)
+    protected void loadProjects(final Optional<String> password, final ZipFile projectZipFile, final KNX knx,
+            final LookupIdResolver idResolver)
     {
 
         try
         {
             projectZipFile.getFileHeaders().stream().filter(this::isProjectFile)
-            .forEach(h -> loadProjectFile(projectZipFile, h, password, knx, idResolver));
+                    .forEach(h -> loadProjectFile(projectZipFile, h, password, knx, idResolver));
         }
         catch (ZipException e)
         {
@@ -226,7 +227,8 @@ public class ETSLoader
 
     }
 
-    protected KNX loadMasterData(ZipFile projectZipFile, LookupIdResolver idResolver) throws ETSLoaderException
+    protected KNX loadMasterData(final ZipFile projectZipFile, final LookupIdResolver idResolver)
+            throws ETSLoaderException
     {
         try
         {
@@ -242,8 +244,8 @@ public class ETSLoader
         }
     }
 
-    protected void loadProjectFile(ZipFile zipFile, FileHeader fileHeader, Optional<String> password, KNX knx,
-            LookupIdResolver idResolver) throws ETSLoaderException
+    protected void loadProjectFile(final ZipFile zipFile, final FileHeader fileHeader, final Optional<String> password,
+            final KNX knx, final LookupIdResolver idResolver) throws ETSLoaderException
     {
         try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader))
         {
@@ -255,8 +257,8 @@ public class ETSLoader
 
             KnxInstallations installations = new KnxInstallations();
             projectZipFile.getFileHeaders().stream().filter(this::isInstallationFile)
-            .sorted((o1, o2) -> o1.getFileName().compareTo(o2.getFileName()))
-            .forEach(h -> loadInstallationFile(projectZipFile, h, installations, idResolver));
+                    .sorted((o1, o2) -> o1.getFileName().compareTo(o2.getFileName()))
+                    .forEach(h -> loadInstallationFile(projectZipFile, h, installations, idResolver));
 
             FileHeader projectFileHeader = projectZipFile.getFileHeader(MAIN_PROJECT_FILE);
             KNX knxProject;
@@ -275,8 +277,8 @@ public class ETSLoader
         }
     }
 
-    protected void loadInstallationFile(ZipFile zipFile, FileHeader fileHeader, KnxInstallations installations,
-            LookupIdResolver idResolver)
+    protected void loadInstallationFile(final ZipFile zipFile, final FileHeader fileHeader,
+            final KnxInstallations installations, final LookupIdResolver idResolver)
     {
         try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader))
         {
@@ -292,14 +294,15 @@ public class ETSLoader
         }
     }
 
-    protected ZipInputStream getInputStreamFromZip(ZipFile zipFile, FileHeader fileHeader) throws IOException
+    protected ZipInputStream getInputStreamFromZip(final ZipFile zipFile, final FileHeader fileHeader)
+            throws IOException
     {
         LOG.debug("Processing " + fileHeader.getFileName());
         return zipFile.getInputStream(fileHeader);
     }
 
-    protected KNX loadKnxFromInputStream(InputStream inputStream, LookupIdResolver idResolver,
-            Consumer<KNX> postProcessing) throws ETSLoaderException
+    protected KNX loadKnxFromInputStream(final InputStream inputStream, final LookupIdResolver idResolver,
+            final Consumer<KNX> postProcessing) throws ETSLoaderException
     {
         try
         {
@@ -310,7 +313,7 @@ public class ETSLoader
             {
 
                 @Override
-                public void afterUnmarshal(Object target, Object parent)
+                public void afterUnmarshal(final Object target, final Object parent)
                 {
 
                     ((BaseClass) target).setParent((BaseClass) parent);
@@ -337,7 +340,7 @@ public class ETSLoader
         }
     }
 
-    protected boolean isInstallationFile(FileHeader h)
+    protected boolean isInstallationFile(final FileHeader h)
     {
         String fileName = FileUtils.getFileNameWithoutExtension(h.getFileName());
         try
@@ -351,7 +354,7 @@ public class ETSLoader
         }
     }
 
-    protected boolean isProjectFile(FileHeader p)
+    protected boolean isProjectFile(final FileHeader p)
     {
         return p.getFileName().startsWith(PROJECT_ZIP_FILE_PREFIX) && p.getFileName().endsWith("." + ZIP_EXTENSION);
     }
