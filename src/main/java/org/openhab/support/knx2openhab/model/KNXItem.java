@@ -12,6 +12,7 @@ public class KNXItem
     private final KnxGroupAddressT groupAddress;
     private final boolean readable;
     private final boolean writeable;
+    private Map<String, String> context;
 
     public KNXItem(final KNXItemDescriptor itemDescriptor, final KnxGroupAddressT groupAddress, final boolean readable,
             final boolean writeable)
@@ -44,12 +45,20 @@ public class KNXItem
 
     public String getName()
     {
+        if (itemDescriptor.getLabel() != null)
+            return itemDescriptor.getLabel();
+        if (getContext().containsKey("label"))
+            return context.get("label");
         return groupAddress.getName();
     }
 
     public Map<String, String> getContext()
     {
-        return ModelUtil.getContextFromComment(groupAddress.getComment());
+        if (context == null)
+        {
+            context = ModelUtil.getContextFromComment(groupAddress.getComment());
+        }
+        return context;
     }
 
     public String getType()

@@ -17,6 +17,7 @@ public class KNXThing
 
     private final Map<String, KNXItem> items = new HashMap<>();
     private final KnxFunctionT function;
+    private Map<String, String> context;
 
     public KNXThing(final KNXThingDescriptor thingDescriptor, final KnxFunctionT function)
     {
@@ -57,7 +58,11 @@ public class KNXThing
 
     public Map<String, String> getContext()
     {
-        return ModelUtil.getContextFromComment(this.function.getComment());
+        if (context == null)
+        {
+            context = ModelUtil.getContextFromComment(this.function.getComment());
+        }
+        return context;
     }
 
     public KNXThing addItem(final KNXItem item)
