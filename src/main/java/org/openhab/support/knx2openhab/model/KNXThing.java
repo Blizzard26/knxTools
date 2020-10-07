@@ -46,6 +46,11 @@ public class KNXThing
         return name != null ? name : "";
     }
 
+    public int getPriority()
+    {
+        return this.descriptor.getPriority();
+    }
+
     public KnxSpaceT getSpace()
     {
         return (KnxSpaceT) this.function.getParent();
