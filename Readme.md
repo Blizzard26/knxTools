@@ -101,7 +101,7 @@ Then following inputs are provided to the template:
 * `priority`: user-defined priority from the things.json-File
 * `space`: KNXSpace object of the parent location (Space) from the KNX Project
 * `items`: Map of Item-Key to `KNXItem`s
-* `context`: Map from String to String read from the comments section of the Function in the KNX Project (see [Advanced Options][#advanced-options] for details)
+* `context`: Map from String to String read from the comments section of the Function in the KNX Project (see [Advanced Options](#advanced-options)] for details)
 
 `KNXItem`s have the following properties (see org.openhab.support.knx2openhab.model.KNXItem):
 * `key`: Item-Key from the things.json-File
@@ -109,7 +109,7 @@ Then following inputs are provided to the template:
 * `address`: Group Address of the item in the format `high.mid.low`
 * `description`: Description from the KNX Project
 * `name`: Group Address Name from the KNX Project
-* `context`: Map from String to String read from the comments section of the Function in the KNX Project (see [Advanced Options][#advanced-options] for details)
+* `context`: Map from String to String read from the comments section of the Function in the KNX Project (see [Advanced Options](#advanced-options)] for details)
 * `type`: Group Address Value Type from the KNX Project as String
 * `readable`: Indicates whether or not the associated group address may be read by the bus (i.e., KNX Read-Flag is set on one of the associated Com-Objects)
 * `writeable`: Indicates whether or not the associated group address may be written by the bus (i.e., KNX Write-Flag  is set on one of the associated Com-Objects)
