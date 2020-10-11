@@ -6,10 +6,10 @@ Loads a KNX .knxproj File, converts all functions to `KNXThing`s based on the co
 Main File: [org.openhab.support.knx2openhab.Main](src/main/java/org/openhab/support/knx2openhab/Main.java)
 
 ### How to use it
-#### Step 1. Create you KNX Project in ETS5 ;)
+#### Step 1. Create your KNX Project in ETS5 ;)
 
 As ETS5/KNX and OpenHAB are working fundamentally different, you need to follow a few rules here:
-* For each Thing you want to have in OpenHAB you need to create a function in your KNX Project and add the corresponding Group Addresses to it.
+* For each Thing you want to have in OpenHAB, you need to create a function in your KNX Project and add the corresponding Group Addresses to it.
 * Each Function needs to have a type key followed by a unique name set as ID. E.g. `TYPEKEY My Thing Name`
 * Group Addresses need to follow a (more or less) fixed naming suffix Schema per Thing/Function type. (See Step 3)
 
@@ -58,7 +58,8 @@ The file looks like this:
 ```
 
 * "key" is the `TYPEKEY` used in the function ID to identify different Thing types. E.g. "L" for Lamp, "LD" for dimmable lamp, "R" for Rollershutter, etc.
-* "functionTypes" are the functions types in ETS they TYPEKEY may be used with. Note that the same TYPEKEY may be used with different function type. Also different Function types may be specified for one TYPEKEY. The following values may be used for "functionTypes":
+* "functionTypes" are the functions types in ETS the TYPEKEY may be used with. Note that the same TYPEKEY may be used with different function type. Also different function types may be specified for one TYPEKEY. 
+The following values may be used for "functionTypes":
   * FT-0: Function Type "custom"
   * FT-1: Function Type "switchable light"
   * FT-6: Function Type "Dimmable Lamp"
@@ -72,26 +73,27 @@ The file looks like this:
   * FT-4: Function Type "heating radiator" (deprecated)
   * FT-5: Function Type "heating floor" (deprecated)
 * "name" a user-defined name for this Thing-Type. This will be used by error messages and may be used inside the Velocity Templates
-* "priority" a user-defined priority for Things of this type which may, e.g., be used for sorting Things in sitemaps.
+* "priority" a user-defined priority for Things of this type which, e.g., may be used for sorting Things in sitemaps.
 * "items" a list of items. Each item basically maps to a possible Group Address in the KNX Function. Items will be provided as `KNXItems` inside the `KNXThing` for processing them in the Velocity Templates. Each item has the following attributes:
-  * "key" a user-defined key for this Item this will be used for identifying the item in a Velocity Template.
-  * "keywords" a list of keywords. Each keyword represents a possible suffix of a group address in the KNX Function. If a Group Address Name has one of the keywords as suffix it will be assigned to the respective Item.
-  * Optional: "label" a Label provided as Name of the item to the Velocity Templates
+  * "key" a user-defined key for this Item. This will be used for identifying the item in Velocity Templates.
+  * "keywords" a list of keywords. Each keyword represents a possible suffix of a group address in the KNX Function. If a Group Address Name contains one of the keywords as suffix it will be assigned to the respective Item.
+  * Optional: "label" a Label provided as Name of the item to the Velocity Templates. This overrides the name provided by the KNX Project.
 
 #### Step 4. Create Velocity Templates
-Edit the example templates in the templates/-Directory or create your own templates. See the [Velocity User Guide](https://velocity.apache.org/engine/2.2/user-guide.html) for how it works. Currently the following version are used:
+Edit the example templates in the `templates/`-Directory or create your own templates. See the [Velocity User Guide](https://velocity.apache.org/engine/2.2/user-guide.html) for how it works. Currently the following version are used:
 * [Velocity 2.2](https://velocity.apache.org/engine/2.2/)
 * [Velocity Tool 3.0](https://velocity.apache.org/tools/3.0/)
 
-Templates must be placed in the templates/ directory and have .vm as file extension.
+Templates must be placed in the `templates/` directory and have `.vm` as file extension.
 
-Then following inputs are provided to the template:
+The following inputs are provided to the template:
 * `$things` a List of `KNXThing`s parsed from the ETS-File using the things.json-Mapping File
 * `$env` a Map containing the env-Section from the conf.json-File. This may for example be used to provide general information (e.g., IP Address of KNX Gateway).
 * `$knx` the raw KNX Object representing the Parsed .knxproj-File (hard to use; It's better to used the KNXThings-Mechanism)
 * `$installation` the raw KNX Installation object that has been selected.
-* `$modelUtil` Utility Class for some advanced stuff (see [Advanced Options][#advanced-options])
+* `$modelUtil` Utility Class for some advanced stuff (see [Advanced Options](#advanced-options))
 * `$tools` VelocityTools Utility Class
+* `$templates` List of all `.vm`-Files in the `templates/`-Directory. This may be used for dynamically splitting templates into multiple files. (see [Advanced Options](#advanced-options))
 
 `KNXThing`s have the following properties (see org.openhab.support.knx2openhab.model.KNXItem):
 * `descriptor`: The `KNXThingDescriptor` read from the things.json-File
@@ -100,19 +102,19 @@ Then following inputs are provided to the template:
 * `location`: Name of the parent location (Space) from the KNX Project
 * `priority`: user-defined priority from the things.json-File
 * `space`: KNXSpace object of the parent location (Space) from the KNX Project
-* `items`: Map of Item-Key to `KNXItem`s
+* `items`: Map of Item-Key (things.json-File) to `KNXItem`s
 * `context`: Map from String to String read from the comments section of the Function in the KNX Project (see [Advanced Options](#advanced-options)] for details)
 
 `KNXItem`s have the following properties (see org.openhab.support.knx2openhab.model.KNXItem):
 * `key`: Item-Key from the things.json-File
 * `itemDescriptor`: The `KNXItemDescriptor` read from the things.json-File
-* `address`: Group Address of the item in the format `high.mid.low`
-* `description`: Description from the KNX Project
-* `name`: Group Address Name from the KNX Project
+* `address`: Group Address of the item in the format `high.mid.low` (e.g., `1.2.3`)
+* `description`: Description of the Group Address from the KNX Project
+* `name`: Name of the Group Address from the KNX Project (may be overriden by things.json-File)
+* `type`: Group Address Value Type from the KNX Project as String (e.g., "1.001", "1.009", "5.001", etc.)
+* `readable`: Indicates whether or not the associated group address may be read (i.e., KNX Read-Flag is set on one of the Com-Objects associated with the group address)
+* `writeable`: Indicates whether or not the associated group address may be written (i.e., KNX Write-Flag is set on one of the Com-Objects associated with the group address)
 * `context`: Map from String to String read from the comments section of the Function in the KNX Project (see [Advanced Options](#advanced-options)] for details)
-* `type`: Group Address Value Type from the KNX Project as String
-* `readable`: Indicates whether or not the associated group address may be read by the bus (i.e., KNX Read-Flag is set on one of the associated Com-Objects)
-* `writeable`: Indicates whether or not the associated group address may be written by the bus (i.e., KNX Write-Flag  is set on one of the associated Com-Objects)
 
 `KNXThingDescriptor`s have the following properties:
 * TODO
@@ -126,7 +128,13 @@ Run
 knx2openhab[.bat] --project <MyProject.knxproj> --password <MySecretPassword> --configDir conf/ --template things.vm --out out\knx.things --template items.vm --out out\knx.items --template sitemap.vm --out out\knx.sitemap --template itemhtml.vm --out out\items.html
 ```
 
+### Example
+TODO
+
 ### Advanced Options
+TODO
+
+### Common Error Messages / Warnings
 TODO
 
 ### Know limitations / Issues
