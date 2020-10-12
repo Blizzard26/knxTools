@@ -10,7 +10,7 @@ Main File: [org.openhab.support.knx2openhab.Main](src/main/java/org/openhab/supp
 
 As ETS5/KNX and OpenHAB are working fundamentally different, you need to follow a few rules here:
 * For each Thing you want to have in OpenHAB, you need to create a function in your KNX Project and add the corresponding Group Addresses to it.
-* Each Function needs to have a type key followed by a unique name set as ID. E.g. `TYPEKEY My Thing Name`
+* Each Function needs to have a type key followed by a unique name set as Number. E.g. `TYPEKEY My Thing Name`
 * Group Addresses need to follow a (more or less) fixed naming suffix Schema per Thing/Function type. (See Step 3)
 
 #### Step 2. Close your KNX Project in ETS and Export it to a .knxproj file.
@@ -57,7 +57,7 @@ The file looks like this:
 ...]
 ```
 
-* "key" is the `TYPEKEY` used in the function ID to identify different Thing types. E.g. "L" for Lamp, "LD" for dimmable lamp, "R" for Rollershutter, etc.
+* "key" is the `TYPEKEY` used in the function Number to identify different Thing types. E.g. "L" for Lamp, "LD" for dimmable lamp, "R" for Rollershutter, etc.
 * "functionTypes" are the functions types in ETS the TYPEKEY may be used with. Note that the same TYPEKEY may be used with different function type. Also different function types may be specified for one TYPEKEY. 
 The following values may be used for "functionTypes":
   * FT-0: Function Type "custom"
@@ -179,7 +179,7 @@ cd knxTools
 gradlew build
 ```
 
-The created zip/tar can be found in build/
+The created zip/tar can be found in build/distributions
 
 # License
 [KNX Tools](https://github.com/Blizzard26/knxTools) by [Andreas Lanz](https://github.com/Blizzard26) is licensed under [CC BY-SA 4.0 CC](https://creativecommons.org/licenses/by-sa/4.0/) ![CC Icon](https://mirrors.creativecommons.org/presskit/icons/cc.svg) ![BY Icon](https://mirrors.creativecommons.org/presskit/icons/by.svg) ![SA Icon](https://mirrors.creativecommons.org/presskit/icons/sa.svg)
