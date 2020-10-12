@@ -214,11 +214,15 @@ public class ETSLoader
     protected void loadProjects(final Optional<String> password, final ZipFile projectZipFile, final KNX knx,
             final LookupIdResolver idResolver)
     {
-
         try
         {
             projectZipFile.getFileHeaders().stream().filter(this::isProjectFile)
                     .forEach(h -> loadProjectFile(projectZipFile, h, password, knx, idResolver));
+
+            projectZipFile.getFileHeaders().stream().filter(this::isProjectDir)
+                    .collect(Collectors.groupingBy(f -> f.getFileName().substring(0, f.getFileName().indexOf('/'))))
+                    .forEach((k, e) -> loadProjectDir(projectZipFile, e, knx, idResolver));
+
         }
         catch (ZipException e)
         {
@@ -244,6 +248,31 @@ public class ETSLoader
         }
     }
 
+    protected void loadProjectDir(final ZipFile zipFile, final List<FileHeader> fileHeaders, final KNX knx,
+            final LookupIdResolver idResolver) throws ETSLoaderException
+    {
+        KnxInstallations installations = new KnxInstallations();
+        fileHeaders.stream().filter(this::isInstallationFile)
+                .sorted((o1, o2) -> o1.getFileName().compareTo(o2.getFileName()))
+                .forEach(h -> loadInstallationFile(zipFile, h, installations, idResolver));
+
+        FileHeader projectFileHeader = fileHeaders.stream().filter(f -> f.getFileName().endsWith(MAIN_PROJECT_FILE))
+                .findAny().get();
+        KNX knxProject;
+        try (ZipInputStream inputStream = getInputStreamFromZip(zipFile, projectFileHeader))
+        {
+            knxProject = loadKnxFromInputStream(inputStream, idResolver, null);
+        }
+        catch (IOException e)
+        {
+            throw new ETSLoaderException(e);
+        }
+        KnxProjectT project = knxProject.getProject().get(0);
+        reconnect(project, knx, (p, e) -> p.getProject().add(e), idResolver);
+
+        reconnect(installations, project, KnxProjectT::setInstallations, idResolver);
+    }
+
     protected void loadProjectFile(final ZipFile zipFile, final FileHeader fileHeader, final Optional<String> password,
             final KNX knx, final LookupIdResolver idResolver) throws ETSLoaderException
     {
@@ -255,21 +284,9 @@ public class ETSLoader
             Files.copy(stream, tempFile, StandardCopyOption.REPLACE_EXISTING);
             ZipFile projectZipFile = new ZipFile(tempFile.toFile(), password.map(String::toCharArray).orElse(null));
 
-            KnxInstallations installations = new KnxInstallations();
-            projectZipFile.getFileHeaders().stream().filter(this::isInstallationFile)
-                    .sorted((o1, o2) -> o1.getFileName().compareTo(o2.getFileName()))
-                    .forEach(h -> loadInstallationFile(projectZipFile, h, installations, idResolver));
+            List<FileHeader> fileHeaders = projectZipFile.getFileHeaders();
 
-            FileHeader projectFileHeader = projectZipFile.getFileHeader(MAIN_PROJECT_FILE);
-            KNX knxProject;
-            try (ZipInputStream inputStream = getInputStreamFromZip(projectZipFile, projectFileHeader))
-            {
-                knxProject = loadKnxFromInputStream(inputStream, idResolver, null);
-            }
-            KnxProjectT project = knxProject.getProject().get(0);
-            reconnect(project, knx, (p, e) -> p.getProject().add(e), idResolver);
-
-            reconnect(installations, project, KnxProjectT::setInstallations, idResolver);
+            loadProjectDir(projectZipFile, fileHeaders, knx, idResolver);
         }
         catch (IOException e)
         {
@@ -282,7 +299,7 @@ public class ETSLoader
     {
         try (InputStream stream = getInputStreamFromZip(zipFile, fileHeader))
         {
-            int installationId = Integer.parseInt(FileUtils.getFileNameWithoutExtension(fileHeader.getFileName()));
+            int installationId = Integer.parseInt(getFileName(fileHeader));
             KNX knxFile = loadKnxFromInputStream(stream, idResolver, knx -> knx.getProject().get(0).getInstallations()
                     .getInstallation().get(0).setInstallationId(installationId));
             KnxInstallation installation = knxFile.getProject().get(0).getInstallations().getInstallation().get(0);
@@ -292,6 +309,16 @@ public class ETSLoader
         {
             throw new ETSLoaderException(e);
         }
+    }
+
+    private String getFileName(final FileHeader fileHeader)
+    {
+        String fileName = FileUtils.getFileNameWithoutExtension(fileHeader.getFileName());
+        if (fileName.indexOf('/') > 0)
+        {
+            fileName = fileName.substring(fileName.lastIndexOf('/') + 1);
+        }
+        return fileName;
     }
 
     protected ZipInputStream getInputStreamFromZip(final ZipFile zipFile, final FileHeader fileHeader)
@@ -342,7 +369,7 @@ public class ETSLoader
 
     protected boolean isInstallationFile(final FileHeader h)
     {
-        String fileName = FileUtils.getFileNameWithoutExtension(h.getFileName());
+        String fileName = getFileName(h);
         try
         {
             Integer.parseInt(fileName);
@@ -357,6 +384,11 @@ public class ETSLoader
     protected boolean isProjectFile(final FileHeader p)
     {
         return p.getFileName().startsWith(PROJECT_ZIP_FILE_PREFIX) && p.getFileName().endsWith("." + ZIP_EXTENSION);
+    }
+
+    protected boolean isProjectDir(final FileHeader p)
+    {
+        return p.getFileName().startsWith(PROJECT_ZIP_FILE_PREFIX) && p.getFileName().indexOf('/') > 0;
     }
 
 }
