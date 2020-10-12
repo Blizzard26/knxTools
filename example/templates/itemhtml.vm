@@ -1,0 +1,102 @@
+ <!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    table, th, td {
+      border: 1px solid black;
+      border-spacing: 0px;
+    }
+    table{
+      width:100%;
+    }
+  </style>
+</head> 
+<body>
+
+#*
+===========================
+General Macros
+===========================
+*#
+#parse('globals.vm')
+##
+#macro ( item $type $itemKey $text $icon)
+<tr>
+<td>
+$itemKey
+</td>
+<td>
+-
+</td>
+<td>
+$text
+</td>
+<td>
+$type
+</td>
+<td>
+-
+</td>
+</tr>
+#end
+
+## General-Channel Marco
+#macro ( channel $thing $knxItem $channelKey $itemKey $type $text $icon)
+#if ( $thing.items[$knxItem] )
+<tr>
+<td>
+#itemname(${thing}, $itemKey)
+</td>
+<td>
+$thing.items[$knxItem].itemDescriptor.key
+</td>
+<td>
+$text
+</td>
+<td>
+$type
+</td>
+<td>
+$!thing.items[$knxItem].context.groups
+</td>
+</tr>
+#end 
+#end
+##
+#macro ( thingStart $thing )
+<h2>$thing.description</h2>
+<table>
+<tr>
+<th>ID</th>
+<th>KNX Name</th>
+<th>Label</th>
+<th>Type</th>
+<th>Groups</th>
+</tr>
+#end
+##
+#macro ( thingEnd $thing )
+</table>
+#end
+##
+#parse('itemdefinitions.vm')
+#* 
+===========================
+Main Loop
+===========================
+*#
+#set ($lastLocation = '')
+##
+#foreach ($thing in $collection.sort($things, ["location", "key"]))
+#if ( $lastLocation != $thing.location )
+<h1>$thing.location</h1>
+#set ($lastLocation = "$thing.location")
+#end
+##
+#evaluate( "#$thing.descriptor.key ( \$thing )" )
+#end
+##
+
+</body>
+</html> 

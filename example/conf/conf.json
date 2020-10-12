@@ -1,0 +1,8 @@
+{
+  "templateDir" : "example/templates/",
+  "configFile" : "example/conf/things.json",
+  "env" : { 
+            "ipAddress" : "192.0.0.1",
+            "localSourceAddr" : "1.1.2"  
+          }
+}

@@ -1,0 +1,86 @@
+[ {
+  "key" : "L",
+  "functionTypes" : [ "FT-1" ],
+  "name" : "Switchable Light",
+  "priority" : 3,
+  "items" : [ {
+    "key" : "switch",
+    "keywords" : [ "Switching" ]
+  }, {
+    "key" : "status",
+    "keywords" : [ "Status" ]
+  }  ]
+}, {
+  "key" : "LD",
+  "functionTypes" : [ "FT-6" ],
+  "name" : "Dimmable light",
+  "priority" : 3,
+  "items" : [ {
+    "key" : "switch",
+    "keywords" : [ "Switching" ]
+  }, {
+    "key" : "status",
+    "keywords" : [ "Status" ]
+  }, {
+    "key" : "dimming",
+    "keywords" : [ "Dimming" ]
+  }, {
+    "key" : "dimmingValue",
+    "keywords" : [ "dimming value" ]
+  }, {
+    "key" : "value",
+    "keywords" : [ "Value" ]
+  } ]
+}, {
+  "key" : "S",
+  "functionTypes" : [ "FT-0" ],
+  "name" : "Switch",
+  "priority" : 9,
+  "items" : [ {
+    "key" : "switch",
+    "keywords" : [ "Switching" ]
+  }, {
+    "key" : "status",
+    "keywords" : [ "Status" ]
+  } ]
+}, {
+  "key" : "R",
+  "functionTypes" : [ "FT-7" ],
+  "name" : "Rollershutter",
+  "priority" : 5,
+  "items" : [ {
+    "key" : "move",
+    "keywords" : [ "Movement" ]
+  }, {
+    "key" : "step",
+    "keywords" : [ "Step/Stop" ]
+  }, {
+    "key" : "currentPosition",
+    "keywords" : [ "blinds position" ]
+  }, {
+    "key" : "windAlart",
+    "keywords" : [ "wind alarm" ]
+  }, {
+    "key" : "rainAlarm",
+    "keywords" : [ "rain alarm" ]
+  } ]
+}, {
+  "key" : "H",
+  "functionTypes" : [ "FT-8", "FT-9" ],
+  "name" : "Heating",
+  "priority" : 7,
+  "items" : [ {
+    "key" : "actualTemperature",
+    "keywords" : [ "Current temperature" ]
+  }, {
+    "key" : "targetTemperature",
+    "keywords" : [ "current setpoint" ]
+  }, {
+    "key" : "operatingMode",
+    "keywords" : [ "Operation mode" ]
+  }, {
+    "key" : "setpointAdjustment",
+    "keywords" : [ "Setpoint value offset" ]
+  }  ]
+}
+]
