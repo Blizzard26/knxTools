@@ -68,7 +68,7 @@ public class ThingExtractor
 
             groupAddresses.removeAll(usedGroupAddresses);
 
-            groupAddresses.forEach(g -> this.LOG.warn("Group address {} ({}) is not assigned to any function",
+            groupAddresses.forEach(g -> this.LOG.warn("Group address '{}' ({}) is not assigned to any function",
                     ModelUtil.getAddressAsString(g), g.getName()));
         }
 
@@ -82,7 +82,8 @@ public class ThingExtractor
         {
             if (this.logInvalidFunctions)
             {
-                this.LOG.warn("{} @ {} has no number", f.getName(), ((KnxSpaceT) f.getParent().getParent()).getName());
+                this.LOG.warn("Function '{}' @ '{}' has no number assigned", f.getName(),
+                        ((KnxSpaceT) f.getParent().getParent()).getName());
             }
             return false;
         }
@@ -131,17 +132,19 @@ public class ThingExtractor
 
         if (key == null || isBlank(key))
         {
-            this.LOG.warn("Group Address {} has no key.", ModelUtil.getAddressAsString(groupAddress));
+            this.LOG.warn("Group Address '{}' has no key.", ModelUtil.getAddressAsString(groupAddress));
             return null;
         }
 
-        Optional<KNXItem> item = thingDescriptor.getItems().stream().filter(
-                i -> Arrays.stream(i.getKeywords()).anyMatch(keySuffix -> key.endsWith(" " + keySuffix.toLowerCase())))
+        Optional<KNXItem> item = thingDescriptor.getItems().stream()
+                .filter(i -> Arrays.stream(i.getKeywords())
+                        .anyMatch(keySuffix -> key.equals(keySuffix.toLowerCase())
+                                || key.endsWith(" " + keySuffix.toLowerCase())))
                 .findFirst().map(itemDescriptor -> getItem(groupAddress, itemDescriptor));
 
         if (!item.isPresent())
         {
-            this.LOG.warn("Unable to identify item type for {} on thing {}", groupAddress.getName(),
+            this.LOG.warn("Unable to identify item type for '{}' on thing '{}'", groupAddress.getName(),
                     thingDescriptor.getName());
         }
 
