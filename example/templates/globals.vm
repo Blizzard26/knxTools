@@ -1,0 +1,15 @@
+#macro ( escape $text )$text#end ##
+#macro ( padRight $text $length )$display.printf("%-${length}s", $text)#end ##
+#macro ( itemname $thing $key )#escape(${thing.key})_$key#{end} ##
+##
+## OpenHab Type Definitions
+#set ($OnOffType = ["1.001", "1."])
+#set ($OpenClosedType = ["1.009", "1.019"])
+#set ($UpDownType = ["1.008", "3.008"])
+#set ($StopMoveType = ["1.010"])
+#set ($DecimalType = ["9.001", "1.022", "2.", "5.", "6.", "7.", "8.", "9.", "12.", "13.", "14.", "17.", "18.", "29.", "229."])
+#set ($PercentType = ["5.001", "5.004", "6.001", "9.007"])
+#set ($IncreaseDecreaseType = ["3.007", "3."])
+#set ($StringType = ["16.001", "4.", "6.020", "16.", "20.", "21.", "28."])
+#set ($DateTimeType = ["19.001", "10.", "11.", "19."])
+#set ($HSBType = ["232.600", "232."])

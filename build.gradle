@@ -1,0 +1,126 @@
+buildscript {
+
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven {
+          url "https://plugins.gradle.org/m2/"
+        }
+    }
+    
+    dependencies {
+      classpath 'com.intershop.gradle.jaxb:jaxb-gradle-plugin:4.+'
+      classpath 'com.github.ben-manes:gradle-versions-plugin:0.28.+'
+    }
+}
+
+
+plugins {
+    id 'java'
+    id 'eclipse'
+    id 'application'
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+apply plugin: "com.intershop.gradle.jaxb"
+apply plugin: "com.github.ben-manes.versions"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+compileJava.options.encoding = 'UTF-8'
+compileTestJava.options.encoding = 'UTF-8'
+
+
+application {
+    executableDir = ''
+	mainClassName = 'org.openhab.support.knx2openhab.Main'
+}
+
+eclipse {
+    classpath {
+        downloadSources = true
+    }
+}
+
+dependencies {
+	// JAXB Plugin
+	jaxb 'org.glassfish.jaxb:jaxb-runtime:2.3.3'
+    jaxb 'com.sun.xml.bind:jaxb-jxc:2.3.3'
+    jaxb 'com.sun.xml.bind:jaxb-xjc:2.3.3'
+    jaxb 'com.sun.xml.bind:jaxb-core:2.3.0'
+
+	// ETS Loader	
+	implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.+'    
+    implementation 'cglib:cglib:3.3.+'
+    implementation 'net.lingala.zip4j:zip4j:2.+'
+    
+    // RTF Comment Processing
+    implementation 'com.github.joniles:rtfparserkit:1.+'
+    
+    // JSON Config
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.+'
+    
+    // Apache Velocity
+    implementation 'org.apache.velocity:velocity-engine-core:2.+'
+    implementation 'org.apache.velocity.tools:velocity-tools-generic:3.+'
+    implementation 'org.slf4j:slf4j-jdk14:1.7.+'
+    
+    // Use JUnit test framework
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.+'
+    testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.6.+'
+    
+    testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.+'
+    testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.+'    
+    testImplementation group: 'org.hamcrest', name: 'java-hamcrest', version: '2.+'    
+}
+
+eclipseJdt.doLast {
+    File f = file('.settings/org.eclipse.core.resources.prefs')
+    f.write('eclipse.preferences.version=1\n')
+    f.append('encoding/<project>=UTF-8')
+}
+
+jar {
+  dependsOn configurations.runtime
+  manifest {
+    attributes(
+       'Main-Class': mainClassName
+    )
+  }
+}
+
+jaxb {
+    javaGen {
+        knxConfig {
+            packageName = 'org.knx.xml'
+            schemas = fileTree(dir: 'src/main/resources', include: 'knx.xsd')
+            binding = file('src/main/resources/knx.xjb')
+            extension = true
+            strictValidation = false
+            args = ['-verbose']
+        }
+    }
+}
+
+dependencyUpdates {
+  revision = 'release'
+  resolutionStrategy {
+    componentSelection { rules ->
+       rules.all { ComponentSelection selection ->
+         boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview', 'b', 'ea'].any { qualifier ->
+           selection.candidate.version ==~ /(?i).*[.-]$qualifier[.\d-+]*/
+         }
+         if (rejected) {
+           selection.reject('Release candidate')
+         }
+       }
+    }
+  }
+}

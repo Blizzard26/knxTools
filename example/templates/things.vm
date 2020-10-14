@@ -1,0 +1,127 @@
+////////////////////////////////////////////////////////////////////////////////////////////////
+// This things-File has been automatically created. Any changes might be overridden.
+////////////////////////////////////////////////////////////////////////////////////////////////
+Bridge knx:ip:bridge [  
+    type="TUNNEL", 
+    ipAddress="$env["ipAddress"]", 
+    localSourceAddr="$env["localSourceAddr"]"
+] {
+##
+##
+#parse('globals.vm')
+##
+##
+## Macro for a group address formatted according to [<dpt>:][<]<mainGA>[[+[<]<listeningGA>][+[<]<listeningGA>..]]
+#macro ( ga $thing $mainItem $supportedTypes $additionalItems)##
+## [<dpt>:][<]<mainGA>
+##
+## Type [<dpt>:]
+#{if}($thing.items[$mainItem].type)##
+#{if}($supportedTypes)##
+#{if}($tools.containsPrefix($supportedTypes, $thing.items[$mainItem].type))##
+$thing.items[$mainItem].type:##
+#{else}##
+$log.warn("Items Type '$thing.items[$mainItem].type' of Item '$mainItem' not in list of supported types $supportedTypes. Using default type.")##
+#{end}## -if (containsPrefix(...))
+#{else}##
+$thing.items[$mainItem].type:##
+#{end}## -if ($supportedTypes)
+#{else}$log.warn("Item $mainItem of thing $thing.description has no type")#{end}## {if}($thing.items[$mainItem].type)
+##
+## Read [<]
+#{if}( ! $thing.items[$mainItem].writeable )$log.debug("Main Item $mainItem for thing $thing.description not writeable")#{end}##
+#{if}( $thing.items[$mainItem].readable)<#{end}##
+##
+## <mainGA>
+$thing.items[$mainItem].address##
+##
+## [[+[<]<listeningGA>][+[<]<listeningGA>..]]
+#if ($additionalItems)##
+#{foreach}($additionalItem in $additionalItems)##
+#{if}($thing.items[$additionalItem])##
++##
+#{if}($thing.items[$additionalItem].readable)<#{end}##
+$thing.items[$additionalItem].address##
+#{end}## -if ($thing.items[$additionalItem])
+#{end}## -foreach
+#{end}## -if ($additionalItems)
+#{end}## -macro
+##
+## Switch-Type 
+#macro ( switchChannel $thing $mainItem $additionalItems $channelKey $name )
+#if ( $thing.items[$mainItem] )
+        Type switch        : #padRight($channelKey, 25) #padRight("""$name""", 35) [ ga="#ga($thing, $mainItem, $OnOffType, $additionalItems)" ]
+#end
+#end
+##
+## Dimmer-Type 
+#macro ( dimmerChannel $thing $switchItem $switchAdditionalItems $positionItem $positionAdditionalItems $dimmingItem $channelKey $name )
+#if ( $thing.items[$switchItem] )
+        Type dimmer        : #padRight($channelKey, 25) #padRight("""$name""", 35) [ switch="#ga($thing, $switchItem, $OnOffType, $switchAdditionalItems)", position="#ga($thing, $positionItem, $PercentType, $positionAdditionalItems)", increaseDecrease="#ga($thing, $dimmingItem, $IncreaseDecreaseType, [])" ]
+#end
+#end
+##
+## Contact-Type 
+#macro ( contactChannel $thing $mainItem $additionalItems $channelKey $name )
+#if ( $thing.items[$mainItem] )
+        Type contact       : #padRight($channelKey, 25) #padRight("""$name""", 35) [ ga="#ga($thing, $mainItem, $OpenClosedType, $additionalItems)" ]
+#end
+#end
+##
+## Rollershutter-Type 
+#macro ( rollershutterChannel $thing $moveItem $stepItem $positionItem $positionAdditionalItems $channelKey $name )
+#if ( $thing.items[$moveItem] )
+        Type rollershutter : #padRight($channelKey, 25) #padRight("""$name""", 35) [ upDown="#ga($thing, $moveItem, $UpDownType, [])", stopMove="#ga($thing, $stepItem, $StopMoveType, [])"#{if}( $thing.items[$positionItem] ), position="#ga($thing, $positionItem, $PercentType, $positionAdditionalItems)"#{end} ]
+#end
+#end
+##
+## String-Type 
+#macro ( stringChannel $thing $mainItem $additionalItems $channelKey $name )
+#if ( $thing.items[$mainItem] )
+        Type string        : #padRight($channelKey, 25) #padRight("""$name""", 35) [ ga="#ga($thing, $mainItem, $StringType, $additionalItems)" ]
+#end
+#end
+##
+## Number-Type 
+#macro ( numberChannel $thing $mainItem $additionalItems $channelKey $name )
+#if ( $thing.items[$mainItem] )
+        Type number        : #padRight($channelKey, 25) #padRight("""$name""", 35) [ ga="#ga($thing, $mainItem, $DecimalType, $additionalItems)" ]
+#end
+#end
+##
+##
+#macro ( thingStart $thing )
+    Thing device $thing.key "$thing.description" @ "$thing.location" []
+    {
+#end
+##
+#macro ( thingEnd $thing )
+    }
+#end
+##
+#*
+===========================
+Macro's for different things
+===========================
+*#
+##
+#parse ('thingdefinitions.vm')     
+##
+#* 
+===========================
+Main Loop
+===========================
+*#
+#set ($lastLocation = '')
+##
+#foreach ($thing in $collection.sort($things, ["location", "key"]))
+#if ( $lastLocation != $thing.location )
+    // $thing.location
+#set ($lastLocation = "$thing.location")
+#end
+##
+#evaluate( "#$thing.descriptor.key ( \$thing )" )
+
+#end
+##
+}

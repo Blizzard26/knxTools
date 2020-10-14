@@ -1,0 +1,174 @@
+////////////////////////////////////////////////////////////////////////////////////////////////
+// This sitemap has been automatically created. Any changes might be overridden
+////////////////////////////////////////////////////////////////////////////////////////////////
+sitemap knx label="KNX"
+{
+##
+#parse('globals.vm') ##
+##
+#macro ( itemdef $thing $knxItem $itemKey $type $label $icon $additionalOptions )
+#if ( $thing.items[$knxItem] )
+        #padRight($type, 10) item=#padRight("${thing.key}_$itemKey", 20)#{if} ($label ) label=#padRight("""$label""", 40)#{end}#{if}( $icon ) icon=#padRight("""$icon""", 10)#{end}#{if}( $additionalOptions ) $additionalOptions#{end}
+#{end}
+#{end}## -macro
+##
+#macro ( switchItem $thing $knxItem $itemKey $label $icon $additionalOptions )
+        #itemdef($thing, $knxItem, $itemKey, "Switch", $label, $icon, $additionalOptions)
+#end
+##
+#macro ( sliderItem $thing $knxItem $itemKey $label $icon $additionalOptions )
+        #itemdef($thing, $knxItem, $itemKey, "Slider", $label, $icon, $additionalOptions)
+#end
+##
+#macro ( textItem $thing $knxItem $itemKey $label $icon $additionalOptions )
+        #itemdef($thing, $knxItem, $itemKey, "Text", $label, $icon, $additionalOptions)
+#end
+##
+#macro ( setpointItem $thing $knxItem $itemKey $label $icon $additionalOptions )
+        #itemdef($thing, $knxItem, $itemKey, "Setpoint", $label, $icon, $additionalOptions)
+#end
+##
+#macro ( chartItem $thing $knxItem $itemKey $label $icon $additionalOptions )
+#if ( $thing.items[$knxItem] )
+        #padRight("Chart", 10) item=#padRight("${thing.key}_$itemKey", 20)#{if} ($label ) label=#padRight("""$label""", 40)#{end}#{if}( $icon ) icon=#padRight("""$icon""", 10)#{end}#{if}( $additionalOptions ) $additionalOptions#{end}
+#{end}
+#end
+##
+#*
+===========================
+Macro's for different things
+===========================
+*#
+##
+## 
+#macro ( L $thing )
+        #switchItem($thing, "switch", "switch", "${thing.description} [MAP(ON_OFF_de.map):%s]", "light", "")
+#end
+##
+## 
+#macro ( LD $thing )
+        #switchItem($thing, "switch", "switch", "${thing.description} [MAP(ON_OFF_de.map):%s]", "light", "")
+        #sliderItem($thing, "dimmingValue", "dimmer", "${thing.description} [SCALE(DIMMER_de.scale):%s]", "light", "")
+#end
+##
+## 
+#macro ( S $thing )
+        #switchItem($thing, "switch", "switch", "${thing.description} [MAP(ON_OFF_de.map):%s]", "poweroutlet", "")
+
+        #chartItem($thing, "powerConsumptionmA", "powerConsumptionmA", "${thing.description}", "poweroutlet", "period=D legend=true")
+#end
+##
+## 
+#macro ( R $thing )
+        Frame label="${thing.description}" icon="blinds" {
+            #switchItem($thing, "move", "shutter", "${thing.description} [%d %%]", "blinds", "")
+            #switchItem($thing, "setPosition", "position", "Position [%d %%]", "blinds", "mappings=[0=""0%"", 30=""30%"", 60=""60%"", 100=""100%""]")
+        }
+#end
+##
+## 
+#macro ( H $thing )
+        Frame label="${thing.description}" icon="heating" {
+            #textItem($thing, "actualTemperature", "actualTemperature", "Isttemperatur [%.1f °C]", "temperature", "")
+            #setpointItem($thing, "targetTemperature", "targetTemperature", "Solltemperatur [%.1f °C]", "heating", "minValue=18 maxValue=30 step=0.5")
+            #switchItem($thing, "operatingMode", "operatingMode", "Betriebsart [MAP(HEATING_OPERATINGMODE_de.map):%s]", "heating", "mappings=[Comfort=""Komfort"", Economy=""Sparbetrieb"", Standby=""Standby"", BuildingProtection=""Frostschutz""]")
+            
+            #chartItem($thing, "actualTemperature", "actualTemperature", "Isttemperatur", "temperature", "period=D legend=true")
+        }
+#end
+##
+## 
+#macro ( A $thing )
+        #textItem($thing, "alarm", "alarm", "${thing.description} [%s]", "siren", "")
+#end
+##
+## Constantts
+#set ($blockItems = ['H', 'R', 'J', 'M', 'W', 'A'] ) ##
+##
+#* 
+===========================
+Main Loop
+===========================
+*#
+##
+#set ($lastFloor = '') ##
+#set ($floorBlockEnd = '') ##
+## Location
+#set ($lastLocation = '') ##
+#set ($locationTextItemEnd = '') ##
+## Item Block
+#set ($lastBlockType = '') ##
+#set ($blockFrameEnd = '') ##
+##
+#foreach ($thing in $collection.sort($things, ["location", "key"]))
+## If location changes...
+#if ( $lastLocation != $thing.location )
+## End frame of last Location
+$blockFrameEnd
+## End Text Item of last location
+$locationTextItemEnd
+#set ($lastBlockType = '') ##
+## Remember new location
+    #set ($lastLocation = "$thing.location")
+##
+##
+## if floor changed
+#set ($floor = '') ##
+#if ( $thing.space.type == "FLOOR" || $thing.space.type == "BUILDING_PART" || $thing.space.type == "BUILDING" || $thing.space.type == "STAIRWAY")
+#set ($floor = $thing.space)
+#else
+#set ($floor = $thing.space.parent)
+#end ## ( $thing.space.type == "FLOOR" ...
+##
+##
+#if ( $floor != $lastFloor )
+#set ($lastFloor = $floor )
+$floorBlockEnd
+
+// $floor.name
+Frame label="$floor.name" #{if} ( $modelUtil.getContextFromComment($floor.comment).icon ) icon="$modelUtil.getContextFromComment($floor.comment).icon" #{else} icon="group" #{end} {
+#set ( $floorBlockEnd = '}' )
+#end ## if ( $floor != $lastFloor )
+##
+##
+## Create new text item for new location 
+
+    // $thing.location
+    Text label="$thing.location" #{if} ( $modelUtil.getContextFromComment($thing.space.comment).icon ) icon="$modelUtil.getContextFromComment($thing.space.comment).icon" #{else} icon="group" #{end} {
+## Set end for text item; no frame yet
+    #set ($locationTextItemEnd = '}')
+    #set ($blockFrameEnd = '' )
+#end ## if ( location changed )
+## Determine Block-Type
+#set ( $blockType = "$thing.key.charAt(0)" )
+## If block type changed ...
+#if ( $lastBlockType != $blockType )
+## End last block
+    $blockFrameEnd
+## remember new block type
+    #set ($lastBlockType = "$blockType")
+##
+    #if (! $blockItems.contains($lastBlockType) )
+    Frame {
+##  
+    #set ($blockFrameEnd = ' }')
+    #else
+    #set ($blockFrameEnd = '' )
+    #end ## if (! in blockitems )
+#end ## if (block type changed)
+    #evaluate( "#$thing.descriptor.key ( \$thing )" )
+
+#end ## foreach
+##
+    $blockFrameEnd	
+    $locationTextItemEnd
+    $floorBlockEnd
+
+#foreach ($template in $collection.sort($templates))
+#if ($template.endsWith('.sitemap.vm'))
+#parse($template)
+#end
+#end 
+
+}
+

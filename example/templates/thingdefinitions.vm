@@ -1,0 +1,66 @@
+## Channel-Types
+## switchChannel( $thing $mainItem $additionalItems $channelKey $name )
+## dimmerChannel( $thing $switchItem $switchAdditionalItems $positionItem $positionAdditionalItems $dimmingItem $channelKey $name )
+## contactChannel( $thing $mainItem $additionalItems $channelKey $name ) 
+## rollershutterChannel( $thing $moveItem $stepItem $positionItem $positionAdditionalItems $channelKey $name )
+## stringChannel( $thing $mainItem $additionalItems $channelKey $name )
+## numberChannel( $thing $mainItem $additionalItems $channelKey $name )
+##
+## Lamp
+#macro ( L $thing )
+    #thingStart($thing)
+        #switchChannel( $thing, "switch", [ "status" ], "switch", "Schalten" )
+    #thingEnd($thing)
+#end
+##
+## Dimmable Lamp
+#macro ( LD $thing )
+    #thingStart($thing)
+        #dimmerChannel ( $thing, "switch", ["status"], "dimmingValue", ["value"], "dimming", "dimmer", "Dimmer" )
+        #switchChannel ( $thing, "switch", [ "status" ], "switch", "Schalten" )
+    #thingEnd($thing)
+#end
+##
+## Switch
+#macro ( S $thing )
+    #thingStart($thing)
+        #switchChannel ( $thing, "switch", [ "status" ], "switch", "Schalten" )
+    #thingEnd($thing)
+#end
+##
+## Rollershutter
+#macro ( R $thing )
+    #thingStart($thing)
+        #rollershutterChannel( $thing, "move", "step", "setPosition", ["currentPosition"], "shutter", "Rollladen" )
+        #switchChannel ( $thing, "shading", [], "shading", "Beschattung" )
+    #thingEnd($thing)
+#end
+##
+## Heating
+#macro ( H $thing )
+    #thingStart($thing)
+        #numberChannel ( $thing, "actualTemperature", [], "actualTemperature", "Isttemperatur" )
+        #numberChannel ( $thing, "targetTemperature", [], "targetTemperatureInternal", "Solltemperatur" )
+        #switchChannel ( $thing, "setpointAdjustment", [], "setpointAdjustment", "Solltemperaturverschiebung" )
+        #stringChannel ( $thing, "operatingMode", [], "operatingMode", "Betriebsart" )
+        #numberChannel ( $thing, "comfortTemperature", ["targetTemperature"], "comfortTemperature", "Komforttemperatur" )
+    #thingEnd($thing)
+#end
+##
+## Alarm
+#macro ( A $thing )
+    #thingStart($thing)
+        #foreach ($item in $thing.items)
+            #if ($tools.containsPrefix($OpenClosedType, $item.type))
+            #contactChannel ( $thing, $item.key, [], $item.key, "$thing.description - $item.key" )
+            #elseif ($tools.containsPrefix($OnOffType, $item.type))
+            #switchChannel ( $thing, $item.key, [], $item.key, "$thing.description - $item.key" )
+            #elseif ($tools.containsPrefix($DecimalType, $item.type))
+            #numberChannel ( $thing, $item.key, [], $item.key, "$thing.description - $item.key" )
+            #else
+            #stringChannel ( $thing, $item.key, [], $item.key, "$thing.description - $item.key" )
+            #end
+        #end
+    #thingEnd($thing)
+#end
+##      

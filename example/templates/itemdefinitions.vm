@@ -1,0 +1,100 @@
+##
+#macro ( switchChannel $thing $knxItem $channelKey $itemKey $text $icon)
+#channel ($thing, $knxItem, $channelKey, $itemKey, "Switch", $text, $icon)
+#end
+##
+#macro ( dimmerChannel $thing $knxItem $channelKey $itemKey $text $icon)
+#channel ($thing, $knxItem, $channelKey, $itemKey, "Dimmer", $text, $icon)
+#end
+##
+#macro ( contactChannel $thing $knxItem $channelKey $itemKey $text $icon)
+#channel ($thing, $knxItem, $channelKey, $itemKey, "Contact", $text, $icon)
+#end
+##
+#macro ( shutterChannel $thing $knxItem $channelKey $itemKey $text $icon)
+#channel ($thing, $knxItem, $channelKey, $itemKey, "Rollershutter", $text, $icon)
+#end
+##
+#macro ( numberChannel $thing $knxItem $channelKey $itemKey $text $icon)
+#channel ($thing, $knxItem, $channelKey, $itemKey, "Number", $text, $icon)
+#end
+##
+#macro ( stringChannel $thing $knxItem $channelKey $itemKey $text $icon)
+#channel ($thing, $knxItem, $channelKey, $itemKey, "String", $text, $icon)
+#end
+##
+#macro ( dummyItem $type $thing $itemKey $text $icon)
+#item ($type, "#itemname(${thing}, $itemKey)", $text, $icon)
+#end
+##
+## switchChannel( $thing $knxItem $channelKey $itemKey $text $icon)
+## dimmerChannel( $thing $knxItem $channelKey $itemKey $text $icon)
+## contactChannel( $thing $knxItem $channelKey $itemKey $text $icon)
+## shutterChannel( $thing $knxItem $channelKey $itemKey $text $icon)
+## numberChannel( $thing $knxItem $channelKey $itemKey $text $icon)
+## stringChannel( $thing $knxItem $channelKey $itemKey $text $icon)
+## dummyItem( $type $thing $itemKey $text $icon)
+#*
+===========================
+Macros for different items
+===========================
+*#
+## Lamp
+#macro ( L $thing )
+    #thingStart($thing)
+#switchChannel ($thing, "switch", "switch", "switch", "${thing.description} @ ${thing.location} [%s]", "light")
+    #thingEnd($thing)
+#end
+##
+## Dimmable Lamp
+#macro ( LD $thing )
+    #thingStart($thing)
+#dimmerChannel ($thing, "dimming", "dimmer", "dimmer", "${thing.description} @ ${thing.location} [%d %%]", "light")
+#switchChannel ($thing, "switch", "switch", "switch", "${thing.description} @ ${thing.location} [%s]", "light")
+    #thingEnd($thing)
+#end
+##
+## Switch
+#macro ( S $thing )
+    #thingStart($thing)
+#switchChannel ($thing, "switch", "switch", "switch", "${thing.description} [%s]", "poweroutlet")
+    #thingEnd($thing)
+#end
+##
+## Rollershutter
+#macro ( R $thing )
+    #thingStart($thing)
+#shutterChannel ($thing, "move", "shutter", "shutter", "${thing.description} @ ${thing.location} [%d %%]", "rollershutter")
+#dimmerChannel ($thing, "setPosition", "shutter", "position", "Position ${thing.description} @ ${thing.location} [%d %%]", "rollershutter")
+    #thingEnd($thing)
+#end
+##
+## Heating
+#macro ( H $thing )
+    #thingStart($thing)
+#numberChannel ($thing, "actualTemperature", "actualTemperature", "actualTemperature", "Isttemperatur ${thing.description} @ ${thing.location} [%.1f °C]", "temperature")
+#numberChannel ($thing, "targetTemperature", "targetTemperatureInternal", "targetTemperatureInternal", "Solltemperatur (intern) ${thing.description} @ ${thing.location} [%.1f °C]", "temperature")
+#dummyItem("Number", $thing, "targetTemperature", "Solltemperatur ${thing.description} @ ${thing.location} [%.1f °C]", "temperature") 
+#switchChannel ($thing, "setpointAdjustment", "setpointAdjustment", "setpointAdjustment", "Sollwertverschiebung ${thing.description} @ ${thing.location} [%s]", "temperature")
+#stringChannel ($thing, "operatingMode", "operatingMode", "operatingMode", "Betriebsart ${thing.description} @ ${thing.location} [%s]", "heating")
+    #thingEnd($thing)
+#end
+##
+## Alarm
+#macro ( A $thing )
+    #thingStart($thing)
+#contactChannel ($thing, "alarm", "alarm", "alarm", "${thing.description} [%s]", "siren")
+        #foreach ($item in $thing.items)
+            #if ($tools.containsPrefix($OpenClosedType, $item.type))
+            #contactChannel ( $thing, $item.key, $item.key, $item.key, "${item.name} [%s]", "siren" )
+            #elseif ($tools.containsPrefix($OnOffType, $item.type))
+            #switchChannel ( $thing, $item.key, $item.key, $item.key, "${item.name} [%s]", "siren" )
+            #elseif ($tools.containsPrefix($DecimalType, $item.type))
+            #numberChannel ( $thing, $item.key, $item.key, $item.key, "${item.name} [%s]", "siren" )
+            #else
+            #stringChannel( $thing, $item.key, $item.key, $item.key, "${item.name} [%s]", "siren" )
+            #end
+        #end
+    #thingEnd($thing)
+#end
+##      

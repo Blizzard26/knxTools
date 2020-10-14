@@ -1,0 +1,48 @@
+////////////////////////////////////////////////////////////////////////////////////////////////
+// This items-File has been automatically created. Any changes might be overridden
+////////////////////////////////////////////////////////////////////////////////////////////////
+#*
+===========================
+General Macros
+===========================
+*#
+#parse ('globals.vm')
+#macro ( groups $item )#if ( $item.context.groups )( $item.context.groups )#end#end
+##
+## General-Item Macro
+#macro ( item $type $itemKey $text $icon)
+#padRight("$type", "15") #padRight("$itemKey", "30") #padRight("""$text""", "80") #padRight("#if ($icon) <$icon> #end", "20")
+#end
+##
+## General-Channel Marco
+#macro ( channel $thing $knxItem $channelKey $itemKey $type $text $icon)
+#if ( $thing.items[$knxItem] )
+#padRight("$type", "15") #padRight("#itemname(${thing}, $itemKey)", "30") #padRight("""$text""", "80") #padRight("#if ($icon) <$icon> #end", "20") #padRight("#groups($thing.items[$knxItem])", 50) { channel="knx:device:bridge:#escape(${thing.key}):$channelKey" }
+#end 
+#end
+##
+#macro ( thingStart $thing )
+// $thing.description
+#end
+##
+#macro ( thingEnd $thing )
+#end
+##
+#parse ('itemdefinitions.vm')      
+#* 
+===========================
+Main Loop
+===========================
+*#
+#set ($lastLocation = '')
+##
+#foreach ($thing in $collection.sort($things, ["location", "key"]))
+#if ( $lastLocation != $thing.location )
+// $thing.location
+#set ($lastLocation = "$thing.location")
+#end
+##
+#evaluate( "#$thing.descriptor.key ( \$thing )" )
+
+#end
+##
