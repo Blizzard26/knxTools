@@ -224,4 +224,4 @@ The created zip/tar can be found in build/distributions
 * Provide more extensive example project
 
 # License
-[KNX Tools](https://github.com/Blizzard26/knxTools) by [Andreas Lanz](https://github.com/Blizzard26) is licensed under [CC BY-SA 4.0 CC](https://creativecommons.org/licenses/by-sa/4.0/) ![CC Icon](https://mirrors.creativecommons.org/presskit/icons/cc.svg) ![BY Icon](https://mirrors.creativecommons.org/presskit/icons/by.svg) ![SA Icon](https://mirrors.creativecommons.org/presskit/icons/sa.svg)
+[KNX Tools](https://github.com/Blizzard26/knxTools) by [Andreas Lanz](https://github.com/Blizzard26) is licensed under [CC BY 4.0 CC](https://creativecommons.org/licenses/by/4.0/) ![CC Icon](https://mirrors.creativecommons.org/presskit/icons/cc.svg) ![BY Icon](https://mirrors.creativecommons.org/presskit/icons/by.svg)
