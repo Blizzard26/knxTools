@@ -52,9 +52,11 @@ eclipse {
 dependencies {
 	// JAXB Plugin
 	jaxb 'org.glassfish.jaxb:jaxb-runtime:2.3.3'
+    jaxb group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
     jaxb 'com.sun.xml.bind:jaxb-jxc:2.3.3'
     jaxb 'com.sun.xml.bind:jaxb-xjc:2.3.3'
     jaxb 'com.sun.xml.bind:jaxb-core:2.3.0'
+    jaxb group: 'javax.activation', name: 'activation', version: '1.1.1'
 
 	// ETS Loader	
 	implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.+'    
@@ -79,6 +81,13 @@ dependencies {
     testImplementation group: 'org.mockito', name: 'mockito-core', version: '3.+'
     testImplementation group: 'org.hamcrest', name: 'hamcrest', version: '2.+'    
     testImplementation group: 'org.hamcrest', name: 'java-hamcrest', version: '2.+'    
+}
+
+test {
+	useJUnitPlatform()
+	testLogging {
+		events "passed", "skipped", "failed"
+	}
 }
 
 eclipseJdt.doLast {

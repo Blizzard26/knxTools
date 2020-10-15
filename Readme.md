@@ -123,7 +123,7 @@ The following inputs are provided to the template:
 * `type`: Group Address Value Type from the KNX Project as String (e.g., "1.001", "1.009", "5.001", etc.)
 * `readable`: Indicates whether or not the associated group address may be read (i.e., KNX Read-Flag is set on one of the Com-Objects associated with the group address)
 * `writeable`: Indicates whether or not the associated group address may be written (i.e., KNX Write-Flag is set on one of the Com-Objects associated with the group address)
-* `context`: Map from String to String read from the comments section of the Function in the KNX Project (see [Advanced Options](#advanced-options)] for details)
+* `context`: Map from String to String read from the comments section of the Function in the KNX Project (see [Advanced Options](#advanced-options) for details)
 
 `KNXThingDescriptor`s have the following properties:
 * TODO
@@ -171,7 +171,7 @@ TODO
 `Unable to identify item type for '{}' on thing '{}'`
 
 ### Know limitations / Issues
-* See [Know Limitations / Issues of KNX Project Parser](#know-limitations-issues-1)
+* See [Know Limitations / Issues of KNX Project Parser](#know-limitations--issues-1)
 
 ## KNX Project Parser
 Loads a KNX .knxproj File as Java Objects Tree.
