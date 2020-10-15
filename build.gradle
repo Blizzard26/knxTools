@@ -50,14 +50,16 @@ eclipse {
 }
 
 dependencies {
-	// JAXB Plugin
-	jaxb 'org.glassfish.jaxb:jaxb-runtime:2.3.3'
+    // JAXB Plugin
+    jaxb 'org.glassfish.jaxb:jaxb-runtime:2.3.3'
+    jaxb group: 'javax.xml.bind', name: 'jaxb-api', version: '2.3.1'
     jaxb 'com.sun.xml.bind:jaxb-jxc:2.3.3'
     jaxb 'com.sun.xml.bind:jaxb-xjc:2.3.3'
     jaxb 'com.sun.xml.bind:jaxb-core:2.3.0'
+    jaxb group: 'javax.activation', name: 'activation', version: '1.1.1'
 
-	// ETS Loader	
-	implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.+'    
+    // ETS Loader	
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.+'    
     implementation 'cglib:cglib:3.3.+'
     implementation 'net.lingala.zip4j:zip4j:2.+'
     
