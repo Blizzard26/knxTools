@@ -125,12 +125,6 @@ The following inputs are provided to the template:
 * `writeable`: Indicates whether or not the associated group address may be written (i.e., KNX Write-Flag is set on one of the Com-Objects associated with the group address)
 * `context`: Map from String to String read from the comments section of the Function in the KNX Project (see [Advanced Options](#advanced-options) for details)
 
-`KNXThingDescriptor`s have the following properties:
-* TODO
-
-`KNXItemDescriptor`s have the following properties:
-* TODO
-
 #### Step 5. Run
 Run 
 
@@ -150,25 +144,68 @@ TODO
 ### Advanced Options
 
 #### Context on KNXItems and KNXThings
-TODO
+Context are special comments in ETS that are available to the templates.
+
+To create a context add comment to a ETS function or GA that looks like this:
+
+```
+#OPENHAB
+key=value
+#END
+```
+
+Anything between `#OPENHAB` and `#END` is part of the context. The lines inside the context need to be key / value pairs separated by `=`. They are available as `Map<String, String> context` on `KNXThing`s and `KNXItem`s in the velocity template. 
+
+For example, a context
+
+``` 
+#OPENHAB
+groups = group1, group2
+#END
+```
+
+can be used like this in Velocity:
+
+```
+#if ( $item.context.groups )( $item.context.groups )#en
+```
+
+or alternatively
+
+```
+#if ( $item.context["groups"] )( $item.context.["groups"] )#end
+```
+
+For an example on how to use it see Velocity macro `groups` in [examples\items.vm](examples\items.vm).
 
 #### Advanced Templating Stuff
-TODO
+The `$templates` variable available the Velocity Templates can be used for dynamic loading of additional templates.
+For example the following can be used to dynamically construct a sitemap based on multiple partial sitemap-Templates:
+
+```
+#foreach ($template in $collection.sort($templates))
+#if ($template.endsWith('.sitemap.vm'))
+
+#parse($template)
+
+#end
+#end
+```
 
 ### Common Error Messages / Warnings
-TODO
+* `Group address '{}' ({}) is not assigned to any function` <br/>
+The given group address is not assigned to any function and thus cannot be used by the templates. You can ignore this message if you do not want to use the the group address. Otherwise assign the group address to a function in ETS.
+* `Function '{}' @ '{}' has no number assigned` <br/>
+The given function has no set and thus cannot be processed. If you do not want to use the function, you can ignore this message. Otherwise set the number field on the function in ETS.
+* `Unsupported function type: {}` <br/>
+There are no mapping defined for this function-type in `things.json`. Check your function-type in ETS or the `things.json` file.
+* `Unkown Thing type {} (function type {}) for function {}` <br/>
+The `TYPEKEY` prefix Function-Type combination of the function is not defined by the `things.json` file. Check your function number, function-type or the mapping file.
+* `Group Address '{}' has no key` <br/>
+The given group address has no key. Check the group address in ETS.
+* `Unable to identify item type for '{}' on thing '{}'` <br/>
+The given group address has known suffix for the thing type of the respective function. Check the group address or the mapping-file.
 
-`Group address '{}' ({}) is not assigned to any function`
-
-`Function '{}' @ '{}' has no number assigned`
-
-`Unsupported function type: {}`
-
-`Unkown Thing type {} (function type {}) for function {}`
-
-`Group Address '{}' has no key`
-
-`Unable to identify item type for '{}' on thing '{}'`
 
 ### Know limitations / Issues
 * See [Know Limitations / Issues of KNX Project Parser](#know-limitations--issues-1)
