@@ -140,7 +140,7 @@ public class Main
 
         File thingsConfigFile = new File(configuration.configFile);
 
-        ThingExtractor thingExtractor = new ThingExtractor(knx, knxInstallation, thingsConfigFile);
+        ThingExtractor thingExtractor = new ThingExtractor(knxInstallation, thingsConfigFile);
         List<KNXThing> things = thingExtractor.getThings();
 
         for (Entry<String, File> e : params.getTemplates().entrySet())

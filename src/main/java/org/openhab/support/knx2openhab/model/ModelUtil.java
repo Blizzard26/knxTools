@@ -1,13 +1,9 @@
 package org.openhab.support.knx2openhab.model;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -16,13 +12,8 @@ import org.knx.xml.BaseClass;
 import org.knx.xml.KnxDatapointTypeT;
 import org.knx.xml.KnxDatapointTypeT.KnxDatapointSubtypes.KnxDatapointSubtype;
 import org.knx.xml.KnxGroupAddressT;
-import org.openhab.support.knx2openhab.ThingExtractorException;
-import org.openhab.support.knx2openhab.Tupel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ModelUtil
 {
@@ -31,30 +22,6 @@ public class ModelUtil
 
     private static final String CONTEXT_START = "#OPENHAB";
     private static final String CONTEXT_END = "#END";
-
-    public static Map<String, Map<String, KNXThingDescriptor>> loadThingsConfig(final File thingsConfig)
-    {
-        Map<String, Map<String, KNXThingDescriptor>> thingDescriptorsMap = new HashMap<>();
-        ObjectMapper mapper = new ObjectMapper();
-
-        try
-        {
-            TypeReference<Collection<KNXThingDescriptor>> typeRef = new TypeReference<Collection<KNXThingDescriptor>>()
-            {
-                // no use
-            };
-            Collection<KNXThingDescriptor> thingTypes = mapper.readValue(thingsConfig, typeRef);
-
-            thingTypes.forEach(thingDescriptor -> Arrays.stream(thingDescriptor.getFunctionTypes())
-                    .forEach(functionType -> thingDescriptorsMap.computeIfAbsent(functionType, s -> new HashMap<>())
-                            .put(thingDescriptor.getKey(), thingDescriptor)));
-        }
-        catch (IOException e)
-        {
-            throw new ThingExtractorException(e);
-        }
-        return thingDescriptorsMap;
-    }
 
     public static Map<String, String> getContextFromComment(final String comment)
     {
@@ -94,20 +61,27 @@ public class ModelUtil
 
     private static Map<String, String> parseContext(final String contextString)
     {
-        BufferedReader reader = new BufferedReader(new StringReader(contextString));
-        return reader.lines().filter(l -> !StringUtils.isBlank(l)).map(l -> {
-            Tupel<String, String> result;
-            int index = l.indexOf("=");
-            if (index < 0)
-            {
-                result = new Tupel<>(l.trim(), null);
-            }
-            else
-            {
-                result = new Tupel<>(l.substring(0, index).trim(), l.substring(index + 1).trim());
-            }
-            return result;
-        }).collect(Collectors.toMap(Tupel::getFirst, Tupel::getSecond));
+        try (BufferedReader reader = new BufferedReader(new StringReader(contextString)))
+        {
+            return reader.lines().filter(l -> !StringUtils.isBlank(l)).map(l -> {
+                String[] result = new String[2];
+                int index = l.indexOf("=");
+                if (index < 0)
+                {
+                    result[0] = l.trim();
+                }
+                else
+                {
+                    result[0] = l.substring(0, index).trim();
+                    result[1] = l.substring(index + 1).trim();
+                }
+                return result;
+            }).collect(Collectors.toMap(r -> r[0], r -> r[1]));
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
     public static String getAddressAsString(final KnxGroupAddressT groupAddress)

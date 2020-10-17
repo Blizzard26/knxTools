@@ -3,7 +3,9 @@ package org.openhab.support.knx2openhab;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +17,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.knx.xml.BaseClass;
-import org.knx.xml.KNX;
 import org.knx.xml.KnxComObjectInstanceRefT;
 import org.knx.xml.KnxFunctionT;
 import org.knx.xml.KnxGroupAddressRefT;
@@ -30,6 +31,9 @@ import org.openhab.support.knx2openhab.model.ModelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class ThingExtractor
 {
 
@@ -41,11 +45,35 @@ public class ThingExtractor
     private final KnxInstallation knxInstallation;
     private Map<String, Map<String, KNXThingDescriptor>> thingDescriptors = new HashMap<>();
 
-    public ThingExtractor(final KNX knx, final KnxInstallation knxInstallation, final File thingsConfigFile)
+    public ThingExtractor(final KnxInstallation knxInstallation, final File thingsConfigFile)
     {
         this.knxInstallation = knxInstallation;
 
-        this.thingDescriptors = ModelUtil.loadThingsConfig(thingsConfigFile);
+        this.thingDescriptors = loadThingsConfig(thingsConfigFile);
+    }
+
+    public Map<String, Map<String, KNXThingDescriptor>> loadThingsConfig(final File thingsConfig)
+    {
+        Map<String, Map<String, KNXThingDescriptor>> thingDescriptorsMap = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
+
+        try
+        {
+            TypeReference<Collection<KNXThingDescriptor>> typeRef = new TypeReference<Collection<KNXThingDescriptor>>()
+            {
+                // no use
+            };
+            Collection<KNXThingDescriptor> thingTypes = mapper.readValue(thingsConfig, typeRef);
+
+            thingTypes.forEach(thingDescriptor -> Arrays.stream(thingDescriptor.getFunctionTypes())
+                    .forEach(functionType -> thingDescriptorsMap.computeIfAbsent(functionType, s -> new HashMap<>())
+                            .put(thingDescriptor.getKey(), thingDescriptor)));
+        }
+        catch (IOException e)
+        {
+            throw new ThingExtractorException(e);
+        }
+        return thingDescriptorsMap;
     }
 
     public List<KNXThing> getThings()
